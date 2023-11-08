@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+set -eu
+
+CI="${CI:-false}"
+
+if [ "$CI" != "true" ]; then
+  pnpm husky install
+fi

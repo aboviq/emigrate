@@ -1,0 +1,40 @@
+{
+  "name": "emigrate",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "emigrate": "dist/cli.js"
+  },
+  "scripts": {
+    "lint": "xo",
+    "build": "tsc --pretty",
+    "build:watch": "tsc --pretty --watch"
+  },
+  "keywords": [
+    "migrate",
+    "migrations",
+    "database",
+    "emigrate",
+    "immigration"
+  ],
+  "devDependencies": {
+    "@emigrate/tsconfig": "workspace:*"
+  },
+  "author": {
+    "name": "Aboviq AB",
+    "email": "dev@aboviq.com",
+    "url": "https://www.aboviq.com"
+  },
+  "contributors": [
+    {
+      "name": "Joakim Carlstein",
+      "email": "joakim@aboviq.com"
+    }
+  ],
+  "license": "MIT"
+}

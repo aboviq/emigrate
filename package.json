@@ -1,0 +1,68 @@
+{
+  "name": "@emigrate/root",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A monorepo for Emigrate the modern, modular, and flexible migration tool",
+  "type": "module",
+  "scripts": {
+    "prepare": "bin/prepare",
+    "build": "turbo run build",
+    "build:watch": "turbo run build:watch",
+    "checks": "turbo run checks",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,js}\"",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "lint-staged": "lint-staged",
+    "pre-commit": "run-s build lint-staged",
+    "commit-msg": "commitlint --edit",
+    "pre-push": "turbo run checks"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Aboviq AB",
+    "email": "dev@aboviq.com",
+    "url": "https://www.aboviq.com"
+  },
+  "contributors": [
+    {
+      "name": "Joakim Carlstein",
+      "email": "joakim@aboviq.com"
+    }
+  ],
+  "license": "MIT",
+  "volta": {
+    "node": "20.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,html}": [
+      "xo --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "xo": {
+    "space": true,
+    "prettier": true
+  },
+  "dependencies": {
+    "@changesets/cli": "2.26.2",
+    "@commitlint/cli": "18.2.0",
+    "@commitlint/config-conventional": "18.1.0",
+    "@manypkg/cli": "0.21.0",
+    "@types/node": "20.9.0",
+    "husky": "8.0.3",
+    "lint-staged": "15.0.2",
+    "npm-run-all": "4.1.5",
+    "prettier": "3.0.3",
+    "turbo": "1.10.16",
+    "typescript": "5.2.2",
+    "vitest": "0.34.6",
+    "xo": "0.56.0"
+  }
+}
