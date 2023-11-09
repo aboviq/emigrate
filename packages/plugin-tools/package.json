@@ -1,0 +1,36 @@
+{
+  "name": "@emigrate/plugin-tools",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --pretty",
+    "build:watch": "tsc --pretty --watch"
+  },
+  "keywords": [
+    "emigrate",
+    "plugin",
+    "migrations",
+    "types"
+  ],
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "@emigrate/tsconfig": "workspace:*"
+  }
+}
