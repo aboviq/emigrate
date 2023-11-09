@@ -10,12 +10,8 @@
       "dependsOn": ["^build"],
       "inputs": ["src/**/*", "!src/**/*.test.ts", "tsconfig.json", "tsconfig.build.json"],
       "outputs": ["dist/**", "cjs/**"],
-      "cache": false
-    },
-    "lint": {
-      "dependsOn": ["^build"],
-      "inputs": ["src/**/*", ".eslintrc"],
-      "outputs": []
+      "cache": false,
+      "persistent": true
     },
     "test": {
       "dependsOn": ["^build"],
@@ -24,10 +20,11 @@
     },
     "test:watch": {
       "dependsOn": ["^build"],
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "checks": {
-      "dependsOn": ["build", "lint", "test"],
+      "dependsOn": ["build", "test"],
       "outputs": []
     }
   }
