@@ -7,5 +7,7 @@
   "files": [
     "base.json",
     "build.json"
-  ]
+  ],
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "license": "MIT"
 }
