@@ -25,16 +25,10 @@
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*"
   },
-  "author": {
-    "name": "Aboviq AB",
-    "email": "dev@aboviq.com",
-    "url": "https://www.aboviq.com"
-  },
-  "contributors": [
-    {
-      "name": "Joakim Carlstein",
-      "email": "joakim@aboviq.com"
-    }
-  ],
-  "license": "MIT"
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "license": "MIT",
+  "dependencies": {
+    "@emigrate/plugin-tools": "workspace:*",
+    "import-from-esm": "1.1.3"
+  }
 }
