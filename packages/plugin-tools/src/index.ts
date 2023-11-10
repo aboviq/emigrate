@@ -53,4 +53,9 @@ export const getTimestampPrefix = () => new Date().toISOString().replaceAll(/[-:
  * @param name A migration name to sanitize
  * @returns A sanitized migration name that can be used as a filename
  */
-export const sanitizeMigrationName = (name: string) => name.replaceAll(/[\W/\\:|*?'"<>]/g, '_').trim();
+export const sanitizeMigrationName = (name: string) =>
+  name
+    .replaceAll(/[\W/\\:|*?'"<>]+/g, '_')
+    .trim()
+    .replace(/_$/, '')
+    .toLocaleLowerCase();
