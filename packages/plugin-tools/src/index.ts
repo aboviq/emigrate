@@ -109,7 +109,7 @@ export const getTimestampPrefix = () => new Date().toISOString().replaceAll(/[-:
  */
 export const sanitizeMigrationName = (name: string) =>
   name
-    .replaceAll(/[\W/\\:|*?'"<>]+/g, '_')
+    .replaceAll(/[\W/\\:|*?'"<>_]+/g, '_')
     .trim()
-    .replace(/_$/, '')
+    .replace(/^_|_$/, '')
     .toLocaleLowerCase();
