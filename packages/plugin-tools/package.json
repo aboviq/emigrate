@@ -32,5 +32,8 @@
   "license": "MIT",
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "import-from-esm": "1.2.1"
   }
 }

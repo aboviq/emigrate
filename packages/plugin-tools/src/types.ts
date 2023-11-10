@@ -86,3 +86,7 @@ export type GeneratorPlugin = {
 };
 
 export type Plugin = StoragePlugin | GeneratorPlugin;
+
+export type PluginType = Plugin['type'];
+
+export type PluginFromType<T extends PluginType> = Extract<Plugin, { type: T }>;

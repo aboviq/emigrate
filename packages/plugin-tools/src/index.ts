@@ -1,4 +1,5 @@
-import { type GeneratorPlugin, type StoragePlugin } from './types.js';
+import process from 'node:process';
+import { type PluginFromType, type PluginType, type GeneratorPlugin, type StoragePlugin } from './types.js';
 
 export const createStoragePlugin = (initialize: StoragePlugin['initialize']): StoragePlugin => {
   return {
@@ -36,6 +37,59 @@ export const isStoragePlugin = (plugin: any): plugin is StoragePlugin => {
   }
 
   return false;
+};
+
+export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plugin is PluginFromType<T> => {
+  if (type === 'generator') {
+    return isGeneratorPlugin(plugin);
+  }
+
+  if (type === 'storage') {
+    return isStoragePlugin(plugin);
+  }
+
+  throw new Error(`Unknown plugin type: ${type}`);
+};
+
+export const loadPlugin = async <T extends PluginType>(
+  type: T,
+  plugin: string,
+): Promise<PluginFromType<T> | undefined> => {
+  let importFromEsm = await import('import-from-esm');
+
+  // Because of "allowSyntheticDefaultImports" we need to do this ugly hack
+  if ((importFromEsm as any).default) {
+    importFromEsm = (importFromEsm as any).default as unknown as typeof importFromEsm;
+  }
+
+  const importsToTry = plugin.startsWith('.')
+    ? [plugin]
+    : [plugin, `@emigrate/plugin-${plugin}`, `emigrate-plugin-${plugin}`];
+
+  for await (const importPath of importsToTry) {
+    try {
+      const pluginModule: unknown = await importFromEsm(process.cwd(), importPath);
+
+      // Support module.exports = ...
+      if (isPluginOfType(type, pluginModule)) {
+        return pluginModule;
+      }
+
+      // Support export default ...
+      if (
+        pluginModule &&
+        typeof pluginModule === 'object' &&
+        'default' in pluginModule &&
+        isPluginOfType(type, pluginModule.default)
+      ) {
+        return pluginModule.default;
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  return undefined;
 };
 
 /**

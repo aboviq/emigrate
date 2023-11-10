@@ -1,7 +1,7 @@
 import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, sanitizeMigrationName, isGeneratorPlugin } from '@emigrate/plugin-tools';
+import { getTimestampPrefix, sanitizeMigrationName, loadPlugin } from '@emigrate/plugin-tools';
 import { type GeneratorPlugin } from '@emigrate/plugin-tools/types';
 import { ShowUsageError } from './show-usage-error.js';
 
@@ -45,27 +45,10 @@ export default async function newCommand({ directory, template, plugins, name }:
     let generatorPlugin: GeneratorPlugin | undefined;
 
     for await (const plugin of plugins) {
-      const pluginPath = plugin.startsWith('.') ? path.resolve(process.cwd(), plugin) : plugin;
+      generatorPlugin = await loadPlugin('generator', plugin);
 
-      try {
-        const pluginModule: unknown = await import(pluginPath);
-
-        if (isGeneratorPlugin(pluginModule)) {
-          generatorPlugin = pluginModule;
-          break;
-        }
-
-        if (
-          pluginModule &&
-          typeof pluginModule === 'object' &&
-          'default' in pluginModule &&
-          isGeneratorPlugin(pluginModule.default)
-        ) {
-          generatorPlugin = pluginModule.default;
-          break;
-        }
-      } catch (error) {
-        throw new Error(`Failed to load plugin: ${plugin}`, { cause: error });
+      if (generatorPlugin) {
+        break;
       }
     }
 

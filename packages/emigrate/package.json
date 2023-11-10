@@ -28,7 +28,6 @@
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
   "license": "MIT",
   "dependencies": {
-    "@emigrate/plugin-tools": "workspace:*",
-    "import-from-esm": "1.1.3"
+    "@emigrate/plugin-tools": "workspace:*"
   }
 }
