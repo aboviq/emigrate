@@ -9,5 +9,8 @@
     "build.json"
   ],
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
-  "license": "MIT"
+  "license": "MIT",
+  "volta": {
+    "extends": "../../package.json"
+  }
 }

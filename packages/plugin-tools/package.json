@@ -35,5 +35,8 @@
   },
   "dependencies": {
     "import-from-esm": "1.2.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

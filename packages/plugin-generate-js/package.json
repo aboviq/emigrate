@@ -32,5 +32,8 @@
   },
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }
