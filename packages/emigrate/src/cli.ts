@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import process from 'node:process';
 import { parseArgs } from 'node:util';
-import { isGeneratorPlugin } from '@emigrate/plugin-tools';
-import { type GeneratorPlugin } from '@emigrate/plugin-tools/types';
+import { ShowUsageError } from './show-usage-error.js';
 
 type Action = (args: string[]) => Promise<void>;
 
@@ -65,9 +64,13 @@ const newMigration: Action = async (args) => {
         type: 'boolean',
         short: 'h',
       },
-      dir: {
+      directory: {
         type: 'string',
         short: 'd',
+      },
+      template: {
+        type: 'string',
+        short: 't',
       },
       plugin: {
         type: 'string',
@@ -79,116 +82,46 @@ const newMigration: Action = async (args) => {
     allowPositionals: true,
   });
 
-  const hasPositionals = positionals.join('').trim() !== '';
-  const showHelp = !values.dir || !hasPositionals || values.help;
+  const usage = `Usage: emigrate new [options] <name>
 
-  if (!values.dir) {
-    console.error('Missing required option: --dir\n');
-  }
-
-  if (!hasPositionals) {
-    console.error('Missing required migration name: <name>\n');
-  }
-
-  if (showHelp) {
-    console.log(`Usage: emigrate new [options] <name>
-
-Run all pending migrations
+Create a new migration file with the given name in the specified directory
 
 Options:
 
-  -h, --help    Show this help message and exit
-  -d, --dir     The directory where the migration files are located (required)
-  -p, --plugin  The plugin(s) to use (can be specified multiple times)
+  -h, --help       Show this help message and exit
+  -d, --directory  The directory where the migration files are located (required)
+  -p, --plugin     The plugin(s) to use (can be specified multiple times)
+  -t, --template   A template file to use as contents for the new migration file
+
+  Either the --template or the --plugin option is required must be specified
 
 Examples:
 
-  emigrate new --dir src/migrations create users table
-  emigrate new --dir ./migrations --plugin @emigrate/plugin-generate-sql create_users_table
-`);
+  emigrate new -d src/migrations -t migration-template.js create users table
+  emigrate new --directory ./migrations --plugin @emigrate/plugin-generate-sql create_users_table
+`;
+
+  if (values.help) {
+    console.log(usage);
     process.exitCode = 1;
     return;
   }
 
-  const { plugin: plugins = [] } = values;
+  const { plugin: plugins = [], directory, template } = values;
+  const name = positionals.join(' ').trim();
 
-  if (plugins.length > 0) {
-    let generatorPlugin: GeneratorPlugin | undefined;
-
-    const path = await import('node:path');
-
-    for await (const plugin of plugins) {
-      const pluginPath = plugin.startsWith('.') ? path.resolve(process.cwd(), plugin) : plugin;
-
-      try {
-        const pluginModule: unknown = await import(pluginPath);
-
-        if (isGeneratorPlugin(pluginModule)) {
-          generatorPlugin = pluginModule;
-          break;
-        }
-
-        if (
-          pluginModule &&
-          typeof pluginModule === 'object' &&
-          'default' in pluginModule &&
-          isGeneratorPlugin(pluginModule.default)
-        ) {
-          generatorPlugin = pluginModule.default;
-          break;
-        }
-      } catch (error) {
-        console.error(`Failed to load plugin: ${plugin}`);
-
-        if (error instanceof Error) {
-          console.error(error.message);
-        }
-
-        process.exitCode = 1;
-        return;
-      }
-    }
-
-    if (!generatorPlugin) {
-      console.error('No generator plugin found, please specify a generator plugin using the --plugin option\n');
+  try {
+    const { default: newCommand } = await import('./new-command.js');
+    await newCommand({ directory, template, plugins, name });
+  } catch (error) {
+    if (error instanceof ShowUsageError) {
+      console.error(error.message, '\n');
+      console.log(usage);
       process.exitCode = 1;
       return;
     }
 
-    const fs = await import('node:fs/promises');
-
-    const { filename, content } = await generatorPlugin.generate(positionals.join(' '));
-
-    const directory = path.resolve(process.cwd(), values.dir!);
-
-    try {
-      await fs.mkdir(directory, { recursive: true });
-    } catch (error) {
-      console.error(`Failed to create migration directory: ${directory}`);
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
-
-      process.exitCode = 1;
-      return;
-    }
-
-    const file = path.resolve(directory, filename);
-
-    try {
-      await fs.writeFile(file, content);
-
-      console.log(`Created migration file: ${path.relative(process.cwd(), file)}`);
-    } catch (error) {
-      console.error(`Failed to write migration file: ${file}`);
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
-
-      process.exitCode = 1;
-    }
+    throw error;
   }
 };
 
@@ -243,6 +176,14 @@ Commands:
 try {
   await action(process.argv.slice(3));
 } catch (error) {
-  console.error(error instanceof Error ? error.message : error);
+  if (error instanceof Error) {
+    console.error(error.message);
+    if (error.cause instanceof Error) {
+      console.error(error.cause.message);
+    }
+  } else {
+    console.error(error);
+  }
+
   process.exit(1);
 }
