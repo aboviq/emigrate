@@ -2,6 +2,7 @@
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 import { ShowUsageError } from './show-usage-error.js';
+import { getConfig } from './get-config.js';
 
 type Action = (args: string[]) => Promise<void>;
 
@@ -57,6 +58,7 @@ Examples:
 };
 
 const newMigration: Action = async (args) => {
+  const config = await getConfig('new');
   const { values, positionals } = parseArgs({
     args,
     options: {
@@ -71,6 +73,10 @@ const newMigration: Action = async (args) => {
       template: {
         type: 'string',
         short: 't',
+      },
+      extension: {
+        type: 'string',
+        short: 'e',
       },
       plugin: {
         type: 'string',
@@ -92,13 +98,18 @@ Options:
   -d, --directory  The directory where the migration files are located (required)
   -p, --plugin     The plugin(s) to use (can be specified multiple times)
   -t, --template   A template file to use as contents for the new migration file
+                   (if the extension option is not provided the template file's extension will be used)
+  -e, --extension  The extension to use for the new migration file
+                   (if no template or plugin is provided an empty migration file will be created with the given extension)
 
-  Either the --template or the --plugin option is required must be specified
+  One of the --template, --extension or the --plugin options must be specified
 
 Examples:
 
   emigrate new -d src/migrations -t migration-template.js create users table
   emigrate new --directory ./migrations --plugin @emigrate/plugin-generate-sql create_users_table
+  emigrate new -d ./migrations -e .sql create_users_table
+  emigrate new -d ./migrations -t .migration-template -e .sql "drop some table"
 `;
 
   if (values.help) {
@@ -107,12 +118,13 @@ Examples:
     return;
   }
 
-  const { plugin: plugins = [], directory, template } = values;
+  const { directory = config.directory, template = config.template, extension = config.extension } = values;
+  const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
   const name = positionals.join(' ').trim();
 
   try {
     const { default: newCommand } = await import('./new-command.js');
-    await newCommand({ directory, template, plugins, name });
+    await newCommand({ directory, template, plugins, name, extension });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');

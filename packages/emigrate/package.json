@@ -8,6 +8,12 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "bin": {
     "emigrate": "dist/cli.js"
   },
@@ -28,7 +34,8 @@
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
   "license": "MIT",
   "dependencies": {
-    "@emigrate/plugin-tools": "workspace:*"
+    "@emigrate/plugin-tools": "workspace:*",
+    "cosmiconfig": "8.3.6"
   },
   "volta": {
     "extends": "../../package.json"

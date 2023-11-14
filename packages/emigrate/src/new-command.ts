@@ -1,18 +1,19 @@
 import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, sanitizeMigrationName, loadPlugin } from '@emigrate/plugin-tools';
-import { type GeneratorPlugin } from '@emigrate/plugin-tools/types';
+import { getTimestampPrefix, sanitizeMigrationName, loadPlugin, isGeneratorPlugin } from '@emigrate/plugin-tools';
+import { type Plugin, type GeneratorPlugin } from '@emigrate/plugin-tools/types';
 import { ShowUsageError } from './show-usage-error.js';
 
 type NewCommandOptions = {
   directory?: string;
   template?: string;
-  plugins: string[];
+  extension?: string;
+  plugins: Array<string | Plugin>;
   name?: string;
 };
 
-export default async function newCommand({ directory, template, plugins, name }: NewCommandOptions) {
+export default async function newCommand({ directory, template, plugins, name, extension }: NewCommandOptions) {
   if (!directory) {
     throw new ShowUsageError('Missing required option: directory');
   }
@@ -21,8 +22,8 @@ export default async function newCommand({ directory, template, plugins, name }:
     throw new ShowUsageError('Missing required migration name');
   }
 
-  if (!template && plugins.length === 0) {
-    throw new ShowUsageError('Missing required option: template or plugin');
+  if (!extension && !template && plugins.length === 0) {
+    throw new ShowUsageError('Missing required option: extension, template or plugin');
   }
 
   let filename: string | undefined;
@@ -31,7 +32,7 @@ export default async function newCommand({ directory, template, plugins, name }:
   if (template) {
     const fs = await import('node:fs/promises');
     const templatePath = path.resolve(process.cwd(), template);
-    const extension = path.extname(templatePath);
+    const fileExtension = path.extname(templatePath);
 
     try {
       content = await fs.readFile(templatePath, 'utf8');
@@ -40,12 +41,17 @@ export default async function newCommand({ directory, template, plugins, name }:
       throw new Error(`Failed to read template file: ${templatePath}`, { cause: error });
     }
 
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${extension}`;
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${extension ?? fileExtension}`;
   } else if (plugins.length > 0) {
     let generatorPlugin: GeneratorPlugin | undefined;
 
     for await (const plugin of plugins) {
-      generatorPlugin = await loadPlugin('generator', plugin);
+      if (isGeneratorPlugin(plugin)) {
+        generatorPlugin = plugin;
+        break;
+      }
+
+      generatorPlugin = typeof plugin === 'string' ? await loadPlugin('generator', plugin) : undefined;
 
       if (generatorPlugin) {
         break;
@@ -60,9 +66,12 @@ export default async function newCommand({ directory, template, plugins, name }:
 
     filename = generated.filename;
     content = generated.content;
+  } else if (extension) {
+    content = '';
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${extension}`;
   }
 
-  if (!filename || !content) {
+  if (!filename || content === undefined) {
     throw new Error('Unexpected error, missing filename or content for migration file');
   }
 

@@ -59,6 +59,9 @@ importers:
       '@emigrate/plugin-tools':
         specifier: workspace:*
         version: link:../plugin-tools
+      cosmiconfig:
+        specifier: 8.3.6
+        version: 8.3.6(typescript@5.2.2)
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*
