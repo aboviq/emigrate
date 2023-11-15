@@ -1,5 +1,11 @@
 import process from 'node:process';
-import { type PluginFromType, type PluginType, type GeneratorPlugin, type StoragePlugin } from './types.js';
+import {
+  type PluginFromType,
+  type PluginType,
+  type GeneratorPlugin,
+  type StoragePlugin,
+  type Plugin,
+} from './types.js';
 
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
   if (!plugin || typeof plugin !== 'object') {
@@ -27,6 +33,47 @@ export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plug
   }
 
   throw new Error(`Unknown plugin type: ${type}`);
+};
+
+export const getOrLoadPlugin = async <T extends PluginType>(
+  type: T,
+  plugins: Array<Plugin | string>,
+): Promise<PluginFromType<T> | undefined> => {
+  for await (const plugin of plugins) {
+    if (isPluginOfType(type, plugin)) {
+      return plugin;
+    }
+
+    const loadedPlugin = typeof plugin === 'string' ? await loadPlugin(type, plugin) : undefined;
+
+    if (loadedPlugin) {
+      return loadedPlugin;
+    }
+  }
+
+  return undefined;
+};
+
+export const getOrLoadPlugins = async <T extends PluginType>(
+  type: T,
+  plugins: Array<Plugin | string>,
+): Promise<Array<PluginFromType<T>>> => {
+  const result: Array<PluginFromType<T>> = [];
+
+  for await (const plugin of plugins) {
+    if (isPluginOfType(type, plugin)) {
+      result.push(plugin);
+      continue;
+    }
+
+    const loadedPlugin = typeof plugin === 'string' ? await loadPlugin(type, plugin) : undefined;
+
+    if (loadedPlugin) {
+      result.push(loadedPlugin);
+    }
+  }
+
+  return result;
 };
 
 export const loadPlugin = async <T extends PluginType>(
