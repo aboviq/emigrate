@@ -32,6 +32,9 @@
     "@emigrate/tsconfig": "workspace:*"
   },
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/emigrate#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/emigrate",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "dependencies": {
     "@emigrate/plugin-tools": "workspace:*",

@@ -31,6 +31,9 @@
     "types"
   ],
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-tools#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-tools",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*"

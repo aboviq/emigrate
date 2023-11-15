@@ -9,6 +9,9 @@
     "build.json"
   ],
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/tsconfig#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/tsconfig",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "volta": {
     "extends": "../../package.json"
