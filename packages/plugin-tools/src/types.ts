@@ -87,12 +87,36 @@ export type GeneratorPlugin = {
 
 export type GenerateMigrationFunction = GeneratorPlugin['generateMigration'];
 
+export type MigrationFunction = () => Promise<void>;
+
+export type MigrationMetadata = {
+  name: string;
+  filename: string;
+  extension: string;
+};
+
+export type LoaderPlugin = {
+  /**
+   * The file extensions that this plugin can load.
+   */
+  loadableExtensions: string[];
+  /**
+   * Used to load a migration file, i.e. transform it into a function that can be executed.
+   *
+   * @param migration Some metadata about the migration file that should be loaded.
+   * @returns A function that will execute the migration.
+   */
+  loadMigration(migration: MigrationMetadata): Promise<MigrationFunction>;
+};
+
 export type Plugin = StoragePlugin | GeneratorPlugin;
 
-export type PluginType = 'storage' | 'generator';
+export type PluginType = 'storage' | 'generator' | 'loader';
 
 export type PluginFromType<T extends PluginType> = T extends 'storage'
   ? StoragePlugin
   : T extends 'generator'
     ? GeneratorPlugin
-    : never;
+    : T extends 'loader'
+      ? LoaderPlugin
+      : never;
