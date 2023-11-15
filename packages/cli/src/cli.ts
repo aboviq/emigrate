@@ -7,6 +7,7 @@ import { getConfig } from './get-config.js';
 type Action = (args: string[]) => Promise<void>;
 
 const up: Action = async (args) => {
+  const config = await getConfig('up');
   const { values } = parseArgs({
     args,
     options: {
@@ -14,9 +15,12 @@ const up: Action = async (args) => {
         type: 'boolean',
         short: 'h',
       },
-      dir: {
+      directory: {
         type: 'string',
         short: 'd',
+      },
+      dry: {
+        type: 'boolean',
       },
       plugin: {
         type: 'string',
@@ -28,33 +32,46 @@ const up: Action = async (args) => {
     allowPositionals: false,
   });
 
-  const showHelp = !values.dir || values.help;
-
-  if (!values.dir) {
-    console.error('Missing required option: --dir\n');
-  }
-
-  if (showHelp) {
-    console.log(`Usage: emigrate up [options]
+  const usage = `Usage: emigrate up [options]
 
 Run all pending migrations
 
 Options:
 
-  -h, --help    Show this help message and exit
-  -d, --dir     The directory where the migration files are located (required)
-  -p, --plugin  The plugin(s) to use (can be specified multiple times)
+  -h, --help       Show this help message and exit
+  -d, --directory  The directory where the migration files are located (required)
+  -p, --plugin     The plugin(s) to use (can be specified multiple times)
+  --dry            List the pending migrations that would be run without actually running them
 
 Examples:
 
-  emigrate up --dir src/migrations
-  emigrate up --dir ./migrations --plugin @emigrate/plugin-storage-mysql
-`);
+  emigrate up --directory src/migrations
+  emigrate up -d ./migrations --plugin @emigrate/plugin-storage-mysql
+  emigrate up -d src/migrations --dry
+`;
+
+  if (values.help) {
+    console.log(usage);
     process.exitCode = 1;
     return;
   }
 
-  console.log(values);
+  const { directory = config.directory, dry } = values;
+  const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
+
+  try {
+    const { default: upCommand } = await import('./up-command.js');
+    await upCommand({ directory, plugins, dry });
+  } catch (error) {
+    if (error instanceof ShowUsageError) {
+      console.error(error.message, '\n');
+      console.log(usage);
+      process.exitCode = 1;
+      return;
+    }
+
+    throw error;
+  }
 };
 
 const newMigration: Action = async (args) => {
