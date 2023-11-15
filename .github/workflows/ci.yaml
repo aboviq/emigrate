@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: ['main', 'changeset-release/main']
   pull_request:
 
 jobs:
