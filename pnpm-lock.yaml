@@ -54,7 +54,7 @@ importers:
         specifier: 0.56.0
         version: 0.56.0(webpack@5.89.0)
 
-  packages/emigrate:
+  packages/cli:
     dependencies:
       '@emigrate/plugin-tools':
         specifier: workspace:*

@@ -1,5 +1,5 @@
 {
-  "name": "emigrate",
+  "name": "@emigrate/cli",
   "version": "0.2.1",
   "publishConfig": {
     "access": "public"
@@ -35,8 +35,8 @@
     "@emigrate/tsconfig": "workspace:*"
   },
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
-  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/emigrate#readme",
-  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/emigrate",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/cli#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/cli",
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "dependencies": {

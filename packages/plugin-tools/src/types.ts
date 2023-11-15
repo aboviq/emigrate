@@ -94,5 +94,5 @@ export type PluginType = 'storage' | 'generator';
 export type PluginFromType<T extends PluginType> = T extends 'storage'
   ? StoragePlugin
   : T extends 'generator'
-  ? GeneratorPlugin
-  : never;
+    ? GeneratorPlugin
+    : never;

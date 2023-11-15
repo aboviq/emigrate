@@ -1,13 +1,13 @@
-# emigrate
+# @emigrate/cli
 
 Emigrate is a tool for managing database migrations. It is designed to be simple yet support advanced setups, modular and extensible.
 
 ## Installation
 
-Install Emigrate in your project:
+Install the Emigrate CLI in your project:
 
 ```bash
-npm install --save-dev emigrate
+npm install --save-dev @emigrate/cli
 ```
 
 ## Usage
