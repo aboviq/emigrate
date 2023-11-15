@@ -9,6 +9,7 @@
     "build": "turbo run build",
     "build:watch": "turbo run build:watch",
     "checks": "run-s lint && turbo run checks",
+    "release": "run-s build && changeset publish",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,js}\"",
     "lint": "run-s build && xo",
     "test": "turbo run test",
