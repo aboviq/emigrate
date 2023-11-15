@@ -1,10 +1,10 @@
 import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, sanitizeMigrationName, loadPlugin, isGeneratorPlugin } from '@emigrate/plugin-tools';
-import { type GeneratorPlugin } from '@emigrate/plugin-tools/types';
+import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin } from '@emigrate/plugin-tools';
 import { ShowUsageError } from './show-usage-error.js';
 import { type Config } from './types.js';
+import { stripLeadingPeriod } from './strip-leading-period.js';
 
 export default async function newCommand({ directory, template, plugins = [], extension }: Config, name: string) {
   if (!directory) {
@@ -34,22 +34,11 @@ export default async function newCommand({ directory, template, plugins = [], ex
       throw new Error(`Failed to read template file: ${templatePath}`, { cause: error });
     }
 
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${extension ?? fileExtension}`;
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(
+      extension ?? fileExtension,
+    )}`;
   } else if (plugins.length > 0) {
-    let generatorPlugin: GeneratorPlugin | undefined;
-
-    for await (const plugin of plugins) {
-      if (isGeneratorPlugin(plugin)) {
-        generatorPlugin = plugin;
-        break;
-      }
-
-      generatorPlugin = typeof plugin === 'string' ? await loadPlugin('generator', plugin) : undefined;
-
-      if (generatorPlugin) {
-        break;
-      }
-    }
+    const generatorPlugin = await getOrLoadPlugin('generator', plugins);
 
     if (!generatorPlugin) {
       throw new Error('No generator plugin found, please specify a generator plugin using the plugin option');
@@ -61,7 +50,7 @@ export default async function newCommand({ directory, template, plugins = [], ex
     content = generated.content;
   } else if (extension) {
     content = '';
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${extension}`;
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(extension)}`;
   }
 
   if (!filename || content === undefined) {
