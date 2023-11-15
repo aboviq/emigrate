@@ -1,30 +1,12 @@
 import process from 'node:process';
 import { type PluginFromType, type PluginType, type GeneratorPlugin, type StoragePlugin } from './types.js';
 
-export const createStoragePlugin = (initialize: StoragePlugin['initialize']): StoragePlugin => {
-  return {
-    type: 'storage',
-    initialize,
-  };
-};
-
-export const createGeneratorPlugin = (generate: GeneratorPlugin['generate']): GeneratorPlugin => {
-  return {
-    type: 'generator',
-    generate,
-  };
-};
-
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
   if (!plugin || typeof plugin !== 'object') {
     return false;
   }
 
-  if (plugin.type === 'generator') {
-    return typeof plugin.generate === 'function';
-  }
-
-  return false;
+  return typeof plugin.generateMigration === 'function';
 };
 
 export const isStoragePlugin = (plugin: any): plugin is StoragePlugin => {
@@ -32,11 +14,7 @@ export const isStoragePlugin = (plugin: any): plugin is StoragePlugin => {
     return false;
   }
 
-  if (plugin.type === 'storage') {
-    return typeof plugin.initialize === 'function';
-  }
-
-  return false;
+  return typeof plugin.initializeStorage === 'function';
 };
 
 export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plugin is PluginFromType<T> => {

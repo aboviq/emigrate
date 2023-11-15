@@ -57,9 +57,10 @@ export type Storage = {
 };
 
 export type StoragePlugin = {
-  type: 'storage';
-  initialize(): Promise<Storage>;
+  initializeStorage(): Promise<Storage>;
 };
+
+export type InitializeStorageFunction = StoragePlugin['initializeStorage'];
 
 export type MigrationFile = {
   /**
@@ -75,18 +76,23 @@ export type MigrationFile = {
 };
 
 export type GeneratorPlugin = {
-  type: 'generator';
   /**
    * Used to generate a new migration file.
    *
    * @param name The name of the migration that should be generated (provided as arguments to the CLI)
    * @returns The generated migration file.
    */
-  generate(name: string): Promise<MigrationFile>;
+  generateMigration(name: string): Promise<MigrationFile>;
 };
+
+export type GenerateMigrationFunction = GeneratorPlugin['generateMigration'];
 
 export type Plugin = StoragePlugin | GeneratorPlugin;
 
-export type PluginType = Plugin['type'];
+export type PluginType = 'storage' | 'generator';
 
-export type PluginFromType<T extends PluginType> = Extract<Plugin, { type: T }>;
+export type PluginFromType<T extends PluginType> = T extends 'storage'
+  ? StoragePlugin
+  : T extends 'generator'
+  ? GeneratorPlugin
+  : never;

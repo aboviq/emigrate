@@ -62,7 +62,7 @@ export default async function newCommand({ directory, template, plugins, name, e
       throw new Error('No generator plugin found, please specify a generator plugin using the plugin option');
     }
 
-    const generated = await generatorPlugin.generate(name);
+    const generated = await generatorPlugin.generateMigration(name);
 
     filename = generated.filename;
     content = generated.content;
