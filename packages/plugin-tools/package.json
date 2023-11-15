@@ -18,6 +18,9 @@
       "types": "./dist/types.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc --pretty",
     "build:watch": "tsc --pretty --watch",

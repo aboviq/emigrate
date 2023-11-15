@@ -17,6 +17,9 @@
   "bin": {
     "emigrate": "dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc --pretty",
     "build:watch": "tsc --pretty --watch"
