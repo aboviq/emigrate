@@ -2,18 +2,11 @@ import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getTimestampPrefix, sanitizeMigrationName, loadPlugin, isGeneratorPlugin } from '@emigrate/plugin-tools';
-import { type Plugin, type GeneratorPlugin } from '@emigrate/plugin-tools/types';
+import { type GeneratorPlugin } from '@emigrate/plugin-tools/types';
 import { ShowUsageError } from './show-usage-error.js';
+import { type Config } from './types.js';
 
-type NewCommandOptions = {
-  directory?: string;
-  template?: string;
-  extension?: string;
-  plugins: Array<string | Plugin>;
-  name?: string;
-};
-
-export default async function newCommand({ directory, template, plugins, name, extension }: NewCommandOptions) {
+export default async function newCommand({ directory, template, plugins = [], extension }: Config, name: string) {
   if (!directory) {
     throw new ShowUsageError('Missing required option: directory');
   }

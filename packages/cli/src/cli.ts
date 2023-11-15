@@ -124,7 +124,7 @@ Examples:
 
   try {
     const { default: newCommand } = await import('./new-command.js');
-    await newCommand({ directory, template, plugins, name, extension });
+    await newCommand({ directory, template, plugins, extension }, name);
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
