@@ -1,5 +1,30 @@
 # emigrate
 
+## 0.3.0
+
+### Minor Changes
+
+- 8dadfe9: Support migration functions using the old NodeJS callback style API, i.e. accepting a callback as a single parameter which in turns takes any error as its first parameter (any other parameters are ignored)
+- a058ebf: Handle file extensions with or without a leading period, i.e. `emigrate new -e .js ...` is now the same as `emigrate new -e js ...`
+- b56794a: Implement the "up" command with support for "storage" and "loader" plugins
+- 0b78d5c: Rename the "emigrate" package to "@emigrate/cli" to mimic other tools
+- 30a448b: Improve error handling by making more granular custom Error instances
+- 3b36b3d: Implement a default "loader" plugin for JavaScript files (supports `.js`, `.cjs` and `.mjs` file extensions)
+- 9f5abf7: Simplify plugin interfaces by getting rid of the "type" string, in preparation for having packages that contains multiple different plugins
+
+### Patch Changes
+
+- 46b9104: Don't run any migrations if there's a failed migration in the migration history
+- 3e0ff07: Specify files to include in published NPM package
+- a1debba: Fix a logical error that didn't allow creating new migration files with only the "extension" option
+- Updated dependencies [1799b6e]
+- Updated dependencies [3e0ff07]
+- Updated dependencies [23a323c]
+- Updated dependencies [62bd5a4]
+- Updated dependencies [81fde2e]
+- Updated dependencies [9f5abf7]
+  - @emigrate/plugin-tools@0.2.0
+
 ## 0.2.1
 
 ### Patch Changes

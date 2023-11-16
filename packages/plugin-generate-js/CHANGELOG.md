@@ -1,5 +1,22 @@
 # @emigrate/plugin-generate-js
 
+## 0.2.0
+
+### Minor Changes
+
+- 9f5abf7: Simplify plugin interfaces by getting rid of the "type" string, in preparation for having packages that contains multiple different plugins
+
+### Patch Changes
+
+- 3e0ff07: Specify files to include in published NPM package
+- Updated dependencies [1799b6e]
+- Updated dependencies [3e0ff07]
+- Updated dependencies [23a323c]
+- Updated dependencies [62bd5a4]
+- Updated dependencies [81fde2e]
+- Updated dependencies [9f5abf7]
+  - @emigrate/plugin-tools@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
