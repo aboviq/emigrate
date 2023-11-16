@@ -4,6 +4,7 @@ import { type LoaderPlugin } from '@emigrate/plugin-tools/types';
 import { ShowUsageError } from './show-usage-error.js';
 import { type Config } from './types.js';
 import { stripLeadingPeriod } from './strip-leading-period.js';
+import pluginLoaderJs from './plugin-loader-js.js';
 
 type ExtraFlags = {
   dry?: boolean;
@@ -40,7 +41,7 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
   }
 
   const migrationFileExtensions = new Set(migrationFiles.map((file) => stripLeadingPeriod(path.extname(file))));
-  const loaderPlugins = await getOrLoadPlugins('loader', plugins);
+  const loaderPlugins = await getOrLoadPlugins('loader', [...plugins, pluginLoaderJs]);
 
   const loaderByExtension = new Map<string, LoaderPlugin | undefined>(
     [...migrationFileExtensions].map(
@@ -91,10 +92,12 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
       console.log(' -', name, '...');
 
       const extension = stripLeadingPeriod(path.extname(name));
-      const filename = path.resolve(process.cwd(), directory, name);
+      const cwd = process.cwd();
+      const filePath = path.resolve(cwd, directory, name);
+      const relativeFilePath = path.relative(cwd, filePath);
       const loader = loaderByExtension.get(extension)!;
 
-      const migration = await loader.loadMigration({ name, filename, extension });
+      const migration = await loader.loadMigration({ name, filePath, relativeFilePath, cwd, directory, extension });
 
       try {
         await migration();
