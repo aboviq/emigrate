@@ -2,21 +2,21 @@ import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin } from '@emigrate/plugin-tools';
-import { ShowUsageError } from './show-usage-error.js';
+import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from './errors.js';
 import { type Config } from './types.js';
 import { stripLeadingPeriod } from './strip-leading-period.js';
 
 export default async function newCommand({ directory, template, plugins = [], extension }: Config, name: string) {
   if (!directory) {
-    throw new ShowUsageError('Missing required option: directory');
+    throw new MissingOptionError('directory');
   }
 
   if (!name) {
-    throw new ShowUsageError('Missing required migration name');
+    throw new MissingArgumentsError('name');
   }
 
   if (!extension && !template && plugins.length === 0) {
-    throw new ShowUsageError('Missing required option: extension, template or plugin');
+    throw new MissingOptionError(['extension', 'template', 'plugin']);
   }
 
   let filename: string | undefined;
@@ -31,7 +31,7 @@ export default async function newCommand({ directory, template, plugins = [], ex
       content = await fs.readFile(templatePath, 'utf8');
       content = content.replaceAll('{{name}}', name);
     } catch (error) {
-      throw new Error(`Failed to read template file: ${templatePath}`, { cause: error });
+      throw new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error });
     }
 
     filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(
@@ -60,7 +60,10 @@ export default async function newCommand({ directory, template, plugins = [], ex
   }
 
   if (!filename || content === undefined) {
-    throw new ShowUsageError('No generator plugin found, please specify a generator plugin using the plugin option');
+    throw new BadOptionError(
+      'plugin',
+      'No generator plugin found, please specify a generator plugin using the plugin option',
+    );
   }
 
   const directoryPath = path.resolve(process.cwd(), directory);
@@ -74,7 +77,7 @@ async function createDirectory(directoryPath: string) {
   try {
     await fs.mkdir(directoryPath, { recursive: true });
   } catch (error) {
-    throw new Error(`Failed to create migration directory: ${directoryPath}`, { cause: error });
+    throw new UnexpectedError(`Failed to create migration directory: ${directoryPath}`, { cause: error });
   }
 }
 
@@ -84,6 +87,6 @@ async function saveFile(filePath: string, content: string) {
 
     console.log(`Created migration file: ${path.relative(process.cwd(), filePath)}`);
   } catch (error) {
-    throw new Error(`Failed to write migration file: ${filePath}`, { cause: error });
+    throw new UnexpectedError(`Failed to write migration file: ${filePath}`, { cause: error });
   }
 }

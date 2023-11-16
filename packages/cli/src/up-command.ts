@@ -1,7 +1,14 @@
 import process from 'node:process';
 import { getOrLoadPlugin, getOrLoadPlugins } from '@emigrate/plugin-tools';
-import { type LoaderPlugin } from '@emigrate/plugin-tools/types';
-import { ShowUsageError } from './show-usage-error.js';
+import { type LoaderPlugin, type MigrationFunction } from '@emigrate/plugin-tools/types';
+import {
+  BadOptionError,
+  EmigrateError,
+  MigrationHistoryError,
+  MigrationLoadError,
+  MigrationRunError,
+  MissingOptionError,
+} from './errors.js';
 import { type Config } from './types.js';
 import { stripLeadingPeriod } from './strip-leading-period.js';
 import pluginLoaderJs from './plugin-loader-js.js';
@@ -12,13 +19,16 @@ type ExtraFlags = {
 
 export default async function upCommand({ directory, dry, plugins = [] }: Config & ExtraFlags) {
   if (!directory) {
-    throw new ShowUsageError('Missing required option: directory');
+    throw new MissingOptionError('directory');
   }
 
   const storagePlugin = await getOrLoadPlugin('storage', plugins);
 
   if (!storagePlugin) {
-    throw new Error('No storage plugin found, please specify a storage plugin using the plugin option');
+    throw new BadOptionError(
+      'plugin',
+      'No storage plugin found, please specify a storage plugin using the plugin option',
+    );
   }
 
   const storage = await storagePlugin.initializeStorage();
@@ -36,7 +46,10 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
 
   for await (const migrationHistoryEntry of storage.getHistory()) {
     if (migrationHistoryEntry.status === 'failed') {
-      throw new Error(`Migration ${migrationHistoryEntry.name} is in a failed state, please fix it first`);
+      throw new MigrationHistoryError(
+        `Migration ${migrationHistoryEntry.name} is in a failed state, please fix it first`,
+        migrationHistoryEntry,
+      );
     }
 
     if (migrationFiles.includes(migrationHistoryEntry.name)) {
@@ -61,7 +74,7 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
 
   for (const [extension, loader] of loaderByExtension) {
     if (!loader) {
-      throw new Error(`No loader plugin found for file extension: ${extension}`);
+      throw new BadOptionError('plugin', `No loader plugin found for file extension: ${extension}`);
     }
   }
 
@@ -100,10 +113,19 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
       const filePath = path.resolve(cwd, directory, name);
       const relativeFilePath = path.relative(cwd, filePath);
       const loader = loaderByExtension.get(extension)!;
+      const metadata = { name, filePath, relativeFilePath, cwd, directory, extension };
 
-      const migration = await loader.loadMigration({ name, filePath, relativeFilePath, cwd, directory, extension });
+      let migration: MigrationFunction;
 
       try {
+        try {
+          migration = await loader.loadMigration(metadata);
+        } catch (error) {
+          throw new MigrationLoadError(`Failed to load migration file: ${relativeFilePath}`, metadata, {
+            cause: error,
+          });
+        }
+
         await migration();
 
         console.log(' -', name, 'done');
@@ -115,12 +137,14 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
         console.error(' -', name, 'failed:', errorInstance.message);
 
         await storage.onError(name, errorInstance);
+
+        if (!(error instanceof EmigrateError)) {
+          throw new MigrationRunError(`Failed to run migration: ${relativeFilePath}`, metadata, { cause: error });
+        }
+
         throw error;
       }
     }
-  } catch (error) {
-    console.error(error);
-    process.exitCode = 1;
   } finally {
     await cleanup();
   }

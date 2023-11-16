@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import process from 'node:process';
 import { parseArgs } from 'node:util';
-import { ShowUsageError } from './show-usage-error.js';
+import { ShowUsageError } from './errors.js';
 import { getConfig } from './get-config.js';
 
 type Action = (args: string[]) => Promise<void>;
@@ -208,7 +208,7 @@ try {
   if (error instanceof Error) {
     console.error(error.message);
     if (error.cause instanceof Error) {
-      console.error(error.cause.message);
+      console.error(error.cause.stack);
     }
   } else {
     console.error(error);
