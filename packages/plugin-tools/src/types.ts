@@ -109,7 +109,7 @@ export type LoaderPlugin = {
   loadMigration(migration: MigrationMetadata): Promise<MigrationFunction>;
 };
 
-export type Plugin = StoragePlugin | GeneratorPlugin;
+export type Plugin = StoragePlugin | GeneratorPlugin | LoaderPlugin;
 
 export type PluginType = 'storage' | 'generator' | 'loader';
 

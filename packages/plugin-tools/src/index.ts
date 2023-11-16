@@ -5,6 +5,7 @@ import {
   type GeneratorPlugin,
   type StoragePlugin,
   type Plugin,
+  type LoaderPlugin,
 } from './types.js';
 
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
@@ -23,6 +24,14 @@ export const isStoragePlugin = (plugin: any): plugin is StoragePlugin => {
   return typeof plugin.initializeStorage === 'function';
 };
 
+export const isLoaderPlugin = (plugin: any): plugin is LoaderPlugin => {
+  if (!plugin || typeof plugin !== 'object') {
+    return false;
+  }
+
+  return typeof plugin.loadMigration === 'function' && Array.isArray(plugin.loadableExtensions);
+};
+
 export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plugin is PluginFromType<T> => {
   if (type === 'generator') {
     return isGeneratorPlugin(plugin);
@@ -30,6 +39,10 @@ export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plug
 
   if (type === 'storage') {
     return isStoragePlugin(plugin);
+  }
+
+  if (type === 'loader') {
+    return isLoaderPlugin(plugin);
   }
 
   throw new Error(`Unknown plugin type: ${type}`);
