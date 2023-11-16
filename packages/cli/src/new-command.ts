@@ -37,24 +37,30 @@ export default async function newCommand({ directory, template, plugins = [], ex
     filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(
       extension ?? fileExtension,
     )}`;
-  } else if (plugins.length > 0) {
+  }
+
+  let hasGeneratedFile = Boolean(filename && content !== undefined);
+
+  if (plugins.length > 0 && !hasGeneratedFile) {
     const generatorPlugin = await getOrLoadPlugin('generator', plugins);
 
-    if (!generatorPlugin) {
-      throw new Error('No generator plugin found, please specify a generator plugin using the plugin option');
+    if (generatorPlugin) {
+      const generated = await generatorPlugin.generateMigration(name);
+
+      filename = generated.filename;
+      content = generated.content;
     }
+  }
 
-    const generated = await generatorPlugin.generateMigration(name);
+  hasGeneratedFile = Boolean(filename && content !== undefined);
 
-    filename = generated.filename;
-    content = generated.content;
-  } else if (extension) {
+  if (extension && !hasGeneratedFile) {
     content = '';
     filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(extension)}`;
   }
 
   if (!filename || content === undefined) {
-    throw new Error('Unexpected error, missing filename or content for migration file');
+    throw new ShowUsageError('No generator plugin found, please specify a generator plugin using the plugin option');
   }
 
   const directoryPath = path.resolve(process.cwd(), directory);
