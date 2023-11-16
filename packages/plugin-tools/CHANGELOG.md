@@ -1,5 +1,19 @@
 # @emigrate/plugin-tools
 
+## 0.2.0
+
+### Minor Changes
+
+- 23a323c: Add the convenience functions `getOrLoadPlugin` and `getOrLoadPlugins`
+- 62bd5a4: Add more properties to the MigrationMetadata type to ease writing "loader" plugins
+- 81fde2e: Prepare for supporting "loader" plugins. A loader plugin is used to transform a migration file of a given type (file extension) to a function that will execute the actual migration.
+- 9f5abf7: Simplify plugin interfaces by getting rid of the "type" string, in preparation for having packages that contains multiple different plugins
+
+### Patch Changes
+
+- 1799b6e: Add missing types and utility methods related to the new "loader" plugins
+- 3e0ff07: Specify files to include in published NPM package
+
 ## 0.1.1
 
 ### Patch Changes
