@@ -90,8 +90,39 @@ export type GenerateMigrationFunction = GeneratorPlugin['generateMigration'];
 export type MigrationFunction = () => Promise<void>;
 
 export type MigrationMetadata = {
+  /**
+   * The name of the migration file
+   *
+   * @example 20210901123456000_create_users_table.js
+   */
   name: string;
-  filename: string;
+  /**
+   * The directory where the migration file is located, relative to the current working directory
+   *
+   * @example migrations
+   */
+  directory: string;
+  /**
+   * The full absolute path to the migration file
+   *
+   * @example /home/user/project/migrations/20210901123456000_create_users_table.js
+   */
+  filePath: string;
+  /**
+   * The relative path to the migration file, relative to the current working directory
+   *
+   * @example migrations/20210901123456000_create_users_table.js
+   */
+  relativeFilePath: string;
+  /**
+   * The current working directory (the same as process.cwd())
+   */
+  cwd: string;
+  /**
+   * The extension of the migration file
+   *
+   * @example js
+   */
   extension: string;
 };
 
