@@ -6,6 +6,7 @@ import {
   type StoragePlugin,
   type Plugin,
   type LoaderPlugin,
+  type ReporterPlugin,
 } from './types.js';
 
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
@@ -32,6 +33,25 @@ export const isLoaderPlugin = (plugin: any): plugin is LoaderPlugin => {
   return typeof plugin.loadMigration === 'function' && Array.isArray(plugin.loadableExtensions);
 };
 
+export const isReporterPlugin = (plugin: any): plugin is ReporterPlugin => {
+  if (!plugin || typeof plugin !== 'object') {
+    return false;
+  }
+
+  const reporterFunctions = [
+    'onInit',
+    'onCollectedMigrations',
+    'onLockedMigrations',
+    'onMigrationStart',
+    'onMigrationSuccess',
+    'onMigrationError',
+    'onMigrationSkip',
+    'onFinished',
+  ];
+
+  return reporterFunctions.some((fn) => typeof plugin[fn] === 'function');
+};
+
 export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plugin is PluginFromType<T> => {
   if (type === 'generator') {
     return isGeneratorPlugin(plugin);
@@ -45,6 +65,10 @@ export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plug
     return isLoaderPlugin(plugin);
   }
 
+  if (type === 'reporter') {
+    return isReporterPlugin(plugin);
+  }
+
   throw new Error(`Unknown plugin type: ${type}`);
 };
 
@@ -52,7 +76,9 @@ export const getOrLoadPlugin = async <T extends PluginType>(
   type: T,
   plugins: Array<Plugin | string>,
 ): Promise<PluginFromType<T> | undefined> => {
-  for await (const plugin of plugins) {
+  const reversePlugins = [...plugins].reverse();
+
+  for await (const plugin of reversePlugins) {
     if (isPluginOfType(type, plugin)) {
       return plugin;
     }
@@ -72,8 +98,9 @@ export const getOrLoadPlugins = async <T extends PluginType>(
   plugins: Array<Plugin | string>,
 ): Promise<Array<PluginFromType<T>>> => {
   const result: Array<PluginFromType<T>> = [];
+  const reversePlugins = [...plugins].reverse();
 
-  for await (const plugin of plugins) {
+  for await (const plugin of reversePlugins) {
     if (isPluginOfType(type, plugin)) {
       result.push(plugin);
       continue;

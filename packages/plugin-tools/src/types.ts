@@ -1,3 +1,5 @@
+type Awaitable<T> = T | PromiseLike<T>;
+
 export type MigrationStatus = 'failed' | 'done';
 
 export type MigrationHistoryEntry = {
@@ -19,7 +21,7 @@ export type Storage = {
    *
    * @returns The migrations that were successfully locked.
    */
-  lock(migrations: string[]): Promise<string[]>;
+  lock(migrations: MigrationMetadata[]): Promise<MigrationMetadata[]>;
   /**
    * The unlock method is called after all migrations have been executed or when the process is interrupted (e.g. by a SIGTERM or SIGINT signal).
    *
@@ -27,7 +29,7 @@ export type Storage = {
    *
    * @param migrations The previously successfully locked migrations that should now be unlocked.
    */
-  unlock(migrations: string[]): Promise<void>;
+  unlock(migrations: MigrationMetadata[]): Promise<void>;
   /**
    * Get the history of previously executed migrations.
    *
@@ -46,14 +48,14 @@ export type Storage = {
    *
    * @param migration The name of the migration that should be marked as done.
    */
-  onSuccess(migration: string): Promise<void>;
+  onSuccess(migration: MigrationMetadataFinished): Promise<void>;
   /**
    * Called when a migration has failed.
    *
    * @param migration The name of the migration that should be marked as failed.
    * @param error The error that caused the migration to fail.
    */
-  onError(migration: string, error: Error): Promise<void>;
+  onError(migration: MigrationMetadataFinished, error: Error): Promise<void>;
 };
 
 export type StoragePlugin = {
@@ -87,7 +89,7 @@ export type GeneratorPlugin = {
 
 export type GenerateMigrationFunction = GeneratorPlugin['generateMigration'];
 
-export type MigrationFunction = () => Promise<void>;
+export type MigrationFunction = () => Awaitable<void>;
 
 export type MigrationMetadata = {
   /**
@@ -126,6 +128,12 @@ export type MigrationMetadata = {
   extension: string;
 };
 
+export type MigrationMetadataFinished = MigrationMetadata & {
+  status: MigrationStatus | 'skipped';
+  duration: number;
+  error?: Error;
+};
+
 export type LoaderPlugin = {
   /**
    * The file extensions that this plugin can load.
@@ -137,17 +145,89 @@ export type LoaderPlugin = {
    * @param migration Some metadata about the migration file that should be loaded.
    * @returns A function that will execute the migration.
    */
-  loadMigration(migration: MigrationMetadata): Promise<MigrationFunction>;
+  loadMigration(migration: MigrationMetadata): Awaitable<MigrationFunction>;
 };
 
-export type Plugin = StoragePlugin | GeneratorPlugin | LoaderPlugin;
+type InitParameters = {
+  /**
+   * The directory where the migration files are located
+   */
+  directory: string;
+  /**
+   * The current working directory (the same as process.cwd())
+   */
+  cwd: string;
+  /**
+   * Specifies whether the migration process is a dry run or not.
+   */
+  dry: boolean;
+};
 
-export type PluginType = 'storage' | 'generator' | 'loader';
+export type ReporterPlugin = Partial<{
+  /**
+   * Called when the plugin is initialized, which happens before the migrations are collected.
+   */
+  onInit(parameters: InitParameters): Awaitable<void>;
+  /**
+   * Called when all pending migrations that should be executed have been collected.
+   *
+   * @param migrations The pending migrations that will be executed.
+   */
+  onCollectedMigrations(migrations: MigrationMetadata[]): Awaitable<void>;
+  /**
+   * Called when the migrations have been successfully locked.
+   *
+   * Usually the migrations passed to this method are the same as the migrations passed to the onCollectedMigrations method,
+   * but in case of a concurrent migration attempt, some or all migrations might already be locked by another process.
+   *
+   * @param migrations The migrations that have been successfully locked so they can be executed.
+   */
+  onLockedMigrations(migrations: MigrationMetadata[]): Awaitable<void>;
+  /**
+   * Called when a migration is about to be executed.
+   *
+   * @param migration Information about the migration that is about to be executed.
+   */
+  onMigrationStart(migration: MigrationMetadata): Awaitable<void>;
+  /**
+   * Called when a migration has been successfully executed.
+   *
+   * @param migration Information about the migration that was executed.
+   */
+  onMigrationSuccess(migration: MigrationMetadataFinished): Awaitable<void>;
+  /**
+   * Called when a migration has failed.
+   *
+   * @param migration Information about the migration that failed.
+   * @param error The error that caused the migration to fail.
+   */
+  onMigrationError(migration: MigrationMetadataFinished, error: Error): Awaitable<void>;
+  /**
+   * Called when a migration has been skipped because a previous migration failed, it couldn't be successfully locked, or in case of a dry run.
+   *
+   * @param migration Information about the migration that was skipped.
+   */
+  onMigrationSkip(migration: MigrationMetadata): Awaitable<void>;
+  /**
+   * Called when the migration process has finished.
+   *
+   * This is called either after all migrations have been executed successfully, at the end of a dry run, or when a migration has failed.
+   *
+   * @param migrations Information about all migrations that were executed, their status and any error that occurred.
+   * @param error If the migration process failed, this will be the error that caused the failure.
+   */
+  onFinished(migrations: MigrationMetadataFinished[], error?: Error): Awaitable<void>;
+}>;
 
-export type PluginFromType<T extends PluginType> = T extends 'storage'
-  ? StoragePlugin
-  : T extends 'generator'
-    ? GeneratorPlugin
-    : T extends 'loader'
-      ? LoaderPlugin
-      : never;
+export type Plugin = StoragePlugin | GeneratorPlugin | LoaderPlugin | ReporterPlugin;
+
+type PluginTypeMap = {
+  storage: StoragePlugin;
+  generator: GeneratorPlugin;
+  loader: LoaderPlugin;
+  reporter: ReporterPlugin;
+};
+
+export type PluginType = keyof PluginTypeMap;
+
+export type PluginFromType<T extends PluginType> = PluginTypeMap[T];
