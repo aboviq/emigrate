@@ -35,6 +35,10 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
     .map((file) => file.name);
 
   for await (const migrationHistoryEntry of storage.getHistory()) {
+    if (migrationHistoryEntry.status === 'failed') {
+      throw new Error(`Migration ${migrationHistoryEntry.name} is in a failed state, please fix it first`);
+    }
+
     if (migrationFiles.includes(migrationHistoryEntry.name)) {
       migrationFiles.splice(migrationFiles.indexOf(migrationHistoryEntry.name), 1);
     }
@@ -114,6 +118,9 @@ export default async function upCommand({ directory, dry, plugins = [] }: Config
         throw error;
       }
     }
+  } catch (error) {
+    console.error(error);
+    process.exitCode = 1;
   } finally {
     await cleanup();
   }
