@@ -1,0 +1,45 @@
+{
+  "name": "@emigrate/plugin-storage-fs",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A storage plugin for Emigrate for storing the migration history in a file",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --pretty",
+    "build:watch": "tsc --pretty --watch"
+  },
+  "keywords": [
+    "emigrate",
+    "emigrate-plugin",
+    "plugin",
+    "migrations",
+    "storage"
+  ],
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-storage-fs#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-storage-fs",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
+  "license": "MIT",
+  "dependencies": {
+    "@emigrate/plugin-tools": "workspace:*"
+  },
+  "devDependencies": {
+    "@emigrate/tsconfig": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
