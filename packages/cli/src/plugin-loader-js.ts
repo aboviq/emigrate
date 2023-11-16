@@ -1,4 +1,20 @@
+import { promisify } from 'node:util';
 import { type LoaderPlugin } from '@emigrate/plugin-tools/types';
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+const promisifyIfNeeded = <T extends Function>(fn: T) => {
+  if (fn.length === 0) {
+    return fn;
+  }
+
+  if (fn.length === 1) {
+    return promisify(fn);
+  }
+
+  throw new Error(
+    `Unexpected arguments length of migration function, expected 0 or 1 argument but got: ${fn.length} arguments`,
+  );
+};
 
 const loaderJs: LoaderPlugin = {
   loadableExtensions: ['.js', '.cjs', '.mjs'],
@@ -7,7 +23,7 @@ const loaderJs: LoaderPlugin = {
 
     if (typeof migrationModule === 'function') {
       return async () => {
-        await migrationModule();
+        await promisifyIfNeeded(migrationModule)();
       };
     }
 
@@ -19,7 +35,7 @@ const loaderJs: LoaderPlugin = {
     ) {
       const migrationFunction = migrationModule.default;
       return async () => {
-        await migrationFunction();
+        await promisifyIfNeeded(migrationFunction)();
       };
     }
 
@@ -31,7 +47,7 @@ const loaderJs: LoaderPlugin = {
     ) {
       const migrationFunction = migrationModule.up;
       return async () => {
-        await migrationFunction();
+        await promisifyIfNeeded(migrationFunction)();
       };
     }
 

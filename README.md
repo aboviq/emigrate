@@ -17,6 +17,7 @@ It's effectively a successor of [klei-migrate](https://www.npmjs.com/package/kle
   - Emigrate makes sure the migration history does not get stuck in a locked state if that's the case
 - Supports any file type for your migration files
   - You can easily write migrations in JavaScript, TypeScript or plain SQL (or any other language)
+  - JavaScript migration files written using CommonJS or ES modules (ESM) are supported out of the box
   - You can customize the template for your migration files to fit your needs (or use a plugin to do it for you)
 - Easy to debug
   - Emigrate will store any errors that occur during migration in the migration history so you can easily debug them
