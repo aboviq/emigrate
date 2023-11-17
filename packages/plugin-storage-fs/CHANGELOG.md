@@ -1,5 +1,13 @@
 # @emigrate/plugin-storage-fs
 
+## 0.1.1
+
+### Patch Changes
+
+- e5eec7c: Throw a more descriptive error when a file lock couldn't be acquired
+- Updated dependencies [8f35812]
+  - @emigrate/plugin-tools@0.3.0
+
 ## 0.1.0
 
 ### Minor Changes

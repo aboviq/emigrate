@@ -1,5 +1,19 @@
 # emigrate
 
+## 0.4.0
+
+### Minor Changes
+
+- 59ec16b: Make the dry run mode work for the "up" command using the "--dry" CLI option
+- 59ec16b: Improve the default reporter with good looking output that has colors and animations. In non-interactive environments the animations are not used (this includes CI environments).
+- 59ec16b: Improve the "up" command flow and the usage of reporters, handle migration errors and automatic skipping of migrations.
+- 8f35812: Add support for "reporter" plugins and implement a simple default reporter
+
+### Patch Changes
+
+- Updated dependencies [8f35812]
+  - @emigrate/plugin-tools@0.3.0
+
 ## 0.3.0
 
 ### Minor Changes
