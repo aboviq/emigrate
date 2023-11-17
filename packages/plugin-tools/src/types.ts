@@ -121,9 +121,9 @@ export type MigrationMetadata = {
    */
   cwd: string;
   /**
-   * The extension of the migration file
+   * The extension of the migration file, with a leading period
    *
-   * @example js
+   * @example .js
    */
   extension: string;
 };
@@ -207,7 +207,7 @@ export type ReporterPlugin = Partial<{
    *
    * @param migration Information about the migration that was skipped.
    */
-  onMigrationSkip(migration: MigrationMetadata): Awaitable<void>;
+  onMigrationSkip(migration: MigrationMetadataFinished): Awaitable<void>;
   /**
    * Called when the migration process has finished.
    *

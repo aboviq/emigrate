@@ -18,7 +18,7 @@ import {
   MissingOptionError,
 } from './errors.js';
 import { type Config } from './types.js';
-import { stripLeadingPeriod } from './strip-leading-period.js';
+import { withLeadingPeriod } from './with-leading-period.js';
 import pluginLoaderJs from './plugin-loader-js.js';
 import pluginReporterDefault from './plugin-reporter-default.js';
 
@@ -76,7 +76,7 @@ export default async function upCommand({ directory, dry = false, plugins = [] }
         name,
         filePath,
         relativeFilePath: path.relative(cwd, filePath),
-        extension: stripLeadingPeriod(path.extname(name)),
+        extension: withLeadingPeriod(path.extname(name)),
         directory,
         cwd,
       };
@@ -108,7 +108,7 @@ export default async function upCommand({ directory, dry = false, plugins = [] }
         [
           extension,
           loaderPlugins.find((plugin) =>
-            plugin.loadableExtensions.some((loadableExtension) => stripLeadingPeriod(loadableExtension) === extension),
+            plugin.loadableExtensions.some((loadableExtension) => withLeadingPeriod(loadableExtension) === extension),
           ),
         ] as const,
     ),
@@ -123,33 +123,56 @@ export default async function upCommand({ directory, dry = false, plugins = [] }
   await reporter.onCollectedMigrations?.(migrationFiles);
 
   if (migrationFiles.length === 0 || dry || migrationHistoryError) {
-    await reporter.onLockedMigrations?.([]);
+    await reporter.onLockedMigrations?.(migrationFiles);
 
-    for await (const migration of migrationFiles) {
+    const finishedMigrations: MigrationMetadataFinished[] = migrationFiles.map((migration) => ({
+      ...migration,
+      duration: 0,
+      status: 'skipped',
+    }));
+
+    for await (const migration of finishedMigrations) {
       await reporter.onMigrationSkip?.(migration);
     }
 
-    await reporter.onFinished?.(
-      migrationFiles.map((migration) => ({ ...migration, status: 'skipped', duration: 0 })),
-      migrationHistoryError,
-    );
+    await reporter.onFinished?.(finishedMigrations, migrationHistoryError);
     return;
   }
 
-  const lockedMigrationFiles = await storage.lock(migrationFiles);
+  let lockedMigrationFiles: MigrationMetadata[] = [];
 
-  let cleaningUp = false;
+  try {
+    lockedMigrationFiles = await storage.lock(migrationFiles);
+
+    await reporter.onLockedMigrations?.(lockedMigrationFiles);
+  } catch (error) {
+    for await (const migration of migrationFiles) {
+      await reporter.onMigrationSkip?.({ ...migration, duration: 0, status: 'skipped' });
+    }
+
+    await reporter.onFinished?.([], error instanceof Error ? error : new Error(String(error)));
+    return;
+  }
+
+  const nonLockedMigrations = migrationFiles.filter((migration) => !lockedMigrationFiles.includes(migration));
+
+  for await (const migration of nonLockedMigrations) {
+    await reporter.onMigrationSkip?.({ ...migration, duration: 0, status: 'skipped' });
+  }
+
+  let cleaningUp: Promise<void> | undefined;
 
   const cleanup = async () => {
     if (cleaningUp) {
-      return;
+      return cleaningUp;
     }
 
     process.off('SIGINT', cleanup);
     process.off('SIGTERM', cleanup);
 
-    cleaningUp = true;
-    await storage.unlock(lockedMigrationFiles);
+    cleaningUp = storage.unlock(lockedMigrationFiles);
+
+    return cleaningUp;
   };
 
   process.on('SIGINT', cleanup);
@@ -162,8 +185,9 @@ export default async function upCommand({ directory, dry = false, plugins = [] }
       const lastMigrationStatus = finishedMigrations.at(-1)?.status;
 
       if (lastMigrationStatus === 'failed' || lastMigrationStatus === 'skipped') {
-        await reporter.onMigrationSkip?.(migration);
-        finishedMigrations.push({ ...migration, status: 'skipped', duration: 0 });
+        const finishedMigration: MigrationMetadataFinished = { ...migration, status: 'skipped', duration: 0 };
+        await reporter.onMigrationSkip?.(finishedMigration);
+        finishedMigrations.push(finishedMigration);
         continue;
       }
 
@@ -204,7 +228,7 @@ export default async function upCommand({ directory, dry = false, plugins = [] }
         const duration = getDuration(start);
         const finishedMigration: MigrationMetadataFinished = {
           ...migration,
-          status: 'done',
+          status: 'failed',
           duration,
           error: errorInstance,
         };
@@ -218,7 +242,7 @@ export default async function upCommand({ directory, dry = false, plugins = [] }
   } finally {
     const firstError = finishedMigrations.find((migration) => migration.status === 'failed')?.error;
 
-    await reporter.onFinished?.(finishedMigrations, firstError);
     await cleanup();
+    await reporter.onFinished?.(finishedMigrations, firstError);
   }
 }

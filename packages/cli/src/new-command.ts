@@ -4,7 +4,7 @@ import path from 'node:path';
 import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin } from '@emigrate/plugin-tools';
 import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from './errors.js';
 import { type Config } from './types.js';
-import { stripLeadingPeriod } from './strip-leading-period.js';
+import { withLeadingPeriod } from './with-leading-period.js';
 
 export default async function newCommand({ directory, template, plugins = [], extension }: Config, name: string) {
   if (!directory) {
@@ -34,7 +34,7 @@ export default async function newCommand({ directory, template, plugins = [], ex
       throw new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error });
     }
 
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${withLeadingPeriod(
       extension ?? fileExtension,
     )}`;
   }
@@ -56,7 +56,7 @@ export default async function newCommand({ directory, template, plugins = [], ex
 
   if (extension && !hasGeneratedFile) {
     content = '';
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${stripLeadingPeriod(extension)}`;
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${withLeadingPeriod(extension)}`;
   }
 
   if (!filename || content === undefined) {
