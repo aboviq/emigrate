@@ -55,11 +55,15 @@ export default function storageFs({ filename }: StorageFsOptions): StoragePlugin
     async initializeStorage() {
       return {
         async lock(migrations) {
-          const fd = await fs.open(lockFilePath, 'wx');
+          try {
+            const fd = await fs.open(lockFilePath, 'wx');
 
-          await fd.close();
+            await fd.close();
 
-          return migrations;
+            return migrations;
+          } catch {
+            throw new Error('Could not acquire file lock for migrations');
+          }
         },
         async unlock() {
           try {
