@@ -1,5 +1,11 @@
 # @emigrate/plugin-tools
 
+## 0.3.0
+
+### Minor Changes
+
+- 8f35812: Add support for "reporter" plugins and implement a simple default reporter
+
 ## 0.2.0
 
 ### Minor Changes
