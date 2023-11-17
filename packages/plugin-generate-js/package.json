@@ -19,7 +19,8 @@
   ],
   "scripts": {
     "build": "tsc --pretty",
-    "build:watch": "tsc --pretty --watch"
+    "build:watch": "tsc --pretty --watch",
+    "lint": "xo --cwd=../.. $(pwd)"
   },
   "keywords": [
     "emigrate",

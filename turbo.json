@@ -24,7 +24,12 @@
       "persistent": true
     },
     "checks": {
-      "dependsOn": ["build", "test"],
+      "dependsOn": ["build", "lint", "test"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*"],
       "outputs": []
     }
   }
