@@ -42,6 +42,7 @@ export const isEmigrateReporter = (plugin: any): plugin is EmigrateReporter => {
     'onInit',
     'onCollectedMigrations',
     'onLockedMigrations',
+    'onNewMigration',
     'onMigrationStart',
     'onMigrationSuccess',
     'onMigrationError',

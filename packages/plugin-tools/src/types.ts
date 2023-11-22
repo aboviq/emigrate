@@ -150,7 +150,11 @@ export type LoaderPlugin = {
   loadMigration(migration: MigrationMetadata): Awaitable<MigrationFunction>;
 };
 
-type InitParameters = {
+export type ReporterInitParameters = {
+  /**
+   * The command that is being executed
+   */
+  command: 'up' | 'new' | 'list';
   /**
    * The directory where the migration files are located
    */
@@ -161,15 +165,17 @@ type InitParameters = {
   cwd: string;
   /**
    * Specifies whether the migration process is a dry run or not.
+   *
+   * Will only be true when the command is 'up' and the --dry option is specified.
    */
   dry: boolean;
 };
 
 export type EmigrateReporter = Partial<{
   /**
-   * Called when the plugin is initialized, which happens before the migrations are collected.
+   * Called when the reporter is initialized, which is the first method that is called when a command is executed.
    */
-  onInit(parameters: InitParameters): Awaitable<void>;
+  onInit(parameters: ReporterInitParameters): Awaitable<void>;
   /**
    * Called when all pending migrations that should be executed have been collected.
    *
@@ -186,7 +192,15 @@ export type EmigrateReporter = Partial<{
    */
   onLockedMigrations(migrations: MigrationMetadata[]): Awaitable<void>;
   /**
+   * Called when a new migration file has been generated.
+   *
+   * This is only called when the command is 'new'.
+   */
+  onNewMigration(migration: MigrationMetadata, content: string): Awaitable<void>;
+  /**
    * Called when a migration is about to be executed.
+   *
+   * Will only be called for each migration when the command is "up".
    *
    * @param migration Information about the migration that is about to be executed.
    */
@@ -194,28 +208,40 @@ export type EmigrateReporter = Partial<{
   /**
    * Called when a migration has been successfully executed.
    *
+   * Will be called after a successful migration when the command is "up"
+   * or for each successful migration from the history when the command is "list".
+   *
    * @param migration Information about the migration that was executed.
    */
   onMigrationSuccess(migration: MigrationMetadataFinished): Awaitable<void>;
   /**
    * Called when a migration has failed.
    *
+   * Will be called after a failed migration when the command is "up"
+   * or for each failed migration from the history when the command is "list" (will be at most one in this case).
+   *
    * @param migration Information about the migration that failed.
    * @param error The error that caused the migration to fail.
    */
   onMigrationError(migration: MigrationMetadataFinished, error: Error): Awaitable<void>;
   /**
-   * Called when a migration has been skipped because a previous migration failed, it couldn't be successfully locked, or in case of a dry run.
+   * Called when a migration is skipped
+   *
+   * Will be called when a migration is skipped because a previous migration failed,
+   * it couldn't be successfully locked, or in case of a dry run when the command is "up".
+   * When the command is "list" this will be called for each pending migration (i.e. those that have not run yet).
    *
    * @param migration Information about the migration that was skipped.
    */
   onMigrationSkip(migration: MigrationMetadataFinished): Awaitable<void>;
   /**
-   * Called when the migration process has finished.
+   * Called as a final step after all migrations have been executed or listed.
    *
-   * This is called either after all migrations have been executed successfully, at the end of a dry run, or when a migration has failed.
+   * This is called either after all migrations have been listed successfully for the "list" command
+   * or for the "up" command when they are executed successfully, at the end of a dry run, or when a migration has failed.
+   * It is also called after a migration file has been generated with the "new" command.
    *
-   * @param migrations Information about all migrations that were executed, their status and any error that occurred.
+   * @param migrations Information about all migrations that were executed or listed, their status and any error that occurred.
    * @param error If the migration process failed, this will be the error that caused the failure.
    */
   onFinished(migrations: MigrationMetadataFinished[], error?: Error): Awaitable<void>;
