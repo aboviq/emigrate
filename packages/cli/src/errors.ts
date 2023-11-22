@@ -46,7 +46,7 @@ export class MigrationHistoryError extends EmigrateError {
     message: string,
     public entry: MigrationHistoryEntry,
   ) {
-    super('ERR_MIGRATION_HISTORY', message);
+    super('ERR_MIGRATION_HISTORY', message, { cause: entry.error });
   }
 }
 

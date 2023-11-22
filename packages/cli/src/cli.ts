@@ -175,6 +175,7 @@ Examples:
 };
 
 const list: Action = async (args) => {
+  const config = await getConfig('list');
   const { values } = parseArgs({
     args,
     options: {
@@ -182,17 +183,60 @@ const list: Action = async (args) => {
         type: 'boolean',
         short: 'h',
       },
-      plugin: {
+      directory: {
         type: 'string',
-        short: 'p',
-        multiple: true,
-        default: [],
+        short: 'd',
+      },
+      reporter: {
+        type: 'string',
+        short: 'r',
+      },
+      storage: {
+        type: 'string',
+        short: 's',
       },
     },
     allowPositionals: false,
   });
 
-  console.log(values);
+  const usage = `Usage: emigrate list [options]
+
+List all migrations and their status. This command does not run any migrations.
+
+Options:
+
+  -h, --help       Show this help message and exit
+  -d, --directory  The directory where the migration files are located (required)
+  -r, --reporter   The reporter to use for reporting the migrations
+  -s, --storage    The storage to use to get the migration history (required)
+
+Examples:
+
+  emigrate list -d migrations -s fs
+  emigrate list --directory ./migrations --storage postgres --reporter json
+`;
+
+  if (values.help) {
+    console.log(usage);
+    process.exitCode = 1;
+    return;
+  }
+
+  const { directory = config.directory, storage = config.storage, reporter = config.reporter } = values;
+
+  try {
+    const { default: listCommand } = await import('./commands/list.js');
+    await listCommand({ directory, storage, reporter });
+  } catch (error) {
+    if (error instanceof ShowUsageError) {
+      console.error(error.message, '\n');
+      console.log(usage);
+      process.exitCode = 1;
+      return;
+    }
+
+    throw error;
+  }
 };
 
 const commands: Record<string, Action> = {

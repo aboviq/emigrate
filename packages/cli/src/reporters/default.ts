@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { black, blueBright, bold, cyan, dim, gray, green, red, redBright, yellow } from 'ansis';
+import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow } from 'ansis';
 import logUpdate from 'log-update';
 import elegantSpinner from 'elegant-spinner';
 import figures from 'figures';
@@ -25,7 +25,7 @@ const formatDuration = (duration: number): string => {
 };
 
 const getTitle = ({ command, directory, dry, cwd }: ReporterInitParameters) => {
-  return `${black.bgBlueBright` Emigrate `} ${blueBright.bold(command)} ${gray(cwd + path.sep)}${directory}${
+  return `${black.bgBlueBright(' Emigrate ').trim()} ${blueBright.bold(command)} ${gray(cwd + path.sep)}${directory}${
     dry ? yellow` (dry run)` : ''
   }`;
 };
@@ -79,6 +79,10 @@ const getName = (name: string, status?: Status) => {
       return yellow(name);
     }
 
+    case 'pending': {
+      return faint(name);
+    }
+
     default: {
       return name;
     }
@@ -108,7 +112,18 @@ const getMigrationText = (
   return parts.join(' ');
 };
 
-const getError = (error?: Error, indent = '  ') => {
+type ErrorLike = {
+  name?: string;
+  message: string;
+  stack?: string;
+  cause?: unknown;
+};
+
+const isErrorLike = (error: unknown): error is ErrorLike => {
+  return typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string';
+};
+
+const getError = (error?: ErrorLike, indent = '  ') => {
   if (!error) {
     return '';
   }
@@ -127,7 +142,7 @@ const getError = (error?: Error, indent = '  ') => {
 
   const parts = [`${indent}${bold.red(errorTitle)}`, ...stack.map((line) => `${indent}${dim(line)}`)];
 
-  if (error.cause instanceof Error) {
+  if (isErrorLike(error.cause)) {
     const nextIndent = `${indent}  `;
     parts.push(`\n${nextIndent}${bold('Original error cause:')}\n`, getError(error.cause, nextIndent));
   }
@@ -143,9 +158,10 @@ const getSummary = (
   let done = 0;
   let failed = 0;
   let skipped = 0;
+  let pending = 0;
 
   for (const migration of migrations) {
-    const status = getMigrationStatus(migration);
+    const status = 'status' in migration ? migration.status : undefined;
     switch (status) {
       case 'done': {
         done++;
@@ -162,6 +178,11 @@ const getSummary = (
         break;
       }
 
+      case 'pending': {
+        pending++;
+        break;
+      }
+
       default: {
         break;
       }
@@ -174,6 +195,7 @@ const getSummary = (
     failed ? red.bold(`${failed} failed`) : '',
     done ? green.bold(`${done} ${command === 'new' ? 'created' : 'done'}`) : '',
     skipped ? yellow.bold(`${skipped} skipped`) : '',
+    pending ? cyan.bold(`${pending} pending`) : '',
   ]
     .filter(Boolean)
     .join(dim(' | '));
@@ -262,13 +284,13 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
   }
 
   #finishMigration(migration: MigrationMetadataFinished): void {
-    if (!this.#migrations) {
-      return;
-    }
+    this.#migrations ??= [];
 
     const index = this.#migrations.findIndex((m) => m.name === migration.name);
 
-    if (index !== -1) {
+    if (index === -1) {
+      this.#migrations.push(migration);
+    } else {
       this.#migrations[index] = migration;
     }
   }

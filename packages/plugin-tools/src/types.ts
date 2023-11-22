@@ -2,7 +2,7 @@ export type Awaitable<T> = T | PromiseLike<T>;
 
 export type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Awaitable<{ default: T }>);
 
-export type MigrationStatus = 'failed' | 'done';
+export type MigrationStatus = 'failed' | 'done' | 'pending';
 
 export type MigrationHistoryEntry = {
   name: string;

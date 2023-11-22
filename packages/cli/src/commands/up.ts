@@ -17,6 +17,7 @@ import {
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import pluginLoaderJs from '../plugin-loader-js.js';
+import { getMigrations } from '../get-migrations.js';
 
 type ExtraFlags = {
   dry?: boolean;
@@ -59,28 +60,7 @@ export default async function upCommand({
 
   await reporter.onInit?.({ command: 'up', cwd, dry, directory });
 
-  const path = await import('node:path');
-  const fs = await import('node:fs/promises');
-
-  const allFilesInMigrationDirectory = await fs.readdir(path.resolve(process.cwd(), directory), {
-    withFileTypes: true,
-  });
-
-  const migrationFiles: MigrationMetadata[] = allFilesInMigrationDirectory
-    .filter((file) => file.isFile() && !file.name.startsWith('.') && !file.name.startsWith('_'))
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map(({ name }) => {
-      const filePath = path.resolve(process.cwd(), directory, name);
-
-      return {
-        name,
-        filePath,
-        relativeFilePath: path.relative(cwd, filePath),
-        extension: withLeadingPeriod(path.extname(name)),
-        directory,
-        cwd,
-      };
-    });
+  const migrationFiles = await getMigrations(cwd, directory);
 
   let migrationHistoryError: MigrationHistoryError | undefined;
 
