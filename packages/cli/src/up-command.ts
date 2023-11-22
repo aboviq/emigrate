@@ -48,13 +48,16 @@ export default async function upCommand({
   }
 
   const storage = await storagePlugin.initializeStorage();
-  const reporter = await getOrLoadReporter([lazyDefaultReporter, reporterConfig]);
+  const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
-    throw new BadOptionError('reporter', 'No reporter found, please specify a reporter using the reporter option');
+    throw new BadOptionError(
+      'reporter',
+      'No reporter found, please specify an existing reporter using the reporter option',
+    );
   }
 
-  await reporter.onInit?.({ cwd, dry, directory });
+  await reporter.onInit?.({ command: 'up', cwd, dry, directory });
 
   const path = await import('node:path');
   const fs = await import('node:fs/promises');

@@ -1,12 +1,18 @@
 import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin } from '@emigrate/plugin-tools';
+import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin, getOrLoadReporter } from '@emigrate/plugin-tools';
+import { type MigrationMetadata } from '@emigrate/plugin-tools/types';
 import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from './errors.js';
 import { type Config } from './types.js';
 import { withLeadingPeriod } from './with-leading-period.js';
 
-export default async function newCommand({ directory, template, plugins = [], extension }: Config, name: string) {
+const lazyDefaultReporter = async () => import('./plugin-reporter-default.js');
+
+export default async function newCommand(
+  { directory, template, reporter: reporterConfig, plugins = [], extension }: Config,
+  name: string,
+) {
   if (!directory) {
     throw new MissingOptionError('directory');
   }
@@ -18,6 +24,19 @@ export default async function newCommand({ directory, template, plugins = [], ex
   if (!extension && !template && plugins.length === 0) {
     throw new MissingOptionError(['extension', 'template', 'plugin']);
   }
+
+  const cwd = process.cwd();
+
+  const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
+
+  if (!reporter) {
+    throw new BadOptionError(
+      'reporter',
+      'No reporter found, please specify an existing reporter using the reporter option',
+    );
+  }
+
+  await reporter.onInit?.({ command: 'new', cwd, dry: false, directory });
 
   let filename: string | undefined;
   let content: string | undefined;
@@ -31,7 +50,11 @@ export default async function newCommand({ directory, template, plugins = [], ex
       content = await fs.readFile(templatePath, 'utf8');
       content = content.replaceAll('{{name}}', name);
     } catch (error) {
-      throw new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error });
+      await reporter.onFinished?.(
+        [],
+        new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error }),
+      );
+      return;
     }
 
     filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension ?? fileExtension)}`;
@@ -67,8 +90,30 @@ export default async function newCommand({ directory, template, plugins = [], ex
   const directoryPath = path.resolve(process.cwd(), directory);
   const filePath = path.resolve(directoryPath, filename);
 
-  await createDirectory(directoryPath);
-  await saveFile(filePath, content);
+  const migration: MigrationMetadata = {
+    name: filename,
+    filePath,
+    relativeFilePath: path.relative(cwd, filePath),
+    extension: withLeadingPeriod(path.extname(filename)),
+    directory,
+    cwd,
+  };
+
+  await reporter.onNewMigration?.(migration, content);
+
+  let saveError: Error | undefined;
+
+  try {
+    await createDirectory(directoryPath);
+    await saveFile(filePath, content);
+  } catch (error) {
+    saveError = error instanceof Error ? error : new Error(String(error));
+  }
+
+  await reporter.onFinished?.(
+    [{ ...migration, status: saveError ? 'failed' : 'done', error: saveError, duration: 0 }],
+    saveError,
+  );
 }
 
 async function createDirectory(directoryPath: string) {
@@ -82,8 +127,6 @@ async function createDirectory(directoryPath: string) {
 async function saveFile(filePath: string, content: string) {
   try {
     await fs.writeFile(filePath, content);
-
-    console.log(`Created migration file: ${path.relative(process.cwd(), filePath)}`);
   } catch (error) {
     throw new UnexpectedError(`Failed to write migration file: ${filePath}`, { cause: error });
   }

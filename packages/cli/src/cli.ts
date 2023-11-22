@@ -97,6 +97,10 @@ const newMigration: Action = async (args) => {
         type: 'string',
         short: 'd',
       },
+      reporter: {
+        type: 'string',
+        short: 'r',
+      },
       template: {
         type: 'string',
         short: 't',
@@ -123,6 +127,7 @@ Options:
 
   -h, --help       Show this help message and exit
   -d, --directory  The directory where the migration files are located (required)
+  -r, --reporter   The reporter to use for reporting the migration file creation progress
   -p, --plugin     The plugin(s) to use (can be specified multiple times)
   -t, --template   A template file to use as contents for the new migration file
                    (if the extension option is not provided the template file's extension will be used)
@@ -145,13 +150,18 @@ Examples:
     return;
   }
 
-  const { directory = config.directory, template = config.template, extension = config.extension } = values;
+  const {
+    directory = config.directory,
+    template = config.template,
+    extension = config.extension,
+    reporter = config.reporter,
+  } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
   const name = positionals.join(' ').trim();
 
   try {
     const { default: newCommand } = await import('./new-command.js');
-    await newCommand({ directory, template, plugins, extension }, name);
+    await newCommand({ directory, template, plugins, extension, reporter }, name);
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');

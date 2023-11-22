@@ -1,5 +1,5 @@
 import path from 'node:path';
-import ansis from 'ansis';
+import { black, blueBright, bold, cyan, dim, gray, green, red, redBright, yellow } from 'ansis';
 import logUpdate from 'log-update';
 import elegantSpinner from 'elegant-spinner';
 import figures from 'figures';
@@ -9,6 +9,8 @@ import {
   type MigrationMetadata,
   type MigrationMetadataFinished,
   type EmigrateReporter,
+  type ReporterInitParameters,
+  type Awaitable,
 } from '@emigrate/plugin-tools/types';
 
 type Status = ReturnType<typeof getMigrationStatus>;
@@ -19,12 +21,12 @@ const spinner = interactive ? elegantSpinner() : () => figures.pointerSmall;
 const formatDuration = (duration: number): string => {
   const pretty = prettyMs(duration);
 
-  return ansis.yellow(pretty.replaceAll(/([^\s\d]+)/g, ansis.dim('$1')));
+  return yellow(pretty.replaceAll(/([^\s\d]+)/g, dim('$1')));
 };
 
-const getTitle = ({ directory, dry, cwd }: { directory: string; dry: boolean; cwd: string }) => {
-  return `${ansis.bgBlueBright(ansis.black(' Emigrate '))} ${ansis.gray(cwd + path.sep)}${directory}${
-    dry ? ansis.yellow(' (dry run)') : ''
+const getTitle = ({ command, directory, dry, cwd }: ReporterInitParameters) => {
+  return `${black.bgBlueBright` Emigrate `} ${blueBright.bold(command)} ${gray(cwd + path.sep)}${directory}${
+    dry ? yellow` (dry run)` : ''
   }`;
 };
 
@@ -42,23 +44,23 @@ const getMigrationStatus = (
 const getIcon = (status: Status) => {
   switch (status) {
     case 'running': {
-      return ansis.cyan(spinner());
+      return cyan(spinner());
     }
 
     case 'pending': {
-      return ansis.gray(figures.pointerSmall);
+      return gray(figures.pointerSmall);
     }
 
     case 'done': {
-      return ansis.green(figures.tick);
+      return green(figures.tick);
     }
 
     case 'failed': {
-      return ansis.red(figures.cross);
+      return red(figures.cross);
     }
 
     case 'skipped': {
-      return ansis.yellow(figures.circle);
+      return yellow(figures.circle);
     }
 
     default: {
@@ -70,11 +72,11 @@ const getIcon = (status: Status) => {
 const getName = (name: string, status?: Status) => {
   switch (status) {
     case 'failed': {
-      return ansis.red(name);
+      return red(name);
     }
 
     case 'skipped': {
-      return ansis.yellow(name);
+      return yellow(name);
     }
 
     default: {
@@ -91,12 +93,12 @@ const getMigrationText = (
   const status = getMigrationStatus(migration, activeMigration);
   const parts = [' ', getIcon(status)];
 
-  parts.push(`${getName(nameWithoutExtension, status)}${ansis.dim(migration.extension)}`);
+  parts.push(`${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
 
   if ('status' in migration) {
-    parts.push(ansis.gray(`(${migration.status})`));
+    parts.push(gray(`(${migration.status})`));
   } else if (migration.name === activeMigration?.name) {
-    parts.push(ansis.gray('(running)'));
+    parts.push(gray`(running)`);
   }
 
   if ('duration' in migration && migration.duration) {
@@ -123,17 +125,20 @@ const getError = (error?: Error, indent = '  ') => {
     errorTitle = error.message;
   }
 
-  const parts = [`${indent}${ansis.bold.red(errorTitle)}`, ...stack.map((line) => `${indent}${ansis.dim(line)}`)];
+  const parts = [`${indent}${bold.red(errorTitle)}`, ...stack.map((line) => `${indent}${dim(line)}`)];
 
   if (error.cause instanceof Error) {
     const nextIndent = `${indent}  `;
-    parts.push(`\n${nextIndent}${ansis.bold('Original error cause:')}\n`, getError(error.cause, nextIndent));
+    parts.push(`\n${nextIndent}${bold('Original error cause:')}\n`, getError(error.cause, nextIndent));
   }
 
   return parts.join('\n');
 };
 
-const getSummary = (migrations: Array<MigrationMetadata | MigrationMetadataFinished> = []) => {
+const getSummary = (
+  command: ReporterInitParameters['command'],
+  migrations: Array<MigrationMetadata | MigrationMetadataFinished> = [],
+) => {
   const total = migrations.length;
   let done = 0;
   let failed = 0;
@@ -163,19 +168,21 @@ const getSummary = (migrations: Array<MigrationMetadata | MigrationMetadataFinis
     }
   }
 
+  const showTotal = command !== 'new';
+
   const statusLine = [
-    failed ? ansis.bold.red(`${failed} failed`) : '',
-    done ? ansis.bold.green(`${done} done`) : '',
-    skipped ? ansis.bold.yellow(`${skipped} skipped`) : '',
+    failed ? red.bold(`${failed} failed`) : '',
+    done ? green.bold(`${done} ${command === 'new' ? 'created' : 'done'}`) : '',
+    skipped ? yellow.bold(`${skipped} skipped`) : '',
   ]
     .filter(Boolean)
-    .join(ansis.dim(' | '));
+    .join(dim(' | '));
 
   if (!statusLine) {
     return '';
   }
 
-  return `  ${statusLine}${ansis.gray(` (${total} total)`)}`;
+  return `  ${statusLine}${showTotal ? gray(` (${total} total)`) : ''}`;
 };
 
 const getHeaderMessage = (migrations?: MigrationMetadata[], lockedMigrations?: MigrationMetadata[]) => {
@@ -188,18 +195,16 @@ const getHeaderMessage = (migrations?: MigrationMetadata[], lockedMigrations?: M
   }
 
   if (migrations.length === lockedMigrations.length) {
-    return `  ${ansis.bold(migrations.length.toString())} ${ansis.dim('pending migrations to run')}`;
+    return `  ${bold(migrations.length.toString())} ${dim('pending migrations to run')}`;
   }
 
   if (lockedMigrations.length === 0) {
-    return `  ${ansis.bold(`0 of ${migrations.length}`)} ${ansis.dim('pending migrations to run')} ${ansis.redBright(
-      '(all locked)',
-    )}`;
+    return `  ${bold(`0 of ${migrations.length}`)} ${dim('pending migrations to run')} ${redBright('(all locked)')}`;
   }
 
-  return `  ${ansis.bold(`${lockedMigrations.length} of ${migrations.length}`)} ${ansis.dim(
-    'pending migrations to run',
-  )} ${ansis.yellow(`(${migrations.length - lockedMigrations.length} locked)`)}`;
+  return `  ${bold(`${lockedMigrations.length} of ${migrations.length}`)} ${dim('pending migrations to run')} ${yellow(
+    `(${migrations.length - lockedMigrations.length} locked)`,
+  )}`;
 };
 
 class DefaultFancyReporter implements Required<EmigrateReporter> {
@@ -207,15 +212,11 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
   #lockedMigrations: MigrationMetadata[] | undefined;
   #activeMigration: MigrationMetadata | undefined;
   #error: Error | undefined;
-  #directory!: string;
-  #cwd!: string;
-  #dry!: boolean;
+  #parameters!: ReporterInitParameters;
   #interval: NodeJS.Timeout | undefined;
 
-  onInit(parameters: { directory: string; cwd: string; dry: boolean }): void | PromiseLike<void> {
-    this.#directory = parameters.directory;
-    this.#dry = parameters.dry;
-    this.#cwd = parameters.cwd;
+  onInit(parameters: ReporterInitParameters): void | PromiseLike<void> {
+    this.#parameters = parameters;
 
     this.#start();
   }
@@ -226,6 +227,10 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
 
   onLockedMigrations(migrations: MigrationMetadata[]): void | PromiseLike<void> {
     this.#lockedMigrations = migrations;
+  }
+
+  onNewMigration(migration: MigrationMetadata, _content: string): Awaitable<void> {
+    this.#migrations = [migration];
   }
 
   onMigrationStart(migration: MigrationMetadata): void | PromiseLike<void> {
@@ -244,7 +249,13 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
     this.#finishMigration(migration);
   }
 
-  onFinished(_migrations: MigrationMetadataFinished[], error?: Error | undefined): void | PromiseLike<void> {
+  onFinished(migrations: MigrationMetadataFinished[], error?: Error | undefined): void | PromiseLike<void> {
+    if (this.#parameters.command === 'new') {
+      for (const migration of migrations) {
+        this.#finishMigration(migration);
+      }
+    }
+
     this.#error = error;
     this.#activeMigration = undefined;
     this.#stop();
@@ -264,10 +275,10 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
 
   #render(): void {
     const parts = [
-      getTitle({ directory: this.#directory, dry: this.#dry, cwd: this.#cwd }),
+      getTitle(this.#parameters),
       getHeaderMessage(this.#migrations, this.#lockedMigrations),
       this.#migrations?.map((migration) => getMigrationText(migration, this.#activeMigration)).join('\n') ?? '',
-      getSummary(this.#migrations),
+      getSummary(this.#parameters.command, this.#migrations),
       getError(this.#error),
     ];
     logUpdate('\n' + parts.filter(Boolean).join('\n\n') + '\n');
@@ -293,8 +304,10 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
 class DefaultReporter implements Required<EmigrateReporter> {
   #migrations?: MigrationMetadata[];
   #lockedMigrations?: MigrationMetadata[];
+  #parameters!: ReporterInitParameters;
 
-  onInit(parameters: { directory: string; cwd: string; dry: boolean }): void | PromiseLike<void> {
+  onInit(parameters: ReporterInitParameters): void | PromiseLike<void> {
+    this.#parameters = parameters;
     console.log('');
     console.log(getTitle(parameters));
     console.log('');
@@ -309,6 +322,10 @@ class DefaultReporter implements Required<EmigrateReporter> {
 
     console.log(getHeaderMessage(this.#migrations, this.#lockedMigrations));
     console.log('');
+  }
+
+  onNewMigration(migration: MigrationMetadata, _content: string): Awaitable<void> {
+    console.log(getMigrationText(migration));
   }
 
   onMigrationStart(migration: MigrationMetadata): void | PromiseLike<void> {
@@ -329,7 +346,7 @@ class DefaultReporter implements Required<EmigrateReporter> {
 
   onFinished(migrations: MigrationMetadataFinished[], error?: Error | undefined): void | PromiseLike<void> {
     console.log('');
-    console.log(getSummary(migrations));
+    console.log(getSummary(this.#parameters.command, migrations));
     console.log('');
 
     if (error) {
