@@ -7,7 +7,7 @@ import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedEr
 import { type Config } from './types.js';
 import { withLeadingPeriod } from './with-leading-period.js';
 
-const lazyDefaultReporter = async () => import('./plugin-reporter-default.js');
+const lazyDefaultReporter = async () => import('./reporters/default.js');
 
 export default async function newCommand(
   { directory, template, reporter: reporterConfig, plugins = [], extension }: Config,

@@ -27,7 +27,7 @@ const getDuration = (start: [number, number]) => {
   return seconds * 1000 + nanoseconds / 1_000_000;
 };
 
-const lazyDefaultReporter = async () => import('./plugin-reporter-default.js');
+const lazyDefaultReporter = async () => import('./reporters/default.js');
 
 export default async function upCommand({
   storage: storageConfig,
