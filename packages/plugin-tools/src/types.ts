@@ -1,4 +1,6 @@
-type Awaitable<T> = T | PromiseLike<T>;
+export type Awaitable<T> = T | PromiseLike<T>;
+
+export type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Awaitable<{ default: T }>);
 
 export type MigrationStatus = 'failed' | 'done';
 
@@ -58,11 +60,11 @@ export type Storage = {
   onError(migration: MigrationMetadataFinished, error: Error): Promise<void>;
 };
 
-export type StoragePlugin = {
+export type EmigrateStorage = {
   initializeStorage(): Promise<Storage>;
 };
 
-export type InitializeStorageFunction = StoragePlugin['initializeStorage'];
+export type InitializeStorageFunction = EmigrateStorage['initializeStorage'];
 
 export type MigrationFile = {
   /**
@@ -163,7 +165,7 @@ type InitParameters = {
   dry: boolean;
 };
 
-export type ReporterPlugin = Partial<{
+export type EmigrateReporter = Partial<{
   /**
    * Called when the plugin is initialized, which happens before the migrations are collected.
    */
@@ -219,13 +221,11 @@ export type ReporterPlugin = Partial<{
   onFinished(migrations: MigrationMetadataFinished[], error?: Error): Awaitable<void>;
 }>;
 
-export type Plugin = StoragePlugin | GeneratorPlugin | LoaderPlugin | ReporterPlugin;
+export type Plugin = GeneratorPlugin | LoaderPlugin;
 
 type PluginTypeMap = {
-  storage: StoragePlugin;
   generator: GeneratorPlugin;
   loader: LoaderPlugin;
-  reporter: ReporterPlugin;
 };
 
 export type PluginType = keyof PluginTypeMap;

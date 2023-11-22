@@ -1,11 +1,8 @@
 import process from 'node:process';
-import { getOrLoadPlugin, getOrLoadPlugins } from '@emigrate/plugin-tools';
+import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import {
   type LoaderPlugin,
   type MigrationFunction,
-  type Plugin,
-  type PluginType,
-  type PluginFromType,
   type MigrationMetadata,
   type MigrationMetadataFinished,
 } from '@emigrate/plugin-tools/types';
@@ -20,26 +17,9 @@ import {
 import { type Config } from './types.js';
 import { withLeadingPeriod } from './with-leading-period.js';
 import pluginLoaderJs from './plugin-loader-js.js';
-import pluginReporterDefault from './plugin-reporter-default.js';
 
 type ExtraFlags = {
   dry?: boolean;
-};
-
-const requirePlugin = async <T extends PluginType>(
-  type: T,
-  plugins: Array<Plugin | string>,
-): Promise<PluginFromType<T>> => {
-  const plugin = await getOrLoadPlugin(type, plugins);
-
-  if (!plugin) {
-    throw new BadOptionError(
-      'plugin',
-      `No ${type} plugin found, please specify a ${type} plugin using the plugin option`,
-    );
-  }
-
-  return plugin;
 };
 
 const getDuration = (start: [number, number]) => {
@@ -47,15 +27,32 @@ const getDuration = (start: [number, number]) => {
   return seconds * 1000 + nanoseconds / 1_000_000;
 };
 
-export default async function upCommand({ directory, dry = false, plugins = [] }: Config & ExtraFlags) {
+const lazyDefaultReporter = async () => import('./plugin-reporter-default.js');
+
+export default async function upCommand({
+  storage: storageConfig,
+  reporter: reporterConfig,
+  directory,
+  dry = false,
+  plugins = [],
+}: Config & ExtraFlags) {
   if (!directory) {
     throw new MissingOptionError('directory');
   }
 
   const cwd = process.cwd();
-  const storagePlugin = await requirePlugin('storage', plugins);
+  const storagePlugin = await getOrLoadStorage([storageConfig]);
+
+  if (!storagePlugin) {
+    throw new BadOptionError('storage', 'No storage found, please specify a storage using the storage option');
+  }
+
   const storage = await storagePlugin.initializeStorage();
-  const reporter = await requirePlugin('reporter', [pluginReporterDefault, ...plugins]);
+  const reporter = await getOrLoadReporter([lazyDefaultReporter, reporterConfig]);
+
+  if (!reporter) {
+    throw new BadOptionError('reporter', 'No reporter found, please specify a reporter using the reporter option');
+  }
 
   await reporter.onInit?.({ cwd, dry, directory });
 

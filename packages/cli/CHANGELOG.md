@@ -1,4 +1,4 @@
-# emigrate
+# @emigrate/cli
 
 ## 0.4.0
 

@@ -8,7 +8,7 @@ import prettyMs from 'pretty-ms';
 import {
   type MigrationMetadata,
   type MigrationMetadataFinished,
-  type ReporterPlugin,
+  type EmigrateReporter,
 } from '@emigrate/plugin-tools/types';
 
 type Status = ReturnType<typeof getMigrationStatus>;
@@ -202,7 +202,7 @@ const getHeaderMessage = (migrations?: MigrationMetadata[], lockedMigrations?: M
   )} ${ansis.yellow(`(${migrations.length - lockedMigrations.length} locked)`)}`;
 };
 
-class DefaultFancyReporter implements Required<ReporterPlugin> {
+class DefaultFancyReporter implements Required<EmigrateReporter> {
   #migrations: Array<MigrationMetadata | MigrationMetadataFinished> | undefined;
   #lockedMigrations: MigrationMetadata[] | undefined;
   #activeMigration: MigrationMetadata | undefined;
@@ -290,7 +290,7 @@ class DefaultFancyReporter implements Required<ReporterPlugin> {
   }
 }
 
-class DefaultReporter implements Required<ReporterPlugin> {
+class DefaultReporter implements Required<EmigrateReporter> {
   #migrations?: MigrationMetadata[];
   #lockedMigrations?: MigrationMetadata[];
 

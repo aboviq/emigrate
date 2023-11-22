@@ -1,9 +1,13 @@
-import { type Plugin } from '@emigrate/plugin-tools/types';
+import { type EmigrateStorage, type Awaitable, type Plugin, type EmigrateReporter } from '@emigrate/plugin-tools/types';
 
 export type EmigratePlugin = Plugin;
 
+type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Awaitable<{ default: T }>);
+
 export type Config = {
-  plugins?: Array<string | EmigratePlugin>;
+  storage?: StringOrModule<EmigrateStorage>;
+  reporter?: StringOrModule<EmigrateReporter>;
+  plugins?: Array<StringOrModule<EmigratePlugin>>;
   directory?: string;
   template?: string;
   extension?: string;

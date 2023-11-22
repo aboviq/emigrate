@@ -1,7 +1,10 @@
 import { cosmiconfig } from 'cosmiconfig';
 import { type Config, type EmigrateConfig } from './types.js';
 
-export const getConfig = async (command: 'up' | 'list' | 'new'): Promise<Config> => {
+const commands = ['up', 'list', 'new'] as const;
+type Command = (typeof commands)[number];
+
+export const getConfig = async (command: Command): Promise<Config> => {
   const explorer = cosmiconfig('emigrate');
 
   const result = await explorer.search();
@@ -10,11 +13,14 @@ export const getConfig = async (command: 'up' | 'list' | 'new'): Promise<Config>
     return {};
   }
 
-  const { plugins, directory, template, ...commandsConfig } = result.config as EmigrateConfig;
+  const config = result.config as EmigrateConfig;
 
-  if (commandsConfig[command]) {
-    return { plugins, directory, template, ...commandsConfig[command] };
+  const commandConfig = config[command];
+
+  for (const command of commands) {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete config[command];
   }
 
-  return { plugins, directory, template };
+  return { ...config, ...commandConfig };
 };

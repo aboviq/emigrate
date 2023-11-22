@@ -19,6 +19,14 @@ const up: Action = async (args) => {
         type: 'string',
         short: 'd',
       },
+      reporter: {
+        type: 'string',
+        short: 'r',
+      },
+      storage: {
+        type: 'string',
+        short: 's',
+      },
       dry: {
         type: 'boolean',
       },
@@ -40,14 +48,16 @@ Options:
 
   -h, --help       Show this help message and exit
   -d, --directory  The directory where the migration files are located (required)
+  -s, --storage    The storage to use for where to store the migration history (required)
   -p, --plugin     The plugin(s) to use (can be specified multiple times)
+  -r, --reporter   The reporter to use for reporting the migration progress
   --dry            List the pending migrations that would be run without actually running them
 
 Examples:
 
-  emigrate up --directory src/migrations
-  emigrate up -d ./migrations --plugin @emigrate/plugin-storage-mysql
-  emigrate up -d src/migrations --dry
+  emigrate up --directory src/migrations -s fs
+  emigrate up -d ./migrations --storage @emigrate/storage-mysql
+  emigrate up -d src/migrations -s postgres -r json --dry
 `;
 
   if (values.help) {
@@ -56,12 +66,12 @@ Examples:
     return;
   }
 
-  const { directory = config.directory, dry } = values;
+  const { directory = config.directory, storage = config.storage, reporter = config.reporter, dry } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
 
   try {
     const { default: upCommand } = await import('./up-command.js');
-    await upCommand({ directory, plugins, dry });
+    await upCommand({ storage, reporter, directory, plugins, dry });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
