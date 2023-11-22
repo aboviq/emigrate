@@ -245,7 +245,7 @@ const commands: Record<string, Action> = {
   new: newMigration,
 };
 
-const command = process.argv[2];
+const command = process.argv[2]?.toLowerCase();
 const action = command ? commands[command] : undefined;
 
 if (!action) {
