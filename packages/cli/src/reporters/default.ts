@@ -295,7 +295,7 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
     }
   }
 
-  #render(): void {
+  #render(flush = false): void {
     const parts = [
       getTitle(this.#parameters),
       getHeaderMessage(this.#migrations, this.#lockedMigrations),
@@ -303,7 +303,17 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
       getSummary(this.#parameters.command, this.#migrations),
       getError(this.#error),
     ];
-    logUpdate('\n' + parts.filter(Boolean).join('\n\n') + '\n');
+
+    const output = '\n' + parts.filter(Boolean).join('\n\n') + '\n';
+
+    if (flush) {
+      logUpdate.clear();
+      logUpdate.done();
+      console.log(output);
+      return;
+    }
+
+    logUpdate(output);
   }
 
   #start(): void {
@@ -319,7 +329,7 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
       this.#interval = undefined;
     }
 
-    this.#render();
+    this.#render(true);
   }
 }
 
