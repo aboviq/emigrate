@@ -207,7 +207,10 @@ const getSummary = (
   return `  ${statusLine}${showTotal ? gray(` (${total} total)`) : ''}`;
 };
 
-const getHeaderMessage = (migrations?: MigrationMetadata[], lockedMigrations?: MigrationMetadata[]) => {
+const getHeaderMessage = (
+  migrations?: Array<MigrationMetadata | MigrationMetadataFinished>,
+  lockedMigrations?: Array<MigrationMetadata | MigrationMetadataFinished>,
+) => {
   if (!migrations || !lockedMigrations) {
     return '';
   }
@@ -220,13 +223,22 @@ const getHeaderMessage = (migrations?: MigrationMetadata[], lockedMigrations?: M
     return `  ${bold(migrations.length.toString())} ${dim('pending migrations to run')}`;
   }
 
-  if (lockedMigrations.length === 0) {
-    return `  ${bold(`0 of ${migrations.length}`)} ${dim('pending migrations to run')} ${redBright('(all locked)')}`;
-  }
+  const nonLockedMigrations = migrations.filter(
+    (migration) => !lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name),
+  );
+  const failedMigrations = nonLockedMigrations.filter(
+    (migration) => 'status' in migration && migration.status === 'failed',
+  );
+  const unlockableCount = nonLockedMigrations.length - failedMigrations.length;
 
-  return `  ${bold(`${lockedMigrations.length} of ${migrations.length}`)} ${dim('pending migrations to run')} ${yellow(
-    `(${migrations.length - lockedMigrations.length} locked)`,
-  )}`;
+  const parts = [
+    bold(`${lockedMigrations.length} of ${migrations.length}`),
+    dim`pending migrations to run`,
+    unlockableCount > 0 ? yellow(`(${unlockableCount} locked)`) : '',
+    failedMigrations.length > 0 ? redBright(`(${failedMigrations.length} failed)`) : '',
+  ].filter(Boolean);
+
+  return `  ${parts.join(' ')}`;
 };
 
 class DefaultFancyReporter implements Required<EmigrateReporter> {

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import process from 'node:process';
 import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import {
@@ -61,18 +62,29 @@ export default async function upCommand({
   await reporter.onInit?.({ command: 'up', cwd, dry, directory });
 
   const migrationFiles = await getMigrations(cwd, directory);
-
-  let migrationHistoryError: MigrationHistoryError | undefined;
+  const failedEntries: MigrationMetadataFinished[] = [];
 
   for await (const migrationHistoryEntry of storage.getHistory()) {
-    if (migrationHistoryEntry.status === 'failed') {
-      migrationHistoryError = new MigrationHistoryError(
-        `Migration ${migrationHistoryEntry.name} is in a failed state, please fix it first`,
-        migrationHistoryEntry,
-      );
-    }
-
     const index = migrationFiles.findIndex((migrationFile) => migrationFile.name === migrationHistoryEntry.name);
+
+    if (migrationHistoryEntry.status === 'failed') {
+      const filePath = path.resolve(cwd, directory, migrationHistoryEntry.name);
+      const finishedMigration: MigrationMetadataFinished = {
+        name: migrationHistoryEntry.name,
+        status: migrationHistoryEntry.status,
+        filePath,
+        relativeFilePath: path.relative(cwd, filePath),
+        extension: withLeadingPeriod(path.extname(migrationHistoryEntry.name)),
+        error: new MigrationHistoryError(
+          `Migration ${migrationHistoryEntry.name} is in a failed state, please fix it first`,
+          migrationHistoryEntry,
+        ),
+        directory,
+        cwd,
+        duration: 0,
+      };
+      failedEntries.push(finishedMigration);
+    }
 
     if (index !== -1) {
       migrationFiles.splice(index, 1);
@@ -100,22 +112,29 @@ export default async function upCommand({
     }
   }
 
-  await reporter.onCollectedMigrations?.(migrationFiles);
+  await reporter.onCollectedMigrations?.([...failedEntries, ...migrationFiles]);
 
-  if (migrationFiles.length === 0 || dry || migrationHistoryError) {
+  if (migrationFiles.length === 0 || dry || failedEntries.length > 0) {
+    const error = failedEntries.find((migration) => migration.status === 'failed')?.error;
     await reporter.onLockedMigrations?.(migrationFiles);
 
     const finishedMigrations: MigrationMetadataFinished[] = migrationFiles.map((migration) => ({
       ...migration,
       duration: 0,
-      status: 'skipped',
+      status: 'pending',
     }));
+
+    for await (const failedMigration of failedEntries) {
+      await reporter.onMigrationError?.(failedMigration, failedMigration.error!);
+    }
 
     for await (const migration of finishedMigrations) {
       await reporter.onMigrationSkip?.(migration);
     }
 
-    await reporter.onFinished?.(finishedMigrations, migrationHistoryError);
+    await reporter.onFinished?.([...failedEntries, ...finishedMigrations], error);
+
+    process.exitCode = failedEntries.length > 0 ? 1 : 0;
     return;
   }
 
@@ -197,14 +216,7 @@ export default async function upCommand({
 
         finishedMigrations.push(finishedMigration);
       } catch (error) {
-        let errorInstance = error instanceof Error ? error : new Error(String(error));
-
-        if (!(errorInstance instanceof EmigrateError)) {
-          errorInstance = new MigrationRunError(`Failed to run migration: ${migration.relativeFilePath}`, migration, {
-            cause: error,
-          });
-        }
-
+        const errorInstance = error instanceof Error ? error : new Error(String(error));
         const duration = getDuration(start);
         const finishedMigration: MigrationMetadataFinished = {
           ...migration,
@@ -220,9 +232,19 @@ export default async function upCommand({
       }
     }
   } finally {
-    const firstError = finishedMigrations.find((migration) => migration.status === 'failed')?.error;
+    const firstFailed = finishedMigrations.find((migration) => migration.status === 'failed');
+    const firstError =
+      firstFailed?.error instanceof EmigrateError
+        ? firstFailed.error
+        : firstFailed
+          ? new MigrationRunError(`Failed to run migration: ${firstFailed.relativeFilePath}`, firstFailed, {
+              cause: firstFailed?.error,
+            })
+          : undefined;
 
     await cleanup();
     await reporter.onFinished?.(finishedMigrations, firstError);
+
+    process.exitCode = firstError ? 1 : 0;
   }
 }
