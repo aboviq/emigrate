@@ -16,7 +16,6 @@ import {
 } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
-import pluginLoaderJs from '../plugin-loader-js.js';
 import { getMigrations } from '../get-migrations.js';
 
 type ExtraFlags = {
@@ -29,6 +28,7 @@ const getDuration = (start: [number, number]) => {
 };
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
+const lazyPluginLoaderJs = async () => import('../plugin-loader-js.js');
 
 export default async function upCommand({
   storage: storageConfig,
@@ -80,7 +80,7 @@ export default async function upCommand({
   }
 
   const migrationFileExtensions = new Set(migrationFiles.map((migration) => migration.extension));
-  const loaderPlugins = await getOrLoadPlugins('loader', [pluginLoaderJs, ...plugins]);
+  const loaderPlugins = await getOrLoadPlugins('loader', [lazyPluginLoaderJs, ...plugins]);
 
   const loaderByExtension = new Map<string, LoaderPlugin | undefined>(
     [...migrationFileExtensions].map(
