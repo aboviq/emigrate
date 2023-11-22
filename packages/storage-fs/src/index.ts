@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { type StoragePlugin, type MigrationStatus } from '@emigrate/plugin-tools/types';
+import { type EmigrateStorage, type MigrationStatus } from '@emigrate/plugin-tools/types';
 
 export type StorageFsOptions = {
   filename: string;
@@ -13,7 +13,7 @@ type SerializedError = {
   stack?: string;
 };
 
-export default function storageFs({ filename }: StorageFsOptions): StoragePlugin {
+export default function storageFs({ filename }: StorageFsOptions): EmigrateStorage {
   const filePath = path.resolve(process.cwd(), filename);
   const lockFilePath = `${filePath}.lock`;
 

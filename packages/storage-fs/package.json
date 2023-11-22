@@ -1,5 +1,5 @@
 {
-  "name": "@emigrate/plugin-storage-fs",
+  "name": "@emigrate/storage-fs",
   "version": "0.1.1",
   "publishConfig": {
     "access": "public"
@@ -24,14 +24,14 @@
   },
   "keywords": [
     "emigrate",
-    "emigrate-plugin",
+    "emigrate-storage",
     "plugin",
     "migrations",
     "storage"
   ],
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
-  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-storage-fs#readme",
-  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-storage-fs",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/storage-fs#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/storage-fs",
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "dependencies": {

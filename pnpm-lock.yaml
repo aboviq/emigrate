@@ -95,21 +95,21 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
 
-  packages/plugin-storage-fs:
-    dependencies:
-      '@emigrate/plugin-tools':
-        specifier: workspace:*
-        version: link:../plugin-tools
-    devDependencies:
-      '@emigrate/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-
   packages/plugin-tools:
     dependencies:
       import-from-esm:
         specifier: 1.2.1
         version: 1.2.1
+    devDependencies:
+      '@emigrate/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+
+  packages/storage-fs:
+    dependencies:
+      '@emigrate/plugin-tools':
+        specifier: workspace:*
+        version: link:../plugin-tools
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*

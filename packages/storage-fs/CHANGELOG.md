@@ -1,4 +1,4 @@
-# @emigrate/plugin-storage-fs
+# @emigrate/storage-fs
 
 ## 0.1.1
 
