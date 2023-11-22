@@ -101,6 +101,12 @@ export const getOrLoadPlugins = async <T extends PluginType>(
       continue;
     }
 
+    // Support export default ...
+    if (plugin && typeof plugin === 'object' && 'default' in plugin && isPluginOfType(type, plugin.default)) {
+      result.push(plugin.default);
+      continue;
+    }
+
     const loadedPlugin = typeof plugin === 'string' ? await loadPlugin(type, plugin) : undefined;
 
     if (loadedPlugin) {
