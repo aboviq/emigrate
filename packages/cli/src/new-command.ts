@@ -34,9 +34,7 @@ export default async function newCommand({ directory, template, plugins = [], ex
       throw new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error });
     }
 
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${withLeadingPeriod(
-      extension ?? fileExtension,
-    )}`;
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension ?? fileExtension)}`;
   }
 
   let hasGeneratedFile = Boolean(filename && content !== undefined);
@@ -56,7 +54,7 @@ export default async function newCommand({ directory, template, plugins = [], ex
 
   if (extension && !hasGeneratedFile) {
     content = '';
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.${withLeadingPeriod(extension)}`;
+    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension)}`;
   }
 
   if (!filename || content === undefined) {
