@@ -11,6 +11,16 @@ type SerializedError = {
   name: string;
   message: string;
   stack?: string;
+  cause?: unknown;
+};
+
+const serializeError = (error: Error): SerializedError => {
+  return {
+    name: error.name,
+    message: error.message,
+    stack: error.stack,
+    cause: error.cause instanceof Error ? serializeError(error.cause) : error.cause,
+  };
 };
 
 export default function storageFs({ filename }: StorageFsOptions): EmigrateStorage {
@@ -41,7 +51,7 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
         [migration]: {
           status,
           date: new Date().toISOString(),
-          error: error ? { name: error.name, message: error.message, stack: error.stack } : undefined,
+          error: error ? serializeError(error) : undefined,
         },
       };
 
