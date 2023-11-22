@@ -13,10 +13,10 @@ import {
   MigrationLoadError,
   MigrationRunError,
   MissingOptionError,
-} from './errors.js';
-import { type Config } from './types.js';
-import { withLeadingPeriod } from './with-leading-period.js';
-import pluginLoaderJs from './plugin-loader-js.js';
+} from '../errors.js';
+import { type Config } from '../types.js';
+import { withLeadingPeriod } from '../with-leading-period.js';
+import pluginLoaderJs from '../plugin-loader-js.js';
 
 type ExtraFlags = {
   dry?: boolean;
@@ -27,7 +27,7 @@ const getDuration = (start: [number, number]) => {
   return seconds * 1000 + nanoseconds / 1_000_000;
 };
 
-const lazyDefaultReporter = async () => import('./reporters/default.js');
+const lazyDefaultReporter = async () => import('../reporters/default.js');
 
 export default async function upCommand({
   storage: storageConfig,

@@ -70,7 +70,7 @@ Examples:
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
 
   try {
-    const { default: upCommand } = await import('./up-command.js');
+    const { default: upCommand } = await import('./commands/up.js');
     await upCommand({ storage, reporter, directory, plugins, dry });
   } catch (error) {
     if (error instanceof ShowUsageError) {
@@ -160,7 +160,7 @@ Examples:
   const name = positionals.join(' ').trim();
 
   try {
-    const { default: newCommand } = await import('./new-command.js');
+    const { default: newCommand } = await import('./commands/new.js');
     await newCommand({ directory, template, plugins, extension, reporter }, name);
   } catch (error) {
     if (error instanceof ShowUsageError) {

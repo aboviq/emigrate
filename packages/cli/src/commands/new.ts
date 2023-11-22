@@ -3,11 +3,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin, getOrLoadReporter } from '@emigrate/plugin-tools';
 import { type MigrationMetadata } from '@emigrate/plugin-tools/types';
-import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from './errors.js';
-import { type Config } from './types.js';
-import { withLeadingPeriod } from './with-leading-period.js';
+import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from '../errors.js';
+import { type Config } from '../types.js';
+import { withLeadingPeriod } from '../with-leading-period.js';
 
-const lazyDefaultReporter = async () => import('./reporters/default.js');
+const lazyDefaultReporter = async () => import('../reporters/default.js');
 
 export default async function newCommand(
   { directory, template, reporter: reporterConfig, plugins = [], extension }: Config,
