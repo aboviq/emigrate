@@ -9,6 +9,7 @@ export class EmigrateError extends Error {
     options?: ErrorOptions,
   ) {
     super(message, options);
+    this.name = `${this.name} [${this.code}]`;
   }
 }
 
