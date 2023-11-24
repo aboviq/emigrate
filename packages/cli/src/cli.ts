@@ -123,6 +123,10 @@ const newMigration: Action = async (args) => {
 
 Create a new migration file with the given name in the specified directory
 
+Arguments:
+
+  name   The name of the migration file to create (required)
+
 Options:
 
   -h, --help       Show this help message and exit
@@ -239,9 +243,86 @@ Examples:
   }
 };
 
+const remove: Action = async (args) => {
+  const config = await getConfig('remove');
+  const { values, positionals } = parseArgs({
+    args,
+    options: {
+      help: {
+        type: 'boolean',
+        short: 'h',
+      },
+      directory: {
+        type: 'string',
+        short: 'd',
+      },
+      force: {
+        type: 'boolean',
+        short: 'f',
+      },
+      reporter: {
+        type: 'string',
+        short: 'r',
+      },
+      storage: {
+        type: 'string',
+        short: 's',
+      },
+    },
+    allowPositionals: true,
+  });
+
+  const usage = `Usage: emigrate remove [options] <name>
+
+Remove entries from the migration history.
+This is useful if you want to retry a migration that has failed.
+
+Arguments:
+
+  name   The name of the migration file to remove from the history (required)
+
+Options:
+
+  -h, --help       Show this help message and exit
+  -d, --directory  The directory where the migration files are located (required)
+  -r, --reporter   The reporter to use for reporting the removal process
+  -s, --storage    The storage to use to get the migration history (required)
+  -f, --force      Force removal of the migration history entry even if the migration file does not exist
+                   or it's in a non-failed state
+
+Examples:
+
+  emigrate remove -d migrations -s fs 20231122120529381_some_migration_file.js
+  emigrate remove --directory ./migrations --storage postgres 20231122120529381_some_migration_file.sql
+`;
+
+  if (values.help) {
+    console.log(usage);
+    process.exitCode = 1;
+    return;
+  }
+
+  const { directory = config.directory, storage = config.storage, reporter = config.reporter, force } = values;
+
+  try {
+    const { default: removeCommand } = await import('./commands/remove.js');
+    await removeCommand({ directory, storage, reporter, force }, positionals[0] ?? '');
+  } catch (error) {
+    if (error instanceof ShowUsageError) {
+      console.error(error.message, '\n');
+      console.log(usage);
+      process.exitCode = 1;
+      return;
+    }
+
+    throw error;
+  }
+};
+
 const commands: Record<string, Action> = {
   up,
   list,
+  remove,
   new: newMigration,
 };
 
@@ -259,9 +340,10 @@ if (!action) {
 
 Commands:
 
-  up      Run all pending migrations
+  up      Run all pending migrations (or do a dry run)
   new     Create a new migration file
-  list    List all migrations
+  list    List all migrations and their status
+  remove  Remove entries from the migration history
 `);
   process.exit(1);
 }

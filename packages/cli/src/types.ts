@@ -17,4 +17,5 @@ export type EmigrateConfig = Config & {
   up?: Config;
   new?: Config;
   list?: Config;
+  remove?: Config;
 };

@@ -32,6 +32,15 @@ export type Storage = {
    * @param migrations The previously successfully locked migrations that should now be unlocked.
    */
   unlock(migrations: MigrationMetadata[]): Promise<void>;
+
+  /**
+   * Remove a migration from the history.
+   *
+   * This is used to remove a migration from the history which is needed for failed migrations to be re-executed.
+   *
+   * @param migration The migration that should be removed from the history.
+   */
+  remove(migration: MigrationMetadata): Promise<void>;
   /**
    * Get the history of previously executed migrations.
    *
@@ -154,7 +163,7 @@ export type ReporterInitParameters = {
   /**
    * The command that is being executed
    */
-  command: 'up' | 'new' | 'list';
+  command: 'up' | 'new' | 'list' | 'remove';
   /**
    * The directory where the migration files are located
    */
@@ -198,6 +207,24 @@ export type EmigrateReporter = Partial<{
    */
   onNewMigration(migration: MigrationMetadata, content: string): Awaitable<void>;
   /**
+   * Called when a migration is about to be removed from the migration history.
+   *
+   * This is only called when the command is 'remove'.
+   */
+  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void>;
+  /**
+   * Called when a migration is successfully removed from the migration history.
+   *
+   * This is only called when the command is 'remove'.
+   */
+  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void>;
+  /**
+   * Called when a migration couldn't be removed from the migration history.
+   *
+   * This is only called when the command is 'remove'.
+   */
+  onMigrationRemoveError(migration: MigrationMetadataFinished, error: Error): Awaitable<void>;
+  /**
    * Called when a migration is about to be executed.
    *
    * Will only be called for each migration when the command is "up".
@@ -230,15 +257,18 @@ export type EmigrateReporter = Partial<{
    * Will be called when a migration is skipped because a previous migration failed,
    * it couldn't be successfully locked, or in case of a dry run when the command is "up".
    * When the command is "list" this will be called for each pending migration (i.e. those that have not run yet).
+   * When the command is "remove" this will be called when the removal of some migrations are skipped
+   * because the removal of a previous migration failed.
    *
    * @param migration Information about the migration that was skipped.
    */
   onMigrationSkip(migration: MigrationMetadataFinished): Awaitable<void>;
   /**
-   * Called as a final step after all migrations have been executed or listed.
+   * Called as a final step after all migrations have been executed, listed or removed.
    *
    * This is called either after all migrations have been listed successfully for the "list" command
    * or for the "up" command when they are executed successfully, at the end of a dry run, or when a migration has failed.
+   * It is also called after migrations have been removed from the history with the "remove" command.
    * It is also called after a migration file has been generated with the "new" command.
    *
    * @param migrations Information about all migrations that were executed or listed, their status and any error that occurred.

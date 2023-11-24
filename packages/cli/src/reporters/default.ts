@@ -193,7 +193,7 @@ const getSummary = (
 
   const statusLine = [
     failed ? red.bold(`${failed} failed`) : '',
-    done ? green.bold(`${done} ${command === 'new' ? 'created' : 'done'}`) : '',
+    done ? green.bold(`${done} ${command === 'new' ? 'created' : command === 'remove' ? 'removed' : 'done'}`) : '',
     skipped ? yellow.bold(`${skipped} skipped`) : '',
     pending ? cyan.bold(`${pending} pending`) : '',
   ]
@@ -265,6 +265,19 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
 
   onNewMigration(migration: MigrationMetadata, _content: string): Awaitable<void> {
     this.#migrations = [migration];
+  }
+
+  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void> {
+    this.#migrations = [migration];
+    this.#activeMigration = migration;
+  }
+
+  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
+    this.#finishMigration(migration);
+  }
+
+  onMigrationRemoveError(migration: MigrationMetadataFinished, _error: Error): Awaitable<void> {
+    this.#finishMigration(migration);
   }
 
   onMigrationStart(migration: MigrationMetadata): void | PromiseLike<void> {
@@ -370,6 +383,18 @@ class DefaultReporter implements Required<EmigrateReporter> {
 
   onNewMigration(migration: MigrationMetadata, _content: string): Awaitable<void> {
     console.log(getMigrationText(migration));
+  }
+
+  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void> {
+    console.log(getMigrationText(migration));
+  }
+
+  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
+    console.log(getMigrationText(migration));
+  }
+
+  onMigrationRemoveError(migration: MigrationMetadataFinished, _error: Error): Awaitable<void> {
+    console.error(getMigrationText(migration));
   }
 
   onMigrationStart(migration: MigrationMetadata): void | PromiseLike<void> {

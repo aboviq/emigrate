@@ -18,14 +18,10 @@ import {
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { getMigrations } from '../get-migrations.js';
+import { getDuration } from '../get-duration.js';
 
 type ExtraFlags = {
   dry?: boolean;
-};
-
-const getDuration = (start: [number, number]) => {
-  const [seconds, nanoseconds] = process.hrtime(start);
-  return seconds * 1000 + nanoseconds / 1_000_000;
 };
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
@@ -81,7 +77,7 @@ export default async function upCommand({
         relativeFilePath: path.relative(cwd, filePath),
         extension: withLeadingPeriod(path.extname(migrationHistoryEntry.name)),
         error: new MigrationHistoryError(
-          `Migration ${migrationHistoryEntry.name} is in a failed state, please fix it first`,
+          `Migration ${migrationHistoryEntry.name} is in a failed state, please fix and remove it first`,
           migrationHistoryEntry,
         ),
         directory,

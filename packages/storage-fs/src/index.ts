@@ -55,31 +55,59 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
         },
       };
 
-      await fs.writeFile(filePath, JSON.stringify(newHistory, undefined, 2));
+      try {
+        await fs.writeFile(filePath, JSON.stringify(newHistory, undefined, 2));
+      } catch (error) {
+        throw new Error(`Failed to write migration history to file: ${filePath}`, { cause: error });
+      }
     });
 
     return lastUpdate;
+  };
+
+  const acquireLock = async () => {
+    try {
+      const fd = await fs.open(lockFilePath, 'wx');
+
+      await fd.close();
+    } catch (error) {
+      throw new Error('Could not acquire file lock for migrations', { cause: error });
+    }
+  };
+
+  const releaseLock = async () => {
+    try {
+      await fs.unlink(lockFilePath);
+    } catch {
+      // Ignore
+    }
   };
 
   return {
     async initializeStorage() {
       return {
         async lock(migrations) {
-          try {
-            const fd = await fs.open(lockFilePath, 'wx');
+          await acquireLock();
 
-            await fd.close();
-
-            return migrations;
-          } catch {
-            throw new Error('Could not acquire file lock for migrations');
-          }
+          return migrations;
         },
         async unlock() {
+          await releaseLock();
+        },
+        async remove(migration) {
+          await acquireLock();
+
           try {
-            await fs.unlink(lockFilePath);
-          } catch {
-            // Ignore
+            const history = await read();
+
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+            delete history[migration.name];
+
+            await fs.writeFile(filePath, JSON.stringify(history, undefined, 2));
+          } catch (error) {
+            throw new Error(`Failed to remove migration from history: ${migration.name}`, { cause: error });
+          } finally {
+            await releaseLock();
           }
         },
         async *getHistory() {

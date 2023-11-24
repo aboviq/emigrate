@@ -27,6 +27,15 @@ export class MissingArgumentsError extends ShowUsageError {
   }
 }
 
+export class OptionNeededError extends ShowUsageError {
+  constructor(
+    public option: string,
+    message: string,
+  ) {
+    super('ERR_OPT_NEEDED', message);
+  }
+}
+
 export class BadOptionError extends ShowUsageError {
   constructor(
     public option: string,
@@ -68,5 +77,15 @@ export class MigrationRunError extends EmigrateError {
     options?: ErrorOptions,
   ) {
     super('ERR_MIGRATION_RUN', message, options);
+  }
+}
+
+export class MigrationNotRunError extends EmigrateError {
+  constructor(
+    message: string,
+    public metadata: MigrationMetadata,
+    options?: ErrorOptions,
+  ) {
+    super('ERR_MIGRATION_NOT_RUN', message, options);
   }
 }
