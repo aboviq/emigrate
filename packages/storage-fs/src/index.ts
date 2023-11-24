@@ -113,12 +113,14 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
         async *getHistory() {
           const history = await read();
 
-          yield* Object.entries(history).map(([name, { status, date, error }]) => ({
-            name,
-            status,
-            error,
-            date: new Date(date),
-          }));
+          for (const [name, { status, date, error }] of Object.entries(history)) {
+            yield {
+              name,
+              status,
+              date: new Date(date),
+              error: error ? new Error(error.message) : undefined,
+            };
+          }
         },
         async onSuccess(migration) {
           await update(migration.name, 'done');
