@@ -40,6 +40,13 @@ export default async function listCommand({ directory, reporter: reporterConfig,
   const finishedMigrations: MigrationMetadataFinished[] = [];
 
   for await (const migrationHistoryEntry of storage.getHistory()) {
+    const index = migrationFiles.findIndex((migrationFile) => migrationFile.name === migrationHistoryEntry.name);
+
+    if (index === -1) {
+      // Only care about entries that exists in the current migration directory
+      continue;
+    }
+
     const filePath = path.resolve(cwd, directory, migrationHistoryEntry.name);
     const finishedMigration: MigrationMetadataFinished = {
       name: migrationHistoryEntry.name,
@@ -65,11 +72,7 @@ export default async function listCommand({ directory, reporter: reporterConfig,
 
     finishedMigrations.push(finishedMigration);
 
-    const index = migrationFiles.findIndex((migrationFile) => migrationFile.name === migrationHistoryEntry.name);
-
-    if (index !== -1) {
-      migrationFiles.splice(index, 1);
-    }
+    migrationFiles.splice(index, 1);
   }
 
   for await (const migration of migrationFiles) {

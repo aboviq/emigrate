@@ -67,6 +67,11 @@ export default async function upCommand({
   for await (const migrationHistoryEntry of storage.getHistory()) {
     const index = migrationFiles.findIndex((migrationFile) => migrationFile.name === migrationHistoryEntry.name);
 
+    if (index === -1) {
+      // Only care about entries that exists in the current migration directory
+      continue;
+    }
+
     if (migrationHistoryEntry.status === 'failed') {
       const filePath = path.resolve(cwd, directory, migrationHistoryEntry.name);
       const finishedMigration: MigrationMetadataFinished = {
@@ -86,9 +91,7 @@ export default async function upCommand({
       failedEntries.push(finishedMigration);
     }
 
-    if (index !== -1) {
-      migrationFiles.splice(index, 1);
-    }
+    migrationFiles.splice(index, 1);
   }
 
   const migrationFileExtensions = new Set(migrationFiles.map((migration) => migration.extension));

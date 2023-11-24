@@ -9,7 +9,8 @@ It's effectively a successor of [klei-migrate](https://www.npmjs.com/package/kle
 - Database agnostic
   - Emigrate can migrate any database
 - Works at any scale
-  - Supports any database as storage so multiple instances can share the same migration history
+  - Supports any database as storage so multiple instances of the same app can share the same migration history
+  - Supports multiple projects/apps doing migrations on the same database without interfering with each other
   - Uses smart locking to ensure only one instance migrates a certain migration at a time
   - Thanks to the smart locking it's safe to run migrations in parallel
 - Can be run inside containers
