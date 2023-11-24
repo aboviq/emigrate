@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --enable-source-maps
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 import { ShowUsageError } from './errors.js';
