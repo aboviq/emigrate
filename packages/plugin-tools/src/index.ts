@@ -215,5 +215,4 @@ export const sanitizeMigrationName = (name: string) =>
   name
     .replaceAll(/[\W/\\:|*?'"<>_]+/g, '_')
     .trim()
-    .replace(/^_|_$/, '')
-    .toLocaleLowerCase();
+    .replace(/^_|_$/, '');

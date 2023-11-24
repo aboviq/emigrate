@@ -32,7 +32,7 @@ describe('sanitizeMigrationName', () => {
     assert.strictEqual(sanitizeMigrationName('foo_? :*<>'), 'foo');
   });
 
-  it('should lower case the filename', () => {
-    assert.strictEqual(sanitizeMigrationName('Are you, Foo?'), 'are_you_foo');
+  it('should keep upper cased letters in the filename', () => {
+    assert.strictEqual(sanitizeMigrationName('Are you, Foo?'), 'Are_you_Foo');
   });
 });
