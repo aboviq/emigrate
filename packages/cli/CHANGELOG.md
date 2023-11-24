@@ -1,5 +1,35 @@
 # @emigrate/cli
 
+## 0.5.0
+
+### Minor Changes
+
+- 8347fc1: Show any failed migration from the history in the "up" dry-run output
+- cf17e48: Enable source maps when running the Emigrate CLI
+- 53cdb23: Implement the "list" command for listing the full migration history and any pending migrations
+- 8e87ade: Move storages and reporters out from the plugin option into their own separate options (i.e. "--reporter" and "--storage" respectively). This makes it easier to change the interfaces of storages and reporters, and it's also more similar to other tools.
+- da1eee3: Add "reporter" option for the "new" command and use it for improved logging
+- 8347fc1: Improve the looks of the "up" dry-run default output by showing pending migrations in a different color
+- d8a6a24: Implement the "remove" command for removing migration entries from the history
+- c68c6f0: Include Emigrate error codes in the error names
+- 8f623ef: Allow running commands no matter of the provided command's letter casing
+
+### Patch Changes
+
+- 8347fc1: Return a non zero exit code in case a migration fails (or for a dry-run if there's a failed migration in the history)
+- 570bd1f: The default reporter now prints the full command output once a command is done (in interactive mode) so that the full output is visible no matter the size of the terminal window.
+- 8347fc1: Don't pass the EmigrateError instance to the storage for each failed migration but only the real cause. This is so that errors from failed migrations are not wrapped twice in EmigrateError instances when presenting failed migrations during an "up" dry-run or the "list" command.
+- 9447d28: Ignore migration history entries not belonging to the current migration directory when considering what to list or execute. This way a project can have multiple folders with different kind of migration sets or multiple projects can share the same migration history without any of them conflicting or blocking each other in case of failed migrations.
+- b57c86e: Only load the JavaScript loader plugin if necessary
+- 1940885: Remove the double period before the file extension when generating new migration files
+- Updated dependencies [5e8572b]
+- Updated dependencies [8e87ade]
+- Updated dependencies [60ae3b8]
+- Updated dependencies [672fae1]
+- Updated dependencies [d8a6a24]
+- Updated dependencies [acb0b4f]
+  - @emigrate/plugin-tools@0.4.0
+
 ## 0.4.0
 
 ### Minor Changes

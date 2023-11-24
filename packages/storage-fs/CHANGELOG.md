@@ -1,5 +1,23 @@
 # @emigrate/storage-fs
 
+## 0.2.0
+
+### Minor Changes
+
+- 7d8ac9b: Adapt to the new plugin structure and rename from "@emigrate/plugin-storage-fs" to just "@emigrate/storage-fs"
+- e79dd4b: Serialize errors recursively if they have a "cause" set to an Error instance
+- d8a6a24: Implement the "remove" command for removing migration entries from the history
+
+### Patch Changes
+
+- Updated dependencies [5e8572b]
+- Updated dependencies [8e87ade]
+- Updated dependencies [60ae3b8]
+- Updated dependencies [672fae1]
+- Updated dependencies [d8a6a24]
+- Updated dependencies [acb0b4f]
+  - @emigrate/plugin-tools@0.4.0
+
 ## 0.1.1
 
 ### Patch Changes

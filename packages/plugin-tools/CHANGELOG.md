@@ -1,5 +1,19 @@
 # @emigrate/plugin-tools
 
+## 0.4.0
+
+### Minor Changes
+
+- 5e8572b: Pass the current command to the reporter
+- 8e87ade: Move storages and reporters out from the plugin option into their own separate options (i.e. "--reporter" and "--storage" respectively). This makes it easier to change the interfaces of storages and reporters, and it's also more similar to other tools.
+- 672fae1: Include "@emigrate/" in the plugin prefix list, i.e. when searching for the plugin "blaha" it will look for the packages "blaha", "@emigrate/blaha", "@emigrate/plugin-blaha" and "emigrate-plugin-blaha" and use the first of them that exists
+- d8a6a24: Implement the "remove" command for removing migration entries from the history
+
+### Patch Changes
+
+- 60ae3b8: Fix loading of lazy loaded plugins with default exports
+- acb0b4f: Keep upper cased letters in migration file names by default
+
 ## 0.3.0
 
 ### Minor Changes
