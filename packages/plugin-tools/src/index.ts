@@ -43,6 +43,9 @@ export const isEmigrateReporter = (plugin: any): plugin is EmigrateReporter => {
     'onCollectedMigrations',
     'onLockedMigrations',
     'onNewMigration',
+    'onMigrationRemoveStart',
+    'onMigrationRemoveSuccess',
+    'onMigrationRemoveError',
     'onMigrationStart',
     'onMigrationSuccess',
     'onMigrationError',
@@ -139,18 +142,22 @@ const getOrLoad = async <T>(potentials: Array<StringOrModule<unknown>>, check: (
 };
 
 const getImportFromEsm = async () => {
-  let importFromEsm = await import('import-from-esm');
+  const importFromEsm = await import('import-from-esm');
 
   // Because of "allowSyntheticDefaultImports" we need to do this ugly hack
   if ((importFromEsm as any).default) {
-    importFromEsm = (importFromEsm as any).default as unknown as typeof importFromEsm;
+    return (importFromEsm as any).default as unknown as typeof importFromEsm;
   }
 
   return importFromEsm;
 };
 
 export const loadStorage = async (name: string): Promise<EmigrateStorage | undefined> => {
-  return load(name, ['@emigrate/storage-', 'emigrate-storage-', '@emigrate/plugin-storage-'], isEmigrateStorage);
+  return load(
+    name,
+    ['@emigrate/', '@emigrate/storage-', 'emigrate-storage-', '@emigrate/plugin-storage-'],
+    isEmigrateStorage,
+  );
 };
 
 export const loadReporter = async (name: string): Promise<EmigrateReporter | undefined> => {
@@ -161,9 +168,13 @@ export const loadPlugin = async <T extends PluginType>(
   type: T,
   plugin: string,
 ): Promise<PluginFromType<T> | undefined> => {
-  return load(plugin, ['@emigrate/plugin-', 'emigrate-plugin-'], (value: unknown): value is PluginFromType<T> => {
-    return isPluginOfType(type, value);
-  });
+  return load(
+    plugin,
+    ['@emigrate/', '@emigrate/plugin-', 'emigrate-plugin-'],
+    (value: unknown): value is PluginFromType<T> => {
+      return isPluginOfType(type, value);
+    },
+  );
 };
 
 const load = async <T>(
