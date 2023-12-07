@@ -1,0 +1,47 @@
+{
+  "name": "@emigrate/reporter-pino",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A Pino reporter for Emigrate for logging the migration process.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --pretty",
+    "build:watch": "tsc --pretty --watch",
+    "lint": "xo --cwd=../.. $(pwd)"
+  },
+  "keywords": [
+    "emigrate",
+    "emigrate-reporter",
+    "plugin",
+    "migrations",
+    "reporter"
+  ],
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/reporter-pino#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/reporter-pino",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
+  "license": "MIT",
+  "dependencies": {
+    "@emigrate/plugin-tools": "workspace:*",
+    "pino": "8.16.2"
+  },
+  "devDependencies": {
+    "@emigrate/tsconfig": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
