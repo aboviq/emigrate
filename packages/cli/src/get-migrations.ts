@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 import { type MigrationMetadata } from '@emigrate/plugin-tools/types';
 import { withLeadingPeriod } from './with-leading-period.js';
 
+export type GetMigrationsFunction = typeof getMigrations;
+
 export const getMigrations = async (cwd: string, directory: string): Promise<MigrationMetadata[]> => {
   const allFilesInMigrationDirectory = await fs.readdir(path.resolve(cwd, directory), {
     withFileTypes: true,

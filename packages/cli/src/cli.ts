@@ -71,7 +71,7 @@ Examples:
 
   try {
     const { default: upCommand } = await import('./commands/up.js');
-    await upCommand({ storage, reporter, directory, plugins, dry });
+    process.exitCode = await upCommand({ storage, reporter, directory, plugins, dry });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -359,4 +359,6 @@ try {
   } else {
     console.error(error);
   }
+
+  process.exitCode = 1;
 }

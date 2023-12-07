@@ -17,11 +17,13 @@ import {
 } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
-import { getMigrations } from '../get-migrations.js';
+import { getMigrations as getMigrationsOriginal, type GetMigrationsFunction } from '../get-migrations.js';
 import { getDuration } from '../get-duration.js';
 
 type ExtraFlags = {
+  cwd?: string;
   dry?: boolean;
+  getMigrations?: GetMigrationsFunction;
 };
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
@@ -33,12 +35,13 @@ export default async function upCommand({
   directory,
   dry = false,
   plugins = [],
-}: Config & ExtraFlags) {
+  cwd = process.cwd(),
+  getMigrations = getMigrationsOriginal,
+}: Config & ExtraFlags): Promise<number> {
   if (!directory) {
     throw new MissingOptionError('directory');
   }
 
-  const cwd = process.cwd();
   const storagePlugin = await getOrLoadStorage([storageConfig]);
 
   if (!storagePlugin) {
@@ -54,8 +57,6 @@ export default async function upCommand({
       'No reporter found, please specify an existing reporter using the reporter option',
     );
   }
-
-  await reporter.onInit?.({ command: 'up', cwd, dry, directory });
 
   const migrationFiles = await getMigrations(cwd, directory);
   const failedEntries: MigrationMetadataFinished[] = [];
@@ -111,6 +112,8 @@ export default async function upCommand({
     }
   }
 
+  await reporter.onInit?.({ command: 'up', cwd, dry, directory });
+
   await reporter.onCollectedMigrations?.([...failedEntries, ...migrationFiles]);
 
   if (migrationFiles.length === 0 || dry || failedEntries.length > 0) {
@@ -133,14 +136,13 @@ export default async function upCommand({
 
     await reporter.onFinished?.([...failedEntries, ...finishedMigrations], error);
 
-    process.exitCode = failedEntries.length > 0 ? 1 : 0;
-    return;
+    return failedEntries.length > 0 ? 1 : 0;
   }
 
   let lockedMigrationFiles: MigrationMetadata[] = [];
 
   try {
-    lockedMigrationFiles = await storage.lock(migrationFiles);
+    lockedMigrationFiles = (await storage.lock(migrationFiles)) ?? [];
 
     await reporter.onLockedMigrations?.(lockedMigrationFiles);
   } catch (error) {
@@ -149,7 +151,8 @@ export default async function upCommand({
     }
 
     await reporter.onFinished?.([], error instanceof Error ? error : new Error(String(error)));
-    return;
+
+    return 1;
   }
 
   const nonLockedMigrations = migrationFiles.filter((migration) => !lockedMigrationFiles.includes(migration));
@@ -230,6 +233,10 @@ export default async function upCommand({
         finishedMigrations.push(finishedMigration);
       }
     }
+
+    const firstFailed = finishedMigrations.find((migration) => migration.status === 'failed');
+
+    return firstFailed ? 1 : 0;
   } finally {
     const firstFailed = finishedMigrations.find((migration) => migration.status === 'failed');
     const firstError =
@@ -243,7 +250,5 @@ export default async function upCommand({
 
     await cleanup();
     await reporter.onFinished?.(finishedMigrations, firstError);
-
-    process.exitCode = firstError ? 1 : 0;
   }
 }
