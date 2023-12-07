@@ -184,7 +184,7 @@ const load = async <T>(
 ): Promise<T | undefined> => {
   const importFromEsm = await getImportFromEsm();
 
-  const importsToTry = name.startsWith('.') ? [name] : [name, ...prefixes.map((prefix) => `${prefix}${name}`)];
+  const importsToTry = name.startsWith('.') ? [name] : [...prefixes.map((prefix) => `${prefix}${name}`), name];
 
   for await (const importPath of importsToTry) {
     try {
