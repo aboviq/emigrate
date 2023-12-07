@@ -71,20 +71,28 @@ export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plug
 export const getOrLoadStorage = async (
   potentialStorages: Array<StringOrModule<unknown>>,
 ): Promise<EmigrateStorage | undefined> => {
-  return getOrLoad(potentialStorages, isEmigrateStorage);
+  return getOrLoad(
+    potentialStorages,
+    ['@emigrate/storage-', 'emigrate-storage-', '@emigrate/plugin-storage-', '@emigrate/'],
+    isEmigrateStorage,
+  );
 };
 
 export const getOrLoadReporter = async (
   potentialReporters: Array<StringOrModule<unknown>>,
 ): Promise<EmigrateReporter | undefined> => {
-  return getOrLoad(potentialReporters, isEmigrateReporter);
+  return getOrLoad(potentialReporters, ['@emigrate/reporter-', 'emigrate-reporter-', '@emigrate/'], isEmigrateReporter);
 };
 
 export const getOrLoadPlugin = async <T extends PluginType>(
   type: T,
   plugins: Array<StringOrModule<unknown>>,
 ): Promise<PluginFromType<T> | undefined> => {
-  return getOrLoad(plugins, (value: unknown): value is PluginFromType<T> => isPluginOfType(type, value));
+  return getOrLoad(
+    plugins,
+    ['@emigrate/plugin-', 'emigrate-plugin-', '@emigrate/'],
+    (value: unknown): value is PluginFromType<T> => isPluginOfType(type, value),
+  );
 };
 
 export const getOrLoadPlugins = async <T extends PluginType>(
@@ -120,10 +128,18 @@ export const getOrLoadPlugins = async <T extends PluginType>(
   return result;
 };
 
-const getOrLoad = async <T>(potentials: Array<StringOrModule<unknown>>, check: (value: unknown) => value is T) => {
+const getOrLoad = async <T>(
+  potentials: Array<StringOrModule<unknown>>,
+  prefixes: string[],
+  check: (value: unknown) => value is T,
+) => {
   const reversed = [...potentials].reverse();
 
   for await (let potential of reversed) {
+    if (typeof potential === 'string') {
+      return load(potential, prefixes, check);
+    }
+
     if (typeof potential === 'function') {
       potential = await potential();
     }
@@ -152,25 +168,10 @@ const getImportFromEsm = async () => {
   return importFromEsm;
 };
 
-export const loadStorage = async (name: string): Promise<EmigrateStorage | undefined> => {
-  return load(
-    name,
-    ['@emigrate/', '@emigrate/storage-', 'emigrate-storage-', '@emigrate/plugin-storage-'],
-    isEmigrateStorage,
-  );
-};
-
-export const loadReporter = async (name: string): Promise<EmigrateReporter | undefined> => {
-  return load(name, ['@emigrate/reporter-', 'emigrate-reporter-'], isEmigrateReporter);
-};
-
-export const loadPlugin = async <T extends PluginType>(
-  type: T,
-  plugin: string,
-): Promise<PluginFromType<T> | undefined> => {
+const loadPlugin = async <T extends PluginType>(type: T, plugin: string): Promise<PluginFromType<T> | undefined> => {
   return load(
     plugin,
-    ['@emigrate/', '@emigrate/plugin-', 'emigrate-plugin-'],
+    ['@emigrate/plugin-', 'emigrate-plugin-', '@emigrate/'],
     (value: unknown): value is PluginFromType<T> => {
       return isPluginOfType(type, value);
     },
