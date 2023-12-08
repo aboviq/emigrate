@@ -1,5 +1,20 @@
 # @emigrate/cli
 
+## 0.6.0
+
+### Minor Changes
+
+- a8db226: Handle storage initialization errors and show missing loader plugin errors in a better way
+- c1d5597: Serialize errors before passing them to the storage so that storage plugins doesn't have to care about serialization of errors
+- 703e6f0: Call storage.end() to cleanup resources when a command has finished
+
+### Patch Changes
+
+- 703e6f0: Handle storage initialization errors in the "list" and "remove" commands
+- Updated dependencies [703e6f0]
+- Updated dependencies [c1d5597]
+  - @emigrate/plugin-tools@0.5.0
+
 ## 0.5.1
 
 ### Patch Changes
