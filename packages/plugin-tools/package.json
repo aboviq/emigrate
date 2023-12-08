@@ -43,7 +43,7 @@
     "@emigrate/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "import-from-esm": "1.2.1"
+    "import-from-esm": "1.3.3"
   },
   "volta": {
     "extends": "../../package.json"

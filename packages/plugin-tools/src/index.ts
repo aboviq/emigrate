@@ -167,17 +167,6 @@ const getOrLoad = async <T>(
   return undefined;
 };
 
-const getImportFromEsm = async () => {
-  const importFromEsm = await import('import-from-esm');
-
-  // Because of "allowSyntheticDefaultImports" we need to do this ugly hack
-  if ((importFromEsm as any).default) {
-    return (importFromEsm as any).default as unknown as typeof importFromEsm;
-  }
-
-  return importFromEsm;
-};
-
 const loadPlugin = async <T extends PluginType>(type: T, plugin: string): Promise<PluginFromType<T> | undefined> => {
   return load(
     plugin,
@@ -193,7 +182,7 @@ const load = async <T>(
   prefixes: string[],
   check: (value: unknown) => value is T,
 ): Promise<T | undefined> => {
-  const importFromEsm = await getImportFromEsm();
+  const { default: importFromEsm } = await import('import-from-esm');
 
   const importsToTry = name.startsWith('.') ? [name] : [...prefixes.map((prefix) => `${prefix}${name}`), name];
 

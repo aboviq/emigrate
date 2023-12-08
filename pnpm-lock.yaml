@@ -108,8 +108,8 @@ importers:
   packages/plugin-tools:
     dependencies:
       import-from-esm:
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.3.3
+        version: 1.3.3
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*
@@ -3215,11 +3215,14 @@ packages:
       resolve-from: 4.0.0
     dev: false
 
-  /import-from-esm@1.2.1:
-    resolution: {integrity: sha512-Nly5Ab75rWZmOwtMa0B0NQNnHGcHOQ2zkU/bVENwK2lbPq+kamPDqNKNJ0hF7w7lR/ETD5nGgJq0XbofsZpYCA==}
+  /import-from-esm@1.3.3:
+    resolution: {integrity: sha512-U3Qt/CyfFpTUv6LOP2jRTLYjphH6zg3okMfHbyqRa/W2w6hr8OsJWVggNlR4jxuojQy81TgTJTxgSkyoteRGMQ==}
     engines: {node: '>=16.20'}
     dependencies:
+      debug: 4.3.4
       import-meta-resolve: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /import-meta-resolve@4.0.0:
