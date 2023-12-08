@@ -1,5 +1,13 @@
 # @emigrate/storage-fs
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [20ed2e8]
+- Updated dependencies [d916043]
+  - @emigrate/plugin-tools@0.4.1
+
 ## 0.2.0
 
 ### Minor Changes

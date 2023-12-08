@@ -1,5 +1,12 @@
 # @emigrate/plugin-tools
 
+## 0.4.1
+
+### Patch Changes
+
+- 20ed2e8: Try importing plugins (and reporters) using prefixes before importing without, this is to avoid issue with accidentaly importing other non-emigrate related packages. E.g. setting the reporter to "pino" would import the "pino" package without this fix and will import "@emigrate/reporter-pino" with this fix.
+- d916043: Fix a regression issue where plugins wasn't correctly loaded if specified as strings
+
 ## 0.4.0
 
 ### Minor Changes
