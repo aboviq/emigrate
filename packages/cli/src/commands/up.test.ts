@@ -7,6 +7,7 @@ import {
   type MigrationMetadata,
   type Storage,
   type Plugin,
+  type SerializedError,
 } from '@emigrate/plugin-tools/types';
 import upCommand from './up.js';
 
@@ -93,7 +94,7 @@ describe('up', () => {
 
   it('returns 1 and finishes with an error when there are failed migrations in the history', async () => {
     const failedEntry = toEntry('some_failed_migration.js', 'failed');
-    const { reporter, run } = getUpCommand([failedEntry.name], getStorage([failedEntry]));
+    const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
 
     const exitCode = await run();
 
@@ -112,17 +113,83 @@ describe('up', () => {
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
+    assert.strictEqual(getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]), failedEntry.error);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+    assert.strictEqual(
+      error?.message,
+      `Migration ${failedEntry.name} is in a failed state, please fix and remove it first`,
+    );
+    assert.strictEqual(getErrorCause(error), failedEntry.error);
+    assert.strictEqual(entries?.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_failed_migration.js (failed)', 'some_file.js (pending)'],
+    );
+  });
+
+  it('returns 1 and finishes with an error when there are failed migrations in the history in dry-run mode as well', async () => {
+    const failedEntry = toEntry('some_failed_migration.js', 'failed');
+    const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
+
+    const exitCode = await run(true);
+
+    assert.strictEqual(exitCode, 1);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: true,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
+    assert.strictEqual(getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]), failedEntry.error);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+    assert.strictEqual(
+      error?.message,
+      `Migration ${failedEntry.name} is in a failed state, please fix and remove it first`,
+    );
+    assert.strictEqual(getErrorCause(error), failedEntry.error);
+    assert.strictEqual(entries?.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_failed_migration.js (failed)', 'some_file.js (pending)'],
+    );
+  });
+
+  it('returns 0 and finishes without an error when the failed migrations in the history are not part of the current set of migrations', async () => {
+    const failedEntry = toEntry('some_failed_migration.js', 'failed');
+    const { reporter, run } = getUpCommand([], getStorage([failedEntry]));
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: false,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
     assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const args = reporter.onFinished.mock.calls[0]?.arguments;
-    assert.strictEqual(args?.length, 2);
-    const finishedEntry = args[0]?.[0];
-    const error = args[1];
-    assert.strictEqual(finishedEntry?.name, failedEntry.name);
-    assert.strictEqual(finishedEntry?.status, 'failed');
-    assert.strictEqual(finishedEntry?.error?.cause, failedEntry.error);
-    assert.strictEqual(finishedEntry.error, error);
-    assert.strictEqual(error?.cause, failedEntry.error);
+    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
   });
 
   it("returns 1 and finishes with an error when the storage couldn't be initialized", async () => {
@@ -156,11 +223,108 @@ describe('up', () => {
     assert.strictEqual(error?.message, 'Could not initialize storage');
     assert.strictEqual(cause?.message, 'No storage configured');
   });
+
+  it('returns 0 and finishes without an error when all pending migrations are run successfully', async () => {
+    const { reporter, run } = getUpCommand(
+      ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
+      getStorage(['some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return async () => {
+              // Success
+            };
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: false,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 2);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 2);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+    assert.strictEqual(error, undefined);
+    assert.strictEqual(entries?.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_migration.js (done)', 'some_other_migration.js (done)'],
+    );
+  });
+
+  it('returns 1 and finishes with an error when a pending migration throw when run', async () => {
+    const { reporter, run } = getUpCommand(
+      ['some_already_run_migration.js', 'some_migration.js', 'fail.js', 'some_other_migration.js'],
+      getStorage(['some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration(migration) {
+            return async () => {
+              if (migration.name === 'fail.js') {
+                throw new Error('Oh noes!');
+              }
+            };
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 1);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: false,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 2);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationError.mock.calls[0]?.arguments[1]?.message, 'Oh noes!');
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+    assert.strictEqual(error?.message, 'Failed to run migration: migrations/fail.js');
+    const cause = getErrorCause(error);
+    assert.strictEqual(cause?.message, 'Oh noes!');
+    assert.strictEqual(entries?.length, 3);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_migration.js (done)', 'fail.js (failed)', 'some_other_migration.js (skipped)'],
+    );
+  });
 });
 
-function getErrorCause(error: Error | undefined): Error | undefined {
+function getErrorCause(error: Error | undefined): Error | SerializedError | undefined {
   if (error?.cause instanceof Error) {
     return error.cause;
+  }
+
+  if (typeof error?.cause === 'object' && error.cause !== null) {
+    return error.cause as unknown as SerializedError;
   }
 
   return undefined;
@@ -210,8 +374,10 @@ async function noop() {
 
 function getStorage(historyEntries: Array<string | MigrationHistoryEntry>) {
   const storage: Mocked<Storage> = {
-    lock: mock.fn(),
-    unlock: mock.fn(),
+    lock: mock.fn(async (migrations) => migrations),
+    unlock: mock.fn(async () => {
+      // void
+    }),
     getHistory: mock.fn(async function* () {
       yield* toEntries(historyEntries);
     }),
