@@ -1,0 +1,49 @@
+{
+  "name": "@emigrate/mysql",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A MySQL plugin for Emigrate. Uses a MySQL database for storing migration history. Can load and generate .sql migration files.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --pretty",
+    "build:watch": "tsc --pretty --watch",
+    "lint": "xo --cwd=../.. $(pwd)"
+  },
+  "keywords": [
+    "emigrate",
+    "emigrate-storage",
+    "emigrate-loader",
+    "emigrate-plugin",
+    "emigrate-generator",
+    "migrations",
+    "mysql"
+  ],
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/mysql#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/mysql",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
+  "license": "MIT",
+  "dependencies": {
+    "@emigrate/plugin-tools": "workspace:*",
+    "mysql2": "3.6.5"
+  },
+  "devDependencies": {
+    "@emigrate/tsconfig": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
