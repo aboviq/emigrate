@@ -4,11 +4,18 @@ export type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Await
 
 export type MigrationStatus = 'failed' | 'done' | 'pending';
 
+export type SerializedError = {
+  name: string;
+  message: string;
+  stack?: string;
+  cause?: unknown;
+};
+
 export type MigrationHistoryEntry = {
   name: string;
   status: MigrationStatus;
   date: Date;
-  error?: unknown;
+  error?: SerializedError;
 };
 
 export type Storage = {
@@ -66,7 +73,7 @@ export type Storage = {
    * @param migration The name of the migration that should be marked as failed.
    * @param error The error that caused the migration to fail.
    */
-  onError(migration: MigrationMetadataFinished, error: Error): Promise<void>;
+  onError(migration: MigrationMetadataFinished, error: SerializedError): Promise<void>;
 };
 
 export type EmigrateStorage = {
@@ -142,7 +149,7 @@ export type MigrationMetadata = {
 export type MigrationMetadataFinished = MigrationMetadata & {
   status: MigrationStatus | 'skipped';
   duration: number;
-  error?: Error;
+  error?: SerializedError;
 };
 
 export type LoaderPlugin = {

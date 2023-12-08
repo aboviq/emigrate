@@ -1,6 +1,6 @@
 import path from 'node:path';
 import process from 'node:process';
-import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
+import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage, serializeError } from '@emigrate/plugin-tools';
 import {
   type LoaderPlugin,
   type MigrationFunction,
@@ -219,15 +219,16 @@ export default async function upCommand({
         finishedMigrations.push(finishedMigration);
       } catch (error) {
         const errorInstance = error instanceof Error ? error : new Error(String(error));
+        const serializedError = serializeError(errorInstance);
         const duration = getDuration(start);
         const finishedMigration: MigrationMetadataFinished = {
           ...migration,
           status: 'failed',
           duration,
-          error: errorInstance,
+          error: serializedError,
         };
 
-        await storage.onError(finishedMigration, errorInstance);
+        await storage.onError(finishedMigration, serializedError);
         await reporter.onMigrationError?.(finishedMigration, errorInstance);
 
         finishedMigrations.push(finishedMigration);

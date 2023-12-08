@@ -7,7 +7,17 @@ import {
   type EmigrateStorage,
   type LoaderPlugin,
   type StringOrModule,
+  type SerializedError,
 } from './types.js';
+
+export const serializeError = (error: Error): SerializedError => {
+  return {
+    name: error.name,
+    message: error.message,
+    stack: error.stack,
+    cause: error.cause instanceof Error ? serializeError(error.cause) : error.cause,
+  };
+};
 
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
   if (!plugin || typeof plugin !== 'object') {
