@@ -14,6 +14,7 @@ import {
   MigrationLoadError,
   MigrationRunError,
   MissingOptionError,
+  StorageInitError,
 } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
@@ -28,6 +29,29 @@ type ExtraFlags = {
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 const lazyPluginLoaderJs = async () => import('../plugin-loader-js.js');
+
+const toError = (error: unknown) => (error instanceof Error ? error : new Error(String(error)));
+
+type Fn<Args extends any[], Result> = (...args: Args) => Result;
+type Result<T> = [value: T, error: undefined] | [value: undefined, error: Error];
+
+/**
+ * Execute a function and return a result tuple
+ *
+ * This is a helper function to make it easier to handle errors without the extra nesting of try/catch
+ */
+const exec = async <Args extends any[], Return extends Promise<any>>(
+  fn: Fn<Args, Return>,
+  ...args: Args
+): Promise<Result<Awaited<Return>>> => {
+  try {
+    const result = await fn(...args);
+
+    return [result, undefined];
+  } catch (error) {
+    return [undefined, toError(error)];
+  }
+};
 
 export default async function upCommand({
   storage: storageConfig,
@@ -48,7 +72,6 @@ export default async function upCommand({
     throw new BadOptionError('storage', 'No storage found, please specify a storage using the storage option');
   }
 
-  const storage = await storagePlugin.initializeStorage();
   const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
@@ -56,6 +79,16 @@ export default async function upCommand({
       'reporter',
       'No reporter found, please specify an existing reporter using the reporter option',
     );
+  }
+
+  await reporter.onInit?.({ command: 'up', cwd, dry, directory });
+
+  const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
+
+  if (storageError) {
+    await reporter.onFinished?.([], new StorageInitError('Could not initialize storage', { cause: storageError }));
+
+    return 1;
   }
 
   const migrationFiles = await getMigrations(cwd, directory);
@@ -106,13 +139,35 @@ export default async function upCommand({
     ),
   );
 
-  for (const [extension, loader] of loaderByExtension) {
+  for await (const [extension, loader] of loaderByExtension) {
     if (!loader) {
-      throw new BadOptionError('plugin', `No loader plugin found for file extension: ${extension}`);
+      const finishedMigrations: MigrationMetadataFinished[] = [...failedEntries];
+
+      for await (const failedEntry of failedEntries) {
+        await reporter.onMigrationError?.(failedEntry, failedEntry.error!);
+      }
+
+      for await (const migration of migrationFiles) {
+        if (migration.extension === extension) {
+          const error = new BadOptionError('plugin', `No loader plugin found for file extension: ${extension}`);
+          const finishedMigration: MigrationMetadataFinished = { ...migration, duration: 0, status: 'failed', error };
+          await reporter.onMigrationError?.(finishedMigration, error);
+          finishedMigrations.push(finishedMigration);
+        } else {
+          const finishedMigration: MigrationMetadataFinished = { ...migration, duration: 0, status: 'skipped' };
+          await reporter.onMigrationSkip?.(finishedMigration);
+          finishedMigrations.push(finishedMigration);
+        }
+      }
+
+      await reporter.onFinished?.(
+        finishedMigrations,
+        new BadOptionError('plugin', `No loader plugin found for file extension: ${extension}`),
+      );
+
+      return 1;
     }
   }
-
-  await reporter.onInit?.({ command: 'up', cwd, dry, directory });
 
   await reporter.onCollectedMigrations?.([...failedEntries, ...migrationFiles]);
 
@@ -150,7 +205,7 @@ export default async function upCommand({
       await reporter.onMigrationSkip?.({ ...migration, duration: 0, status: 'skipped' });
     }
 
-    await reporter.onFinished?.([], error instanceof Error ? error : new Error(String(error)));
+    await reporter.onFinished?.([], toError(error));
 
     return 1;
   }
@@ -218,7 +273,7 @@ export default async function upCommand({
 
         finishedMigrations.push(finishedMigration);
       } catch (error) {
-        const errorInstance = error instanceof Error ? error : new Error(String(error));
+        const errorInstance = toError(error);
         const serializedError = serializeError(errorInstance);
         const duration = getDuration(start);
         const finishedMigration: MigrationMetadataFinished = {

@@ -17,7 +17,7 @@ type Mocked<T> = {
 
 describe('up', () => {
   it('returns 0 and finishes without an error when there are no migrations to run', async () => {
-    const { reporter, run } = getUpCommand([], []);
+    const { reporter, run } = getUpCommand([], getStorage([]));
 
     const exitCode = await run();
 
@@ -41,55 +41,59 @@ describe('up', () => {
     assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
   });
 
-  it('throws when there are migration file extensions without a corresponding loader plugin', async () => {
-    const { reporter, run } = getUpCommand(['some_file.sql'], []);
+  it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
+    const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
 
-    await assert.rejects(
-      async () => {
-        return run();
-      },
-      {
-        name: 'Error [ERR_BAD_OPT]',
-        message: 'No loader plugin found for file extension: .sql',
-      },
-    );
+    const exitCode = await run();
 
-    assert.strictEqual(reporter.onInit.mock.calls.length, 0);
+    assert.strictEqual(exitCode, 1);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
     assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0);
     assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
+    const args = reporter.onFinished.mock.calls[0]?.arguments;
+    assert.strictEqual(args?.length, 2);
+    const entries = args[0];
+    const error = args[1];
+    assert.strictEqual(entries.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_other.js (skipped)', 'some_file.sql (failed)'],
+    );
+    assert.strictEqual(error?.message, 'No loader plugin found for file extension: .sql');
   });
 
-  it('throws when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
-    const { reporter, run } = getUpCommand(['some_file.sql'], []);
+  it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
+    const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
 
-    await assert.rejects(
-      async () => {
-        return run(true);
-      },
-      {
-        name: 'Error [ERR_BAD_OPT]',
-        message: 'No loader plugin found for file extension: .sql',
-      },
-    );
+    const exitCode = await run();
 
-    assert.strictEqual(reporter.onInit.mock.calls.length, 0);
+    assert.strictEqual(exitCode, 1);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
     assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0);
     assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
+    const args = reporter.onFinished.mock.calls[0]?.arguments;
+    assert.strictEqual(args?.length, 2);
+    const entries = args[0];
+    const error = args[1];
+    assert.strictEqual(entries.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_other.js (skipped)', 'some_file.sql (failed)'],
+    );
+    assert.strictEqual(error?.message, 'No loader plugin found for file extension: .sql');
   });
 
   it('returns 1 and finishes with an error when there are failed migrations in the history', async () => {
     const failedEntry = toEntry('some_failed_migration.js', 'failed');
-    const { reporter, run } = getUpCommand([failedEntry.name], [failedEntry]);
+    const { reporter, run } = getUpCommand([failedEntry.name], getStorage([failedEntry]));
 
     const exitCode = await run();
 
@@ -120,7 +124,47 @@ describe('up', () => {
     assert.strictEqual(finishedEntry.error, error);
     assert.strictEqual(error?.cause, failedEntry.error);
   });
+
+  it("returns 1 and finishes with an error when the storage couldn't be initialized", async () => {
+    const { reporter, run } = getUpCommand(['some_migration.js']);
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 1);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: false,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const args = reporter.onFinished.mock.calls[0]?.arguments;
+    assert.strictEqual(args?.length, 2);
+    const entries = args[0];
+    const error = args[1];
+    const cause = getErrorCause(error);
+    assert.deepStrictEqual(entries, []);
+    assert.strictEqual(error?.message, 'Could not initialize storage');
+    assert.strictEqual(cause?.message, 'No storage configured');
+  });
 });
+
+function getErrorCause(error: Error | undefined): Error | undefined {
+  if (error?.cause instanceof Error) {
+    return error.cause;
+  }
+
+  return undefined;
+}
 
 function toMigration(cwd: string, directory: string, name: string): MigrationMetadata {
   return {
@@ -164,11 +208,22 @@ async function noop() {
   // noop
 }
 
-function getUpCommand(
-  migrationFiles: string[],
-  historyEntries: Array<string | MigrationHistoryEntry>,
-  plugins?: Plugin[],
-) {
+function getStorage(historyEntries: Array<string | MigrationHistoryEntry>) {
+  const storage: Mocked<Storage> = {
+    lock: mock.fn(),
+    unlock: mock.fn(),
+    getHistory: mock.fn(async function* () {
+      yield* toEntries(historyEntries);
+    }),
+    remove: mock.fn(),
+    onSuccess: mock.fn(),
+    onError: mock.fn(),
+  };
+
+  return storage;
+}
+
+function getUpCommand(migrationFiles: string[], storage?: Mocked<Storage>, plugins?: Plugin[]) {
   const reporter: Mocked<Required<EmigrateReporter>> = {
     onFinished: mock.fn(noop),
     onInit: mock.fn(noop),
@@ -184,23 +239,16 @@ function getUpCommand(
     onMigrationSkip: mock.fn(noop),
   };
 
-  const storage: Mocked<Storage> = {
-    lock: mock.fn(),
-    unlock: mock.fn(),
-    getHistory: mock.fn(async function* () {
-      yield* toEntries(historyEntries);
-    }),
-    remove: mock.fn(),
-    onSuccess: mock.fn(),
-    onError: mock.fn(),
-  };
-
   const run = async (dry = false) => {
     return upCommand({
       cwd: '/emigrate',
       directory: 'migrations',
       storage: {
         async initializeStorage() {
+          if (!storage) {
+            throw new Error('No storage configured');
+          }
+
           return storage;
         },
       },

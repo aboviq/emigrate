@@ -89,3 +89,9 @@ export class MigrationNotRunError extends EmigrateError {
     super('ERR_MIGRATION_NOT_RUN', message, options);
   }
 }
+
+export class StorageInitError extends EmigrateError {
+  constructor(message: string, options?: ErrorOptions) {
+    super('ERR_STORAGE_INIT', message, options);
+  }
+}
