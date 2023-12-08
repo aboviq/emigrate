@@ -1,5 +1,18 @@
 # @emigrate/storage-fs
 
+## 0.3.0
+
+### Minor Changes
+
+- c1d5597: Handle the serialized errors coming from Emigrate, so no need to serialize errors ourselves
+- 703e6f0: Implement an empty "end" method for cleaning up
+
+### Patch Changes
+
+- Updated dependencies [703e6f0]
+- Updated dependencies [c1d5597]
+  - @emigrate/plugin-tools@0.5.0
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @emigrate/plugin-tools
 
+## 0.5.0
+
+### Minor Changes
+
+- 703e6f0: Add "end" method to storage plugins so they can cleanup resources when a command is finished
+- c1d5597: Add serializeError utility function for serializing Error instances
+
 ## 0.4.1
 
 ### Patch Changes
