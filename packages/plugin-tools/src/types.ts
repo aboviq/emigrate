@@ -74,6 +74,12 @@ export type Storage = {
    * @param error The error that caused the migration to fail.
    */
   onError(migration: MigrationMetadataFinished, error: SerializedError): Promise<void>;
+  /**
+   * Called when the command is finished or aborted (e.g. by a SIGTERM or SIGINT signal).
+   *
+   * Use this to clean up any resources like database connections or file handles.
+   */
+  end(): Promise<void>;
 };
 
 export type EmigrateStorage = {

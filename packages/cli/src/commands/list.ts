@@ -2,10 +2,11 @@ import process from 'node:process';
 import path from 'node:path';
 import { getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { type MigrationMetadataFinished } from '@emigrate/plugin-tools/types';
-import { BadOptionError, MigrationHistoryError, MissingOptionError } from '../errors.js';
+import { BadOptionError, MigrationHistoryError, MissingOptionError, StorageInitError } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { getMigrations } from '../get-migrations.js';
+import { exec } from '../exec.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
@@ -21,7 +22,6 @@ export default async function listCommand({ directory, reporter: reporterConfig,
     throw new BadOptionError('storage', 'No storage found, please specify a storage using the storage option');
   }
 
-  const storage = await storagePlugin.initializeStorage();
   const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
@@ -32,6 +32,14 @@ export default async function listCommand({ directory, reporter: reporterConfig,
   }
 
   await reporter.onInit?.({ command: 'list', cwd, dry: false, directory });
+
+  const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
+
+  if (storageError) {
+    await reporter.onFinished?.([], new StorageInitError('Could not initialize storage', { cause: storageError }));
+
+    return 1;
+  }
 
   const migrationFiles = await getMigrations(cwd, directory);
 
@@ -82,4 +90,8 @@ export default async function listCommand({ directory, reporter: reporterConfig,
   }
 
   await reporter.onFinished?.(finishedMigrations, migrationHistoryError);
+
+  await storage.end();
+
+  return migrationHistoryError ? 1 : 0;
 }

@@ -7,10 +7,12 @@ import {
   MissingArgumentsError,
   MissingOptionError,
   OptionNeededError,
+  StorageInitError,
 } from '../errors.js';
 import { type Config } from '../types.js';
 import { getMigration } from '../get-migration.js';
 import { getDuration } from '../get-duration.js';
+import { exec } from '../exec.js';
 
 type ExtraFlags = {
   force?: boolean;
@@ -37,7 +39,6 @@ export default async function removeCommand(
     throw new BadOptionError('storage', 'No storage found, please specify a storage using the storage option');
   }
 
-  const storage = await storagePlugin.initializeStorage();
   const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
@@ -46,6 +47,16 @@ export default async function removeCommand(
       'No reporter found, please specify an existing reporter using the reporter option',
     );
   }
+
+  const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
+
+  if (storageError) {
+    await reporter.onFinished?.([], new StorageInitError('Could not initialize storage', { cause: storageError }));
+
+    return 1;
+  }
+
+  await reporter.onInit?.({ command: 'remove', cwd, dry: false, directory });
 
   const migrationFile = await getMigration(cwd, directory, name, !force);
 
@@ -59,16 +70,14 @@ export default async function removeCommand(
     }
 
     if (migrationHistoryEntry.status === 'done' && !force) {
-      throw new OptionNeededError(
+      removalError = new OptionNeededError(
         'force',
         `The migration "${migrationFile.name}" is not in a failed state. Use the "force" option to force its removal`,
       );
+    } else {
+      historyEntry = migrationHistoryEntry;
     }
-
-    historyEntry = migrationHistoryEntry;
   }
-
-  await reporter.onInit?.({ command: 'remove', cwd, dry: false, directory });
 
   await reporter.onMigrationRemoveStart?.(migrationFile);
 
@@ -107,4 +116,8 @@ export default async function removeCommand(
   }
 
   await reporter.onFinished?.(finishedMigrations, removalError);
+
+  await storage.end();
+
+  return removalError ? 1 : 0;
 }

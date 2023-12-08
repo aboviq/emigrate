@@ -112,6 +112,9 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
         async onError(migration, error) {
           await update(migration.name, 'failed', error);
         },
+        async end() {
+          // Nothing to do
+        },
       };
     },
   };

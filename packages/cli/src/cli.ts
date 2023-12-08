@@ -230,7 +230,7 @@ Examples:
 
   try {
     const { default: listCommand } = await import('./commands/list.js');
-    await listCommand({ directory, storage, reporter });
+    process.exitCode = await listCommand({ directory, storage, reporter });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -306,7 +306,7 @@ Examples:
 
   try {
     const { default: removeCommand } = await import('./commands/remove.js');
-    await removeCommand({ directory, storage, reporter, force }, positionals[0] ?? '');
+    process.exitCode = await removeCommand({ directory, storage, reporter, force }, positionals[0] ?? '');
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');

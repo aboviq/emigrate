@@ -218,6 +218,7 @@ function getStorage(historyEntries: Array<string | MigrationHistoryEntry>) {
     remove: mock.fn(),
     onSuccess: mock.fn(),
     onError: mock.fn(),
+    end: mock.fn(),
   };
 
   return storage;

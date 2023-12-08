@@ -15,11 +15,13 @@ import {
   MigrationRunError,
   MissingOptionError,
   StorageInitError,
+  toError,
 } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { getMigrations as getMigrationsOriginal, type GetMigrationsFunction } from '../get-migrations.js';
 import { getDuration } from '../get-duration.js';
+import { exec } from '../exec.js';
 
 type ExtraFlags = {
   cwd?: string;
@@ -29,29 +31,6 @@ type ExtraFlags = {
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 const lazyPluginLoaderJs = async () => import('../plugin-loader-js.js');
-
-const toError = (error: unknown) => (error instanceof Error ? error : new Error(String(error)));
-
-type Fn<Args extends any[], Result> = (...args: Args) => Result;
-type Result<T> = [value: T, error: undefined] | [value: undefined, error: Error];
-
-/**
- * Execute a function and return a result tuple
- *
- * This is a helper function to make it easier to handle errors without the extra nesting of try/catch
- */
-const exec = async <Args extends any[], Return extends Promise<any>>(
-  fn: Fn<Args, Return>,
-  ...args: Args
-): Promise<Result<Awaited<Return>>> => {
-  try {
-    const result = await fn(...args);
-
-    return [result, undefined];
-  } catch (error) {
-    return [undefined, toError(error)];
-  }
-};
 
 export default async function upCommand({
   storage: storageConfig,
@@ -165,6 +144,8 @@ export default async function upCommand({
         new BadOptionError('plugin', `No loader plugin found for file extension: ${extension}`),
       );
 
+      await storage.end();
+
       return 1;
     }
   }
@@ -191,6 +172,8 @@ export default async function upCommand({
 
     await reporter.onFinished?.([...failedEntries, ...finishedMigrations], error);
 
+    await storage.end();
+
     return failedEntries.length > 0 ? 1 : 0;
   }
 
@@ -206,6 +189,8 @@ export default async function upCommand({
     }
 
     await reporter.onFinished?.([], toError(error));
+
+    await storage.end();
 
     return 1;
   }
@@ -226,7 +211,7 @@ export default async function upCommand({
     process.off('SIGINT', cleanup);
     process.off('SIGTERM', cleanup);
 
-    cleaningUp = storage.unlock(lockedMigrationFiles);
+    cleaningUp = storage.unlock(lockedMigrationFiles).then(async () => storage.end());
 
     return cleaningUp;
   };

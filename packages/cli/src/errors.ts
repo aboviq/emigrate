@@ -2,6 +2,8 @@ import { type MigrationHistoryEntry, type MigrationMetadata } from '@emigrate/pl
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'disjunction' });
 
+export const toError = (error: unknown) => (error instanceof Error ? error : new Error(String(error)));
+
 export class EmigrateError extends Error {
   constructor(
     public code: string,
