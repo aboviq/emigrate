@@ -1,5 +1,14 @@
 # @emigrate/mysql
 
+## 0.1.1
+
+### Patch Changes
+
+- a79f8e8: Serialization of errors now happens inside storage plugins because it makes more sense and the types are easier to work with this way
+- Updated dependencies [a79f8e8]
+- Updated dependencies [a79f8e8]
+  - @emigrate/plugin-tools@0.6.0
+
 ## 0.1.0
 
 ### Minor Changes
