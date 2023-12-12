@@ -82,7 +82,7 @@ class PinoReporter implements Required<EmigrateReporter> {
     const failedMigrations = nonLockedMigrations.filter(
       (migration) => 'status' in migration && migration.status === 'failed',
     );
-    const unlockableCount = nonLockedMigrations.length - failedMigrations.length;
+    const unlockableCount = this.#command === 'up' ? nonLockedMigrations.length - failedMigrations.length : 0;
     const parts = [
       `${lockedMigrations.length} of ${migrations.length} pending migrations to run`,
       unlockableCount > 0 ? `(${unlockableCount} locked)` : '',
@@ -93,35 +93,44 @@ class PinoReporter implements Required<EmigrateReporter> {
   }
 
   onNewMigration(migration: MigrationMetadata, content: string): Awaitable<void> {
-    this.#logger.info({ migration, content }, `Created new migration file: ${migration.name}`);
+    this.#logger.info(
+      { migration: migration.relativeFilePath, content },
+      `Created new migration file: ${migration.name}`,
+    );
   }
 
   onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void> {
-    this.#logger.debug({ migration }, `Removing migration: ${migration.name}`);
+    this.#logger.debug({ migration: migration.relativeFilePath }, `Removing migration: ${migration.name}`);
   }
 
   onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    this.#logger.info({ migration }, `Successfully removed migration: ${migration.name}`);
+    this.#logger.info({ migration: migration.relativeFilePath }, `Successfully removed migration: ${migration.name}`);
   }
 
   onMigrationRemoveError(migration: MigrationMetadataFinished, error: Error): Awaitable<void> {
-    this.#logger.error({ migration, [this.errorKey]: error }, `Failed to remove migration: ${migration.name}`);
+    this.#logger.error(
+      { migration: migration.relativeFilePath, [this.errorKey]: error },
+      `Failed to remove migration: ${migration.name}`,
+    );
   }
 
   onMigrationStart(migration: MigrationMetadata): Awaitable<void> {
-    this.#logger.info({ migration }, `${migration.name} (running)`);
+    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (running)`);
   }
 
   onMigrationSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    this.#logger.info({ migration }, `${migration.name} (${migration.status})`);
+    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${migration.status})`);
   }
 
   onMigrationError(migration: MigrationMetadataFinished, error: Error): Awaitable<void> {
-    this.#logger.error({ migration, [this.errorKey]: error }, `${migration.name} (${migration.status})`);
+    this.#logger.error(
+      { migration: migration.relativeFilePath, [this.errorKey]: error },
+      `${migration.name} (${migration.status})`,
+    );
   }
 
   onMigrationSkip(migration: MigrationMetadataFinished): Awaitable<void> {
-    this.#logger.info({ migration }, `${migration.name} (${migration.status})`);
+    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${migration.status})`);
   }
 
   onFinished(migrations: MigrationMetadataFinished[], error?: Error | undefined): Awaitable<void> {
