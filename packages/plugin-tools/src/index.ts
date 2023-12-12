@@ -11,12 +11,16 @@ import {
 } from './types.js';
 
 export const serializeError = (error: Error): SerializedError => {
-  return {
+  const properties: Record<string, unknown> = {
     name: error.name,
-    message: error.message,
-    stack: error.stack,
-    cause: error.cause instanceof Error ? serializeError(error.cause) : error.cause,
   };
+
+  for (const key of Object.getOwnPropertyNames(error)) {
+    const value = error[key as keyof Error];
+    properties[key] = value instanceof Error ? serializeError(value) : value;
+  }
+
+  return properties as SerializedError;
 };
 
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {

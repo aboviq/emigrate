@@ -5,7 +5,8 @@ export type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Await
 export type MigrationStatus = 'failed' | 'done' | 'pending';
 
 export type SerializedError = {
-  name: string;
+  [key: string]: unknown;
+  name?: string;
   message: string;
   stack?: string;
   cause?: unknown;
@@ -73,7 +74,7 @@ export type Storage = {
    * @param migration The name of the migration that should be marked as failed.
    * @param error The error that caused the migration to fail.
    */
-  onError(migration: MigrationMetadataFinished, error: SerializedError): Promise<void>;
+  onError(migration: MigrationMetadataFinished, error: Error): Promise<void>;
   /**
    * Called when the command is finished or aborted (e.g. by a SIGTERM or SIGINT signal).
    *

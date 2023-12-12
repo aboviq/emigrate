@@ -20,7 +20,7 @@ import {
   type GenerateMigrationFunction,
   type GeneratorPlugin,
 } from '@emigrate/plugin-tools/types';
-import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
+import { getTimestampPrefix, sanitizeMigrationName, serializeError } from '@emigrate/plugin-tools';
 
 const defaultTable = 'migrations';
 
@@ -213,7 +213,7 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
               status: row.status,
               date: new Date(row.date),
               // FIXME: Migrate the migrations table to support the error column
-              error: row.status === 'failed' ? new Error('Unknown error reason') : undefined,
+              error: row.status === 'failed' ? serializeError(new Error('Unknown error reason')) : undefined,
             };
           }
         },
