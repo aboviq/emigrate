@@ -225,6 +225,7 @@ const getSummary = (
 };
 
 const getHeaderMessage = (
+  command: ReporterInitParameters['command'],
   migrations?: Array<MigrationMetadata | MigrationMetadataFinished>,
   lockedMigrations?: Array<MigrationMetadata | MigrationMetadataFinished>,
 ) => {
@@ -246,7 +247,7 @@ const getHeaderMessage = (
   const failedMigrations = nonLockedMigrations.filter(
     (migration) => 'status' in migration && migration.status === 'failed',
   );
-  const unlockableCount = nonLockedMigrations.length - failedMigrations.length;
+  const unlockableCount = command === 'up' ? nonLockedMigrations.length - failedMigrations.length : 0;
 
   const parts = [
     bold(`${lockedMigrations.length} of ${migrations.length}`),
@@ -340,7 +341,7 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
   #render(flush = false): void {
     const parts = [
       getTitle(this.#parameters),
-      getHeaderMessage(this.#migrations, this.#lockedMigrations),
+      getHeaderMessage(this.#parameters.command, this.#migrations, this.#lockedMigrations),
       this.#migrations?.map((migration) => getMigrationText(migration, this.#activeMigration)).join('\n') ?? '',
       getSummary(this.#parameters.command, this.#migrations),
       getError(this.#error),
@@ -394,7 +395,7 @@ class DefaultReporter implements Required<EmigrateReporter> {
   onLockedMigrations(migrations: MigrationMetadata[]): void | PromiseLike<void> {
     this.#lockedMigrations = migrations;
 
-    console.log(getHeaderMessage(this.#migrations, this.#lockedMigrations));
+    console.log(getHeaderMessage(this.#parameters.command, this.#migrations, this.#lockedMigrations));
     console.log('');
   }
 
