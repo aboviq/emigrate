@@ -1,6 +1,7 @@
 import { describe, it, mock, type Mock } from 'node:test';
 import assert from 'node:assert';
 import path from 'node:path';
+import { serializeError } from '@emigrate/plugin-tools';
 import {
   type EmigrateReporter,
   type MigrationHistoryEntry,
@@ -49,8 +50,8 @@ describe('up', () => {
 
     assert.strictEqual(exitCode, 1);
     assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
@@ -59,11 +60,11 @@ describe('up', () => {
     assert.strictEqual(args?.length, 2);
     const entries = args[0];
     const error = args[1];
-    assert.strictEqual(entries.length, 2);
     assert.deepStrictEqual(
       entries.map((entry) => `${entry.name} (${entry.status})`),
       ['some_other.js (skipped)', 'some_file.sql (failed)'],
     );
+    assert.strictEqual(entries.length, 2);
     assert.strictEqual(error?.message, 'No loader plugin found for file extension: .sql');
   });
 
@@ -74,8 +75,8 @@ describe('up', () => {
 
     assert.strictEqual(exitCode, 1);
     assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
@@ -119,13 +120,13 @@ describe('up', () => {
     const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
     assert.strictEqual(
       error?.message,
-      `Migration ${failedEntry.name} is in a failed state, please fix and remove it first`,
+      `Migration ${failedEntry.name} is in a failed state, it should be fixed and removed`,
     );
     assert.strictEqual(getErrorCause(error), failedEntry.error);
     assert.strictEqual(entries?.length, 2);
     assert.deepStrictEqual(
       entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_failed_migration.js (failed)', 'some_file.js (pending)'],
+      ['some_failed_migration.js (failed)', 'some_file.js (skipped)'],
     );
   });
 
@@ -156,7 +157,7 @@ describe('up', () => {
     const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
     assert.strictEqual(
       error?.message,
-      `Migration ${failedEntry.name} is in a failed state, please fix and remove it first`,
+      `Migration ${failedEntry.name} is in a failed state, it should be fixed and removed`,
     );
     assert.strictEqual(getErrorCause(error), failedEntry.error);
     assert.strictEqual(entries?.length, 2);
@@ -354,7 +355,7 @@ function toEntry(
       name,
       status,
       date: new Date(),
-      error: status === 'failed' ? new Error('Failed') : undefined,
+      error: status === 'failed' ? serializeError(new Error('Failed')) : undefined,
     };
   }
 

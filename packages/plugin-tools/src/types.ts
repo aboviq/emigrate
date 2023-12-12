@@ -156,7 +156,13 @@ export type MigrationMetadata = {
 export type MigrationMetadataFinished = MigrationMetadata & {
   status: MigrationStatus | 'skipped';
   duration: number;
-  error?: SerializedError;
+  error?: Error;
+};
+
+export const isFinishedMigration = (
+  migration: MigrationMetadata | MigrationMetadataFinished,
+): migration is MigrationMetadataFinished => {
+  return 'status' in migration;
 };
 
 export type LoaderPlugin = {
