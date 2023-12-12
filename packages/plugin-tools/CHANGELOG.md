@@ -1,5 +1,15 @@
 # @emigrate/plugin-tools
 
+## 0.6.0
+
+### Minor Changes
+
+- a79f8e8: When serializing errors take all "own properties" into account to be able to serialize errors thrown by the `mysql2` package for instance without losing any information
+
+### Patch Changes
+
+- a79f8e8: Serialization of errors now happens inside storage plugins because it makes more sense and the types are easier to work with this way
+
 ## 0.5.0
 
 ### Minor Changes

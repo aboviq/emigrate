@@ -1,5 +1,19 @@
 # @emigrate/cli
 
+## 0.7.0
+
+### Minor Changes
+
+- bc33e63: Improve error logging in the default reporter so that all "own properties" of errors are logged
+
+### Patch Changes
+
+- a79f8e8: Serialization of errors now happens inside storage plugins because it makes more sense and the types are easier to work with this way
+- 5307e87: Only log info about locked migrations in the "up" command, as "list" doesn't do any locking
+- Updated dependencies [a79f8e8]
+- Updated dependencies [a79f8e8]
+  - @emigrate/plugin-tools@0.6.0
+
 ## 0.6.0
 
 ### Minor Changes
