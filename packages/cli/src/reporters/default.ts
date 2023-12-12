@@ -12,6 +12,7 @@ import {
   type ReporterInitParameters,
   type Awaitable,
 } from '@emigrate/plugin-tools/types';
+import { EmigrateError } from '../errors.js';
 
 type Status = ReturnType<typeof getMigrationStatus>;
 
@@ -128,19 +129,35 @@ const getError = (error?: ErrorLike, indent = '  ') => {
     return '';
   }
 
-  let errorTitle: string;
   let stack: string[] = [];
 
   if (error.stack) {
-    // @ts-expect-error error won't be undefined here
-    [errorTitle, ...stack] = error.stack.split('\n');
-  } else if (error.name) {
-    errorTitle = `${error.name}: ${error.message}`;
-  } else {
-    errorTitle = error.message;
+    const stackParts = error.stack.split('\n');
+    const messageParts = (error.message ?? '').split('\n');
+
+    stack = stackParts.slice(messageParts.length);
   }
 
-  const parts = [`${indent}${bold.red(errorTitle)}`, ...stack.map((line) => `${indent}${dim(line)}`)];
+  const properties = Object.getOwnPropertyNames(error).filter(
+    (property) => !['name', 'message', 'stack', 'cause'].includes(property),
+  );
+  const others: Record<string, unknown> = {};
+
+  for (const property of properties) {
+    others[property] = error[property as keyof ErrorLike];
+  }
+
+  const codeString = typeof others['code'] === 'string' ? others['code'] : undefined;
+  const code = codeString ? ` [${codeString}]` : '';
+
+  const errorTitle = error.name
+    ? `${error.name}${codeString && !error.name.includes(codeString) ? code : ''}: ${error.message}`
+    : error.message;
+  const parts = [`${indent}${bold.red(errorTitle)}`, ...stack.map((line) => `${indent}  ${dim(line.trim())}`)];
+
+  if (properties.length > 0 && !(error instanceof EmigrateError)) {
+    parts.push(`${indent}  ${JSON.stringify(others, undefined, 2).split('\n').join(`\n${indent}  `)}`);
+  }
 
   if (isErrorLike(error.cause)) {
     const nextIndent = `${indent}  `;
