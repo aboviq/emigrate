@@ -10,6 +10,10 @@ updates:
     versioning-strategy: increase
     commit-message:
       prefix: 'chore(deps)'
+    groups:
+      commitlint:
+        patterns:
+          - '@commitlint/*'
     reviewers:
       - 'aboviq/maintainers'
 
