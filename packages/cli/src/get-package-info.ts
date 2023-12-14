@@ -5,7 +5,7 @@ type PackageInfo = {
   version: string;
 };
 
-export const getPackageInfo = async () => {
+const getPackageInfo = async () => {
   const packageInfoPath = fileURLToPath(new URL('../package.json', import.meta.url));
 
   try {
@@ -26,3 +26,5 @@ export const getPackageInfo = async () => {
 
   throw new Error(`Could not read package info from: ${packageInfoPath}`);
 };
+
+export const { version } = await getPackageInfo();

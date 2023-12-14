@@ -181,6 +181,12 @@ export type LoaderPlugin = {
 
 export type ReporterInitParameters = {
   /**
+   * The version of the emigrate CLI that is being used
+   *
+   * @example 1.0.0
+   */
+  version: string;
+  /**
    * The command that is being executed
    */
   command: 'up' | 'new' | 'list' | 'remove';

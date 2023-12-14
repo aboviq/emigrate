@@ -6,6 +6,7 @@ import { type MigrationMetadata } from '@emigrate/plugin-tools/types';
 import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
+import { version } from '../get-package-info.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
@@ -36,7 +37,7 @@ export default async function newCommand(
     );
   }
 
-  await reporter.onInit?.({ command: 'new', cwd, dry: false, directory });
+  await reporter.onInit?.({ command: 'new', version, cwd, dry: false, directory });
 
   let filename: string | undefined;
   let content: string | undefined;

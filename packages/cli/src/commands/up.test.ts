@@ -10,6 +10,7 @@ import {
   type Plugin,
   type SerializedError,
 } from '@emigrate/plugin-tools/types';
+import { version } from '../get-package-info.js';
 import upCommand from './up.js';
 
 type Mocked<T> = {
@@ -30,6 +31,7 @@ describe('up', () => {
         command: 'up',
         cwd: '/emigrate',
         dry: false,
+        version,
         directory: 'migrations',
       },
     ]);
@@ -105,6 +107,7 @@ describe('up', () => {
       {
         command: 'up',
         cwd: '/emigrate',
+        version,
         dry: false,
         directory: 'migrations',
       },
@@ -142,6 +145,7 @@ describe('up', () => {
       {
         command: 'up',
         cwd: '/emigrate',
+        version,
         dry: true,
         directory: 'migrations',
       },
@@ -179,6 +183,7 @@ describe('up', () => {
       {
         command: 'up',
         cwd: '/emigrate',
+        version,
         dry: false,
         directory: 'migrations',
       },
@@ -204,6 +209,7 @@ describe('up', () => {
       {
         command: 'up',
         cwd: '/emigrate',
+        version,
         dry: false,
         directory: 'migrations',
       },
@@ -249,6 +255,7 @@ describe('up', () => {
       {
         command: 'up',
         cwd: '/emigrate',
+        version,
         dry: false,
         directory: 'migrations',
       },
@@ -295,6 +302,7 @@ describe('up', () => {
       {
         command: 'up',
         cwd: '/emigrate',
+        version,
         dry: false,
         directory: 'migrations',
       },
