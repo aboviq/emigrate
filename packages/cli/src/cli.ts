@@ -129,14 +129,14 @@ Arguments:
 
 Options:
 
-  -h, --help       Show this help message and exit
-  -d, --directory  The directory where the migration files are located (required)
-  -r, --reporter   The reporter to use for reporting the migration file creation progress
-  -p, --plugin     The plugin(s) to use (can be specified multiple times)
-  -t, --template   A template file to use as contents for the new migration file
-                   (if the extension option is not provided the template file's extension will be used)
-  -e, --extension  The extension to use for the new migration file
-                   (if no template or plugin is provided an empty migration file will be created with the given extension)
+  -h, --help        Show this help message and exit
+  -d, --directory   The directory where the migration files are located (required)
+  -r, --reporter    The reporter to use for reporting the migration file creation progress
+  -p, --plugin      The plugin(s) to use (can be specified multiple times)
+  -t, --template    A template file to use as contents for the new migration file
+                    (if the extension option is not provided the template file's extension will be used)
+  -e, --extension   The extension to use for the new migration file
+                    (if no template or plugin is provided an empty migration file will be created with the given extension)
 
   One of the --template, --extension or the --plugin options must be specified
 
@@ -283,12 +283,12 @@ Arguments:
 
 Options:
 
-  -h, --help       Show this help message and exit
-  -d, --directory  The directory where the migration files are located (required)
-  -r, --reporter   The reporter to use for reporting the removal process
-  -s, --storage    The storage to use to get the migration history (required)
-  -f, --force      Force removal of the migration history entry even if the migration file does not exist
-                   or it's in a non-failed state
+  -h, --help        Show this help message and exit
+  -d, --directory   The directory where the migration files are located (required)
+  -r, --reporter    The reporter to use for reporting the removal process
+  -s, --storage     The storage to use to get the migration history (required)
+  -f, --force       Force removal of the migration history entry even if the migration file does not exist
+                    or it's in a non-failed state
 
 Examples:
 
@@ -326,17 +326,28 @@ const commands: Record<string, Action> = {
   new: newMigration,
 };
 
-const command = process.argv[2]?.toLowerCase();
-const action = command ? commands[command] : undefined;
+const main: Action = async (args) => {
+  const { values, positionals } = parseArgs({
+    args,
+    options: {
+      help: {
+        type: 'boolean',
+        short: 'h',
+      },
+      version: {
+        type: 'boolean',
+        short: 'v',
+      },
+    },
+    allowPositionals: true,
+  });
 
-if (!action) {
-  if (command) {
-    console.error(`Unknown command: ${command}\n`);
-  } else {
-    console.error('No command specified\n');
-  }
+  const usage = `Usage: emigrate <options>/<command>
 
-  console.log(`Usage: emigrate <command>
+Options:
+
+  -h, --help     Show this help message and exit
+  -v, --version  Print version number and exit
 
 Commands:
 
@@ -344,12 +355,34 @@ Commands:
   new     Create a new migration file
   list    List all migrations and their status
   remove  Remove entries from the migration history
-`);
-  process.exit(1);
-}
+`;
+
+  const command = positionals[0]?.toLowerCase();
+  const action = command ? commands[command] : undefined;
+
+  if (!action) {
+    if (command) {
+      console.error(`Unknown command: ${command}\n`);
+    } else if (values.version) {
+      const { getPackageInfo } = await import('./get-package-info.js');
+      const { version } = await getPackageInfo();
+      console.log(version);
+      process.exitCode = 0;
+      return;
+    } else if (!values.help) {
+      console.error('No command specified\n');
+    }
+
+    console.log(usage);
+    process.exitCode = 1;
+    return;
+  }
+
+  await action(process.argv.slice(3));
+};
 
 try {
-  await action(process.argv.slice(3));
+  await main(process.argv.slice(2));
 } catch (error) {
   if (error instanceof Error) {
     console.error(error.message);
