@@ -340,6 +340,7 @@ const main: Action = async (args) => {
       },
     },
     allowPositionals: true,
+    strict: false,
   });
 
   const usage = `Usage: emigrate <options>/<command>
