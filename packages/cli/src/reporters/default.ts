@@ -93,11 +93,12 @@ const getMigrationText = (
   migration: MigrationMetadata | MigrationMetadataFinished,
   activeMigration?: MigrationMetadata,
 ) => {
+  const pathWithoutName = migration.relativeFilePath.slice(0, -migration.name.length);
   const nameWithoutExtension = migration.name.slice(0, -migration.extension.length);
   const status = getMigrationStatus(migration, activeMigration);
   const parts = [' ', getIcon(status)];
 
-  parts.push(`${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
+  parts.push(`${dim(pathWithoutName)}${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
 
   if ('status' in migration) {
     parts.push(gray(`(${migration.status})`));
