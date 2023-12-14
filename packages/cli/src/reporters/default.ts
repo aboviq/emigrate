@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow } from 'ansis';
 import logUpdate from 'log-update';
 import elegantSpinner from 'elegant-spinner';
@@ -25,10 +24,10 @@ const formatDuration = (duration: number): string => {
   return yellow(pretty.replaceAll(/([^\s\d]+)/g, dim('$1')));
 };
 
-const getTitle = ({ command, directory, dry, cwd }: ReporterInitParameters) => {
-  return `${black.bgBlueBright(' Emigrate ').trim()} ${blueBright.bold(command)} ${gray(cwd + path.sep)}${directory}${
-    dry ? yellow` (dry run)` : ''
-  }`;
+const getTitle = ({ command, version, dry, cwd }: ReporterInitParameters) => {
+  return `${black.bgBlueBright(' Emigrate ').trim()} ${blueBright.bold(command)} ${blueBright(`v${version}`)} ${gray(
+    cwd,
+  )}${dry ? yellow` (dry run)` : ''}`;
 };
 
 const getMigrationStatus = (
@@ -94,11 +93,12 @@ const getMigrationText = (
   migration: MigrationMetadata | MigrationMetadataFinished,
   activeMigration?: MigrationMetadata,
 ) => {
+  const pathWithoutName = migration.relativeFilePath.slice(0, -migration.name.length);
   const nameWithoutExtension = migration.name.slice(0, -migration.extension.length);
   const status = getMigrationStatus(migration, activeMigration);
   const parts = [' ', getIcon(status)];
 
-  parts.push(`${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
+  parts.push(`${dim(pathWithoutName)}${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
 
   if ('status' in migration) {
     parts.push(gray(`(${migration.status})`));

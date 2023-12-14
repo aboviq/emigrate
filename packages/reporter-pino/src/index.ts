@@ -42,7 +42,7 @@ class PinoReporter implements Required<EmigrateReporter> {
     return this.options.errorKey ?? 'error';
   }
 
-  onInit({ command, ...parameters }: ReporterInitParameters): Awaitable<void> {
+  onInit({ command, version, ...parameters }: ReporterInitParameters): Awaitable<void> {
     this.#command = command;
     this.#logger = pino({
       name: 'emigrate',
@@ -50,6 +50,7 @@ class PinoReporter implements Required<EmigrateReporter> {
       errorKey: this.errorKey,
       base: {
         scope: command,
+        version,
       },
     });
 
@@ -171,11 +172,14 @@ class PinoReporter implements Required<EmigrateReporter> {
 
     if (error) {
       this.#logger.error(
-        { failed, done, skipped, pending, total, [this.errorKey]: error },
+        { result: { failed, done, skipped, pending, total }, [this.errorKey]: error },
         `Emigrate "${this.#command}" failed`,
       );
     } else {
-      this.#logger.info({ failed, done, skipped, pending, total }, `Emigrate "${this.#command}" finished successfully`);
+      this.#logger.info(
+        { result: { failed, done, skipped, pending, total } },
+        `Emigrate "${this.#command}" finished successfully`,
+      );
     }
   }
 }
