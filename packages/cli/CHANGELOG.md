@@ -1,5 +1,17 @@
 # @emigrate/cli
 
+## 0.8.0
+
+### Minor Changes
+
+- bad4e25: Pass the Emigrate CLI's version number to reporters
+- 960ce08: Add --help and --version options to main command
+
+### Patch Changes
+
+- Updated dependencies [bad4e25]
+  - @emigrate/plugin-tools@0.7.0
+
 ## 0.7.0
 
 ### Minor Changes
