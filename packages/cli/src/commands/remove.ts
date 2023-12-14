@@ -13,6 +13,7 @@ import { type Config } from '../types.js';
 import { getMigration } from '../get-migration.js';
 import { getDuration } from '../get-duration.js';
 import { exec } from '../exec.js';
+import { version } from '../get-package-info.js';
 
 type ExtraFlags = {
   force?: boolean;
@@ -56,7 +57,7 @@ export default async function removeCommand(
     return 1;
   }
 
-  await reporter.onInit?.({ command: 'remove', cwd, dry: false, directory });
+  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, directory });
 
   const migrationFile = await getMigration(cwd, directory, name, !force);
 

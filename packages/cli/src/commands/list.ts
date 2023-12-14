@@ -6,6 +6,7 @@ import { exec } from '../exec.js';
 import { migrationRunner } from '../migration-runner.js';
 import { arrayFromAsync } from '../array-from-async.js';
 import { collectMigrations } from '../collect-migrations.js';
+import { version } from '../get-package-info.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
@@ -30,7 +31,7 @@ export default async function listCommand({ directory, reporter: reporterConfig,
     );
   }
 
-  await reporter.onInit?.({ command: 'list', cwd, dry: false, directory });
+  await reporter.onInit?.({ command: 'list', version, cwd, dry: false, directory });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 

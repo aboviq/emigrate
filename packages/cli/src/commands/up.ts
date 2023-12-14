@@ -10,6 +10,7 @@ import { migrationRunner } from '../migration-runner.js';
 import { filterAsync } from '../filter-async.js';
 import { collectMigrations } from '../collect-migrations.js';
 import { arrayFromAsync } from '../array-from-async.js';
+import { version } from '../get-package-info.js';
 
 type ExtraFlags = {
   cwd?: string;
@@ -48,7 +49,7 @@ export default async function upCommand({
     );
   }
 
-  await reporter.onInit?.({ command: 'up', cwd, dry, directory });
+  await reporter.onInit?.({ command: 'up', version, cwd, dry, directory });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 

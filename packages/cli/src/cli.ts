@@ -365,8 +365,7 @@ Commands:
     if (command) {
       console.error(`Unknown command: ${command}\n`);
     } else if (values.version) {
-      const { getPackageInfo } = await import('./get-package-info.js');
-      const { version } = await getPackageInfo();
+      const { version } = await import('./get-package-info.js');
       console.log(version);
       process.exitCode = 0;
       return;
