@@ -1,5 +1,11 @@
 # @emigrate/plugin-tools
 
+## 0.7.0
+
+### Minor Changes
+
+- bad4e25: Pass the Emigrate CLI's version number to reporters
+
 ## 0.6.0
 
 ### Minor Changes
