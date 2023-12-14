@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow } from 'ansis';
 import logUpdate from 'log-update';
 import elegantSpinner from 'elegant-spinner';
@@ -25,10 +24,10 @@ const formatDuration = (duration: number): string => {
   return yellow(pretty.replaceAll(/([^\s\d]+)/g, dim('$1')));
 };
 
-const getTitle = ({ command, directory, dry, cwd }: ReporterInitParameters) => {
-  return `${black.bgBlueBright(' Emigrate ').trim()} ${blueBright.bold(command)} ${gray(cwd + path.sep)}${directory}${
-    dry ? yellow` (dry run)` : ''
-  }`;
+const getTitle = ({ command, version, dry, cwd }: ReporterInitParameters) => {
+  return `${black.bgBlueBright(' Emigrate ').trim()} ${blueBright.bold(command)} ${blueBright(`v${version}`)} ${gray(
+    cwd,
+  )}${dry ? yellow` (dry run)` : ''}`;
 };
 
 const getMigrationStatus = (
