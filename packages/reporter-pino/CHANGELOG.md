@@ -1,5 +1,11 @@
 # @emigrate/reporter-pino
 
+## 0.3.0
+
+### Minor Changes
+
+- 1434be5: Include the Emigrate CLI's version number in each log
+
 ## 0.2.1
 
 ### Patch Changes
