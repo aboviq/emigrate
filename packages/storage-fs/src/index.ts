@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { serializeError } from '@emigrate/plugin-tools';
-import { type SerializedError, type EmigrateStorage, type MigrationStatus } from '@emigrate/plugin-tools/types';
+import { type SerializedError, type EmigrateStorage, type MigrationStatus } from '@emigrate/types';
 
 export type StorageFsOptions = {
   filename: string;
@@ -27,7 +26,7 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
 
   let lastUpdate: Promise<void> = Promise.resolve();
 
-  const update = async (migration: string, status: MigrationStatus, error?: Error) => {
+  const update = async (migration: string, status: MigrationStatus, error?: SerializedError) => {
     lastUpdate = lastUpdate.then(async () => {
       const history = await read();
 
@@ -36,7 +35,7 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
         [migration]: {
           status,
           date: new Date().toISOString(),
-          error: error ? serializeError(error) : undefined,
+          error,
         },
       };
 
@@ -99,11 +98,20 @@ export default function storageFs({ filename }: StorageFsOptions): EmigrateStora
           const history = await read();
 
           for (const [name, { status, date, error }] of Object.entries(history)) {
+            if (status === 'failed') {
+              yield {
+                name,
+                status,
+                date: new Date(date),
+                error: error ?? { name: 'Error', message: 'Unknown error' },
+              };
+              continue;
+            }
+
             yield {
               name,
               status,
               date: new Date(date),
-              error,
             };
           }
         },
