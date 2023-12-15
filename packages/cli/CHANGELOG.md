@@ -1,5 +1,21 @@
 # @emigrate/cli
 
+## 0.10.0
+
+### Minor Changes
+
+- cae6d11: Make Emigrate Error instances deserializable using the serialize-error package, and also switch to its serializeError method
+- cae6d11: Adapt to the new discriminating union types in @emigrate/types
+
+### Patch Changes
+
+- cae6d11: Shutdown the storage correctly in case of directory or file reading errors
+- Updated dependencies [cae6d11]
+- Updated dependencies [cae6d11]
+- Updated dependencies [cae6d11]
+  - @emigrate/types@0.8.0
+  - @emigrate/plugin-tools@0.8.0
+
 ## 0.9.0
 
 ### Minor Changes

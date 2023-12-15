@@ -1,6 +1,6 @@
 {
   "name": "@emigrate/plugin-generate-js",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "publishConfig": {
     "access": "public"
   },
