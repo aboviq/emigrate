@@ -78,8 +78,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       ansis:
-        specifier: 2.0.2
-        version: 2.0.2
+        specifier: 2.0.3
+        version: 2.0.3
       cosmiconfig:
         specifier: 8.3.6
         version: 8.3.6(typescript@5.2.2)
@@ -2251,8 +2251,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /ansis@2.0.2:
-    resolution: {integrity: sha512-D64onic45SdssSfEKNJOybZhDSE9BFryY6LX1CvRzuChBC7SJGJ+VZzgiWrXTEiOK3f/MA7wyFbu34/PvhVDsQ==}
+  /ansis@2.0.3:
+    resolution: {integrity: sha512-tcSGX0mhuDFHsgRrT56xnZ9v2X+TOeKhJ75YopI5OBgyT7tGaG5m6BmeC+6KHjiucfBvUHehQMecHbULIAkFPA==}
     engines: {node: '>=12.13'}
     dev: false
 
