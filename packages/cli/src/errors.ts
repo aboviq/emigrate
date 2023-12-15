@@ -1,14 +1,26 @@
-import { type MigrationHistoryEntry, type MigrationMetadata } from '@emigrate/plugin-tools/types';
+import {
+  type SerializedError,
+  type MigrationMetadata,
+  type FailedMigrationMetadata,
+  type FailedMigrationHistoryEntry,
+} from '@emigrate/types';
+import { serializeError, errorConstructors, deserializeError } from 'serialize-error';
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'disjunction' });
 
 export const toError = (error: unknown) => (error instanceof Error ? error : new Error(String(error)));
 
+export const toSerializedError = (error: unknown) => {
+  const errorInstance = toError(error);
+
+  return serializeError(errorInstance) as unknown as SerializedError;
+};
+
 export class EmigrateError extends Error {
   constructor(
-    public code: string,
-    message: string,
+    message: string | undefined,
     options?: ErrorOptions,
+    public code?: string,
   ) {
     super(message, options);
   }
@@ -17,82 +29,132 @@ export class EmigrateError extends Error {
 export class ShowUsageError extends EmigrateError {}
 
 export class MissingOptionError extends ShowUsageError {
-  constructor(public option: string | string[]) {
-    super('ERR_MISSING_OPT', `Missing required option: ${Array.isArray(option) ? formatter.format(option) : option}`);
+  static fromOption(option: string | string[]) {
+    return new MissingOptionError(
+      `Missing required option: ${Array.isArray(option) ? formatter.format(option) : option}`,
+      undefined,
+      option,
+    );
+  }
+
+  constructor(
+    message: string | undefined,
+    options?: ErrorOptions,
+    public option: string | string[] = '',
+  ) {
+    super(message, options, 'ERR_MISSING_OPT');
   }
 }
 
 export class MissingArgumentsError extends ShowUsageError {
-  constructor(public argument: string) {
-    super('ERR_MISSING_ARGS', `Missing required argument: ${argument}`);
+  static fromArgument(argument: string) {
+    return new MissingArgumentsError(`Missing required argument: ${argument}`, undefined, argument);
+  }
+
+  constructor(
+    message: string | undefined,
+    options?: ErrorOptions,
+    public argument = '',
+  ) {
+    super(message, options, 'ERR_MISSING_ARGS');
   }
 }
 
 export class OptionNeededError extends ShowUsageError {
+  static fromOption(option: string, message: string) {
+    return new OptionNeededError(message, undefined, option);
+  }
+
   constructor(
-    public option: string,
-    message: string,
+    message: string | undefined,
+    options?: ErrorOptions,
+    public option = '',
   ) {
-    super('ERR_OPT_NEEDED', message);
+    super(message, options, 'ERR_OPT_NEEDED');
   }
 }
 
 export class BadOptionError extends ShowUsageError {
+  static fromOption(option: string, message: string) {
+    return new BadOptionError(message, undefined, option);
+  }
+
   constructor(
-    public option: string,
-    message: string,
+    message: string | undefined,
+    options?: ErrorOptions,
+    public option = '',
   ) {
-    super('ERR_BAD_OPT', message);
+    super(message, options, 'ERR_BAD_OPT');
   }
 }
 
 export class UnexpectedError extends EmigrateError {
-  constructor(message: string, options?: ErrorOptions) {
-    super('ERR_UNEXPECTED', message, options);
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_UNEXPECTED');
   }
 }
 
 export class MigrationHistoryError extends EmigrateError {
-  constructor(
-    message: string,
-    public entry: MigrationHistoryEntry,
-  ) {
-    super('ERR_MIGRATION_HISTORY', message, { cause: entry.error });
+  static fromHistoryEntry(entry: FailedMigrationHistoryEntry) {
+    return new MigrationHistoryError(`Migration ${entry.name} is in a failed state, it should be fixed and removed`, {
+      cause: deserializeError(entry.error),
+    });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_MIGRATION_HISTORY');
   }
 }
 
 export class MigrationLoadError extends EmigrateError {
-  constructor(
-    message: string,
-    public metadata: MigrationMetadata,
-    options?: ErrorOptions,
-  ) {
-    super('ERR_MIGRATION_LOAD', message, options);
+  static fromMetadata(metadata: MigrationMetadata, cause?: Error) {
+    return new MigrationLoadError(`Failed to load migration file: ${metadata.relativeFilePath}`, { cause });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_MIGRATION_LOAD');
   }
 }
 
 export class MigrationRunError extends EmigrateError {
-  constructor(
-    message: string,
-    public metadata: MigrationMetadata,
-    options?: ErrorOptions,
-  ) {
-    super('ERR_MIGRATION_RUN', message, options);
+  static fromMetadata(metadata: FailedMigrationMetadata) {
+    return new MigrationRunError(`Failed to run migration: ${metadata.relativeFilePath}`, { cause: metadata.error });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_MIGRATION_RUN');
   }
 }
 
 export class MigrationNotRunError extends EmigrateError {
-  constructor(
-    message: string,
-    public metadata: MigrationMetadata,
-    options?: ErrorOptions,
-  ) {
-    super('ERR_MIGRATION_NOT_RUN', message, options);
+  static fromMetadata(metadata: MigrationMetadata, cause?: Error) {
+    return new MigrationNotRunError(`Migration "${metadata.name}" is not in the migration history`, { cause });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_MIGRATION_NOT_RUN');
   }
 }
 
 export class StorageInitError extends EmigrateError {
-  constructor(message: string, options?: ErrorOptions) {
-    super('ERR_STORAGE_INIT', message, options);
+  static fromError(error: Error) {
+    return new StorageInitError('Could not initialize storage', { cause: error });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_STORAGE_INIT');
   }
 }
+
+errorConstructors.set('EmigrateError', EmigrateError as ErrorConstructor);
+errorConstructors.set('ShowUsageError', ShowUsageError as ErrorConstructor);
+errorConstructors.set('MissingOptionError', MissingOptionError as unknown as ErrorConstructor);
+errorConstructors.set('MissingArgumentsError', MissingArgumentsError as unknown as ErrorConstructor);
+errorConstructors.set('OptionNeededError', OptionNeededError as unknown as ErrorConstructor);
+errorConstructors.set('BadOptionError', BadOptionError as unknown as ErrorConstructor);
+errorConstructors.set('UnexpectedError', UnexpectedError as ErrorConstructor);
+errorConstructors.set('MigrationHistoryError', MigrationHistoryError as unknown as ErrorConstructor);
+errorConstructors.set('MigrationLoadError', MigrationLoadError as unknown as ErrorConstructor);
+errorConstructors.set('MigrationRunError', MigrationRunError as unknown as ErrorConstructor);
+errorConstructors.set('MigrationNotRunError', MigrationNotRunError as unknown as ErrorConstructor);
+errorConstructors.set('StorageInitError', StorageInitError as unknown as ErrorConstructor);

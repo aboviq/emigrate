@@ -1,12 +1,15 @@
 import process from 'node:process';
 import {
   isFinishedMigration,
+  isFailedMigration,
   type EmigrateReporter,
   type MigrationMetadata,
   type MigrationMetadataFinished,
   type Storage,
-} from '@emigrate/plugin-tools/types';
-import { toError, EmigrateError, MigrationRunError } from './errors.js';
+  type FailedMigrationMetadata,
+  type SuccessfulMigrationMetadata,
+} from '@emigrate/types';
+import { toError, EmigrateError, MigrationRunError, toSerializedError } from './errors.js';
 import { exec } from './exec.js';
 import { getDuration } from './get-duration.js';
 
@@ -43,7 +46,6 @@ export const migrationRunner = async ({
       finishedMigrations.push({
         ...migration,
         status: dry ? 'pending' : 'skipped',
-        duration: 0,
       });
     } else {
       try {
@@ -51,7 +53,7 @@ export const migrationRunner = async ({
         migrationsToRun.push(migration);
       } catch (error) {
         for await (const migration of migrationsToRun) {
-          finishedMigrations.push({ ...migration, status: 'skipped', duration: 0 });
+          finishedMigrations.push({ ...migration, status: 'skipped' });
         }
 
         migrationsToRun.length = 0;
@@ -72,7 +74,7 @@ export const migrationRunner = async ({
 
   if (lockError) {
     for await (const migration of migrationsToRun) {
-      finishedMigrations.push({ ...migration, duration: 0, status: 'skipped' });
+      finishedMigrations.push({ ...migration, status: 'skipped' });
     }
 
     migrationsToRun.length = 0;
@@ -85,7 +87,7 @@ export const migrationRunner = async ({
   for await (const finishedMigration of finishedMigrations) {
     switch (finishedMigration.status) {
       case 'failed': {
-        await reporter.onMigrationError?.(finishedMigration, finishedMigration.error!);
+        await reporter.onMigrationError?.(finishedMigration, finishedMigration.error);
         break;
       }
 
@@ -111,7 +113,6 @@ export const migrationRunner = async ({
       const finishedMigration: MigrationMetadataFinished = {
         ...migration,
         status: dry ? 'pending' : 'skipped',
-        duration: 0,
       };
 
       await reporter.onMigrationSkip?.(finishedMigration);
@@ -127,39 +128,43 @@ export const migrationRunner = async ({
     const [, migrationError] = await exec(async () => execute(migration));
 
     const duration = getDuration(start);
-    const finishedMigration: MigrationMetadataFinished = {
-      ...migration,
-      status: migrationError ? 'failed' : 'done',
-      duration,
-      error: migrationError,
-    };
-    finishedMigrations.push(finishedMigration);
 
     if (migrationError) {
-      await storage.onError(finishedMigration, migrationError);
+      const finishedMigration: FailedMigrationMetadata = {
+        ...migration,
+        status: 'failed',
+        duration,
+        error: migrationError,
+      };
+      await storage.onError(finishedMigration, toSerializedError(migrationError));
       await reporter.onMigrationError?.(finishedMigration, migrationError);
+      finishedMigrations.push(finishedMigration);
       skip = true;
     } else {
+      const finishedMigration: SuccessfulMigrationMetadata = {
+        ...migration,
+        status: 'done',
+        duration,
+      };
       await storage.onSuccess(finishedMigration);
       await reporter.onMigrationSuccess?.(finishedMigration);
+      finishedMigrations.push(finishedMigration);
     }
   }
 
   const [, unlockError] = dry ? [] : await exec(async () => storage.unlock(lockedMigrations ?? []));
 
-  const firstFailed = finishedMigrations.find((migration) => migration.status === 'failed');
+  // eslint-disable-next-line unicorn/no-array-callback-reference
+  const firstFailed = finishedMigrations.find(isFailedMigration);
   const firstError =
     firstFailed?.error instanceof EmigrateError
       ? firstFailed.error
       : firstFailed
-        ? new MigrationRunError(`Failed to run migration: ${firstFailed.relativeFilePath}`, firstFailed, {
-            cause: firstFailed?.error,
-          })
+        ? MigrationRunError.fromMetadata(firstFailed)
         : undefined;
   const error = unlockError ?? firstError ?? lockError;
 
   await reporter.onFinished?.(finishedMigrations, error);
-  await storage.end();
 
   return error;
 };

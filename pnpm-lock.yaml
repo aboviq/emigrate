@@ -56,6 +56,9 @@ importers:
       '@emigrate/plugin-tools':
         specifier: workspace:*
         version: link:../plugin-tools
+      '@emigrate/types':
+        specifier: workspace:*
+        version: link:../types
       ansis:
         specifier: 2.0.2
         version: 2.0.2
@@ -77,6 +80,9 @@ importers:
       pretty-ms:
         specifier: 8.0.0
         version: 8.0.0
+      serialize-error:
+        specifier: 11.0.3
+        version: 11.0.3
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*
@@ -87,6 +93,9 @@ importers:
       '@emigrate/plugin-tools':
         specifier: workspace:*
         version: link:../plugin-tools
+      '@emigrate/types':
+        specifier: workspace:*
+        version: link:../types
       mysql2:
         specifier: 3.6.5
         version: 3.6.5
@@ -100,6 +109,9 @@ importers:
       '@emigrate/plugin-tools':
         specifier: workspace:*
         version: link:../plugin-tools
+      '@emigrate/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*
@@ -107,6 +119,9 @@ importers:
 
   packages/plugin-tools:
     dependencies:
+      '@emigrate/types':
+        specifier: workspace:*
+        version: link:../types
       import-from-esm:
         specifier: 1.3.3
         version: 1.3.3
@@ -117,9 +132,9 @@ importers:
 
   packages/reporter-pino:
     dependencies:
-      '@emigrate/plugin-tools':
+      '@emigrate/types':
         specifier: workspace:*
-        version: link:../plugin-tools
+        version: link:../types
       pino:
         specifier: 8.16.2
         version: 8.16.2
@@ -130,15 +145,21 @@ importers:
 
   packages/storage-fs:
     dependencies:
-      '@emigrate/plugin-tools':
+      '@emigrate/types':
         specifier: workspace:*
-        version: link:../plugin-tools
+        version: link:../types
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
 
   packages/tsconfig: {}
+
+  packages/types:
+    devDependencies:
+      '@emigrate/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
 
 packages:
 
@@ -4917,6 +4938,13 @@ packages:
 
   /seq-queue@0.0.5:
     resolution: {integrity: sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q==}
+    dev: false
+
+  /serialize-error@11.0.3:
+    resolution: {integrity: sha512-2G2y++21dhj2R7iHAdd0FIzjGwuKZld+7Pl/bTU6YIkrC2ZMbVUjm+luj6A6V34Rv9XfKJDKpTWu9W4Gse1D9g==}
+    engines: {node: '>=14.16'}
+    dependencies:
+      type-fest: 2.19.0
     dev: false
 
   /serialize-javascript@6.0.1:

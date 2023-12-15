@@ -10,8 +10,7 @@ import {
   type EmigrateReporter,
   type ReporterInitParameters,
   type Awaitable,
-} from '@emigrate/plugin-tools/types';
-import { EmigrateError } from '../errors.js';
+} from '@emigrate/types';
 
 type Status = ReturnType<typeof getMigrationStatus>;
 
@@ -147,15 +146,14 @@ const getError = (error?: ErrorLike, indent = '  ') => {
     others[property] = error[property as keyof ErrorLike];
   }
 
-  const codeString = typeof others['code'] === 'string' ? others['code'] : undefined;
+  const codeString =
+    typeof others['code'] === 'string' || typeof others['code'] === 'number' ? others['code'] : undefined;
   const code = codeString ? ` [${codeString}]` : '';
 
-  const errorTitle = error.name
-    ? `${error.name}${codeString && !error.name.includes(codeString) ? code : ''}: ${error.message}`
-    : error.message;
+  const errorTitle = error.name ? `${error.name}${code}: ${error.message}` : error.message;
   const parts = [`${indent}${bold.red(errorTitle)}`, ...stack.map((line) => `${indent}  ${dim(line.trim())}`)];
 
-  if (properties.length > 0 && !(error instanceof EmigrateError)) {
+  if (properties.length > 0) {
     parts.push(`${indent}  ${JSON.stringify(others, undefined, 2).split('\n').join(`\n${indent}  `)}`);
   }
 

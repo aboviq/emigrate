@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { type MigrationMetadata } from '@emigrate/plugin-tools/types';
+import { type MigrationMetadata } from '@emigrate/types';
 import { withLeadingPeriod } from './with-leading-period.js';
 import { OptionNeededError } from './errors.js';
 
@@ -12,7 +12,7 @@ const checkMigrationFile = async (name: string, filePath: string) => {
       throw new Error('Not a file');
     }
   } catch {
-    throw new OptionNeededError(
+    throw OptionNeededError.fromOption(
       'force',
       `The given migration name "${name}" does not exist or is not a file. Use the "force" option to ignore this error`,
     );

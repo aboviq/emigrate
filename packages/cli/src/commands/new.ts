@@ -2,11 +2,19 @@ import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin, getOrLoadReporter } from '@emigrate/plugin-tools';
-import { type MigrationMetadata } from '@emigrate/plugin-tools/types';
-import { BadOptionError, MissingArgumentsError, MissingOptionError, UnexpectedError } from '../errors.js';
+import { type MigrationMetadataFinished, type MigrationMetadata, isFailedMigration } from '@emigrate/types';
+import {
+  BadOptionError,
+  EmigrateError,
+  MissingArgumentsError,
+  MissingOptionError,
+  UnexpectedError,
+  toError,
+} from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { version } from '../get-package-info.js';
+import { getDuration } from '../get-duration.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
@@ -15,15 +23,15 @@ export default async function newCommand(
   name: string,
 ) {
   if (!directory) {
-    throw new MissingOptionError('directory');
+    throw MissingOptionError.fromOption('directory');
   }
 
   if (!name) {
-    throw new MissingArgumentsError('name');
+    throw MissingArgumentsError.fromArgument('name');
   }
 
   if (!extension && !template && plugins.length === 0) {
-    throw new MissingOptionError(['extension', 'template', 'plugin']);
+    throw MissingOptionError.fromOption(['extension', 'template', 'plugin']);
   }
 
   const cwd = process.cwd();
@@ -31,13 +39,15 @@ export default async function newCommand(
   const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
-    throw new BadOptionError(
+    throw BadOptionError.fromOption(
       'reporter',
       'No reporter found, please specify an existing reporter using the reporter option',
     );
   }
 
   await reporter.onInit?.({ command: 'new', version, cwd, dry: false, directory });
+
+  const start = process.hrtime();
 
   let filename: string | undefined;
   let content: string | undefined;
@@ -82,7 +92,7 @@ export default async function newCommand(
   }
 
   if (!filename || content === undefined) {
-    throw new BadOptionError(
+    throw BadOptionError.fromOption(
       'plugin',
       'No generator plugin found, please specify a generator plugin using the plugin option',
     );
@@ -102,19 +112,31 @@ export default async function newCommand(
 
   await reporter.onNewMigration?.(migration, content);
 
-  let saveError: Error | undefined;
+  const finishedMigrations: MigrationMetadataFinished[] = [];
 
   try {
     await createDirectory(directoryPath);
     await saveFile(filePath, content);
+    const duration = getDuration(start);
+    finishedMigrations.push({ ...migration, status: 'done', duration });
   } catch (error) {
-    saveError = error instanceof Error ? error : new Error(String(error));
+    const duration = getDuration(start);
+    const errorInstance = toError(error);
+    finishedMigrations.push({ ...migration, status: 'failed', duration, error: errorInstance });
   }
 
-  await reporter.onFinished?.(
-    [{ ...migration, status: saveError ? 'failed' : 'done', error: saveError, duration: 0 }],
-    saveError,
-  );
+  // eslint-disable-next-line unicorn/no-array-callback-reference
+  const firstFailed = finishedMigrations.find(isFailedMigration);
+  const firstError =
+    firstFailed?.error instanceof EmigrateError
+      ? firstFailed.error
+      : firstFailed
+        ? new UnexpectedError(`Failed to create migration file: ${firstFailed.relativeFilePath}`, {
+            cause: firstFailed?.error,
+          })
+        : undefined;
+
+  await reporter.onFinished?.(finishedMigrations, firstError);
 }
 
 async function createDirectory(directoryPath: string) {

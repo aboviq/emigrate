@@ -1,4 +1,4 @@
-import { type EmigrateStorage, type Awaitable, type Plugin, type EmigrateReporter } from '@emigrate/plugin-tools/types';
+import { type EmigrateStorage, type Awaitable, type Plugin, type EmigrateReporter } from '@emigrate/types';
 
 export type EmigratePlugin = Plugin;
 
