@@ -1,5 +1,13 @@
 # @emigrate/types
 
+## 0.8.0
+
+### Minor Changes
+
+- cae6d11: Use discriminating union types for migration types for easier error handling and such
+- cae6d11: Move the Emigrate plugin types to a separate package for fewer version bumps in plugins hopefully
+- cae6d11: Make it easier for storage plugins by serializing errors passed to the onError method and let it respond with serialized errors in the getHistory method
+
 ## 0.7.0
 
 ### Minor Changes

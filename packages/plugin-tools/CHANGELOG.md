@@ -1,5 +1,18 @@
 # @emigrate/plugin-tools
 
+## 0.8.0
+
+### Minor Changes
+
+- cae6d11: Move the Emigrate plugin types to a separate package for fewer version bumps in plugins hopefully
+
+### Patch Changes
+
+- Updated dependencies [cae6d11]
+- Updated dependencies [cae6d11]
+- Updated dependencies [cae6d11]
+  - @emigrate/types@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes
