@@ -6,7 +6,7 @@ import {
   type MigrationMetadataFinished,
   type ReporterInitParameters,
   type EmigrateReporter,
-} from '@emigrate/plugin-tools/types';
+} from '@emigrate/types';
 
 type PinoReporterOptions = {
   level?: string;

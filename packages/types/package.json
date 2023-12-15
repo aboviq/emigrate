@@ -1,10 +1,10 @@
 {
-  "name": "@emigrate/plugin-generate-js",
-  "version": "0.2.6",
+  "name": "@emigrate/types",
+  "version": "0.7.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "An Emigrate plugin for generating new migration files in JavaScript.",
+  "description": "Common Emigrate TypeScript types to ease plugin development.",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "type": "module",
@@ -24,20 +24,15 @@
   },
   "keywords": [
     "emigrate",
-    "emigrate-plugin",
-    "plugin",
+    "typescript",
     "migrations",
-    "generate"
+    "types"
   ],
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
-  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-generate-js#readme",
-  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/plugin-generate-js",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/types#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/types",
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
-  "dependencies": {
-    "@emigrate/plugin-tools": "workspace:*",
-    "@emigrate/types": "workspace:*"
-  },
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*"
   },

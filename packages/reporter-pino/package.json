@@ -35,7 +35,7 @@
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "dependencies": {
-    "@emigrate/plugin-tools": "workspace:*",
+    "@emigrate/types": "workspace:*",
     "pino": "8.16.2"
   },
   "devDependencies": {

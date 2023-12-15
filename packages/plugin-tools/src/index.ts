@@ -7,21 +7,7 @@ import {
   type EmigrateStorage,
   type LoaderPlugin,
   type StringOrModule,
-  type SerializedError,
-} from './types.js';
-
-export const serializeError = (error: Error): SerializedError => {
-  const properties: Record<string, unknown> = {
-    name: error.name,
-  };
-
-  for (const key of Object.getOwnPropertyNames(error)) {
-    const value = error[key as keyof Error];
-    properties[key] = value instanceof Error ? serializeError(value) : value;
-  }
-
-  return properties as SerializedError;
-};
+} from '@emigrate/types';
 
 export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
   if (!plugin || typeof plugin !== 'object') {
