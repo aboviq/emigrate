@@ -24,9 +24,9 @@ const formatDuration = (duration: number): string => {
 };
 
 const getTitle = ({ command, version, dry, cwd }: ReporterInitParameters) => {
-  return `${black.bgBlueBright(' Emigrate ').trim()} ${blueBright.bold(command)} ${blueBright(`v${version}`)} ${gray(
-    cwd,
-  )}${dry ? yellow` (dry run)` : ''}`;
+  return `${black.bgBlueBright` Emigrate `.trim()} ${blueBright.bold(command)} ${blueBright`v${version}`} ${gray(cwd)}${
+    dry ? yellow` (dry run)` : ''
+  }`;
 };
 
 const getMigrationStatus = (
@@ -100,7 +100,7 @@ const getMigrationText = (
   parts.push(`${dim(pathWithoutName)}${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
 
   if ('status' in migration) {
-    parts.push(gray(`(${migration.status})`));
+    parts.push(gray`(${migration.status})`);
   } else if (migration.name === activeMigration?.name) {
     parts.push(gray`(running)`);
   }

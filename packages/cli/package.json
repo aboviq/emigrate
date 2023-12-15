@@ -45,7 +45,7 @@
   "dependencies": {
     "@emigrate/plugin-tools": "workspace:*",
     "@emigrate/types": "workspace:*",
-    "ansis": "2.0.2",
+    "ansis": "2.0.3",
     "cosmiconfig": "8.3.6",
     "elegant-spinner": "3.0.0",
     "figures": "6.0.1",
