@@ -1,5 +1,12 @@
 # @emigrate/cli
 
+## 0.9.0
+
+### Minor Changes
+
+- 1434be5: The default reporter now prints the relative path instead of only the migration file name when logging migrations. Thanks to this most shells supports opening the corresponding migration file by clicking it.
+- 1434be5: Print Emigrate CLI version when using the default reporter
+
 ## 0.8.0
 
 ### Minor Changes
