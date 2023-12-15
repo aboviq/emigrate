@@ -1,0 +1,53 @@
+---
+title: File System Storage
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+The File System Storage is a storage driver that stores the migration history in a `.json` file on the local file system.
+
+:::caution
+This is suitable for simple setups, but for more advanced setups for instance where the application is deployed on multiple servers, you should use a database storage plugin instead.
+:::
+
+## Installation
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/storage-fs
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/storage-fs
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/storage-fs
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+The File System Storage can be configured easily in your [`emigrate.config.js` file](/reference/configuration):
+
+```js {1,4-6}
+import storageFs from '@emigrate/storage-fs';
+
+export default {
+  storage: storageFs({
+    filename: './migrations.json',
+  }),
+};
+```
+
+### Options
+
+#### `filename`
+
+**type:** `string`
+
+Should be a path either relative to the project root or an absolute path. It doesn't need to have the `.json` extension, but its contents will be in JSON format.

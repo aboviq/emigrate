@@ -10,7 +10,7 @@
     "build:watch": "turbo run build:watch",
     "checks": "turbo run checks",
     "release": "run-s build && changeset publish",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,js}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,js,mjs}\"",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",

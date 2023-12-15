@@ -1,0 +1,228 @@
+---
+title: Default Loader Plugin
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+The default loader plugin is responsible for importing migration files written in JavaScript.
+Migration files can be written using either CommonJS or ES Modules.
+
+## Supported extensions
+
+The default loader plugin supports the following extensions:
+
+* `.js` - either CommonJS or ES Modules depending on your package.json's [`type` field](https://nodejs.org/api/packages.html#type)
+* `.cjs` - CommonJS
+* `.mjs` - ES Modules
+
+## Supported exports
+
+The default loader plugin supports the following exports:
+
+### ES Modules
+
+#### Default export
+
+Exporting a function as the default export.
+
+<Tabs>
+  <TabItem label="Async/Await">
+    ```js
+    import { database } from 'some-database';
+
+    export default async function someMigration() {
+      await database.query(...);
+      await database.query(...);
+    }
+    ```
+  </TabItem>
+  <TabItem label="Promises">
+    ```js
+    import { database } from 'some-database';
+
+    export default function someMigration() {
+      // Remember to return the promise
+      return database.query(...)
+        .then(() => {
+          return database.query(...);
+        })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Callback">
+    ```js
+    import { database } from 'some-database';
+
+    export default function someMigration(done) {
+      database.query(..., (err) => {
+        if (err) {
+          return done(err);
+        }
+
+        database.query(..., (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          done();
+        });
+      });
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+#### Named export
+
+Exporting a function named `up`.
+
+<Tabs>
+  <TabItem label="Async/Await">
+    ```js
+    import { database } from 'some-database';
+
+    export const up = async () => {
+      await database.query(...);
+      await database.query(...);
+    };
+    ```
+  </TabItem>
+  <TabItem label="Promises">
+    ```js
+    import { database } from 'some-database';
+
+    export const up = () => {
+      // Remember to return the promise
+      return database.query(...)
+        .then(() => {
+          return database.query(...);
+        })
+    };
+    ```
+  </TabItem>
+  <TabItem label="Callback">
+    ```js
+    import { database } from 'some-database';
+
+    export const up  = (done) => {
+      database.query(..., (err) => {
+        if (err) {
+          return done(err);
+        }
+
+        database.query(..., (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          done();
+        });
+      });
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### CommonJS
+
+#### `module.exports`
+
+Exporting a function as the module.
+
+<Tabs>
+  <TabItem label="Async/Await">
+    ```js
+    const { database } = require('some-database');
+
+    module.exports = async function someMigration() {
+      await database.query(...);
+      await database.query(...);
+    }
+    ```
+  </TabItem>
+  <TabItem label="Promises">
+    ```js
+    const { database } = require('some-database');
+
+    module.exports = function someMigration() {
+      // Remember to return the promise
+      return database.query(...)
+        .then(() => {
+          return database.query(...);
+        })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Callback">
+    ```js
+    const { database } = require('some-database');
+
+    module.exports = function someMigration(done) {
+      database.query(..., (err) => {
+        if (err) {
+          return done(err);
+        }
+
+        database.query(..., (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          done();
+        });
+      });
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+#### `exports.up`
+
+Exporting an `up` function.
+
+<Tabs>
+  <TabItem label="Async/Await">
+    ```js
+    const { database } = require('some-database');
+
+    exports.up = async () => {
+      await database.query(...);
+      await database.query(...);
+    };
+    ```
+  </TabItem>
+  <TabItem label="Promises">
+    ```js
+    const { database } = require('some-database');
+
+    exports.up = () => {
+      // Remember to return the promise
+      return database.query(...)
+        .then(() => {
+          return database.query(...);
+        })
+    };
+    ```
+  </TabItem>
+  <TabItem label="Callback">
+    ```js
+    const { database } = require('some-database');
+
+    exports.up  = (done) => {
+      database.query(..., (err) => {
+        if (err) {
+          return done(err);
+        }
+
+        database.query(..., (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          done();
+        });
+      });
+    }
+    ```
+  </TabItem>
+</Tabs>

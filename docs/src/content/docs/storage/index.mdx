@@ -1,0 +1,33 @@
+---
+title: Storage Plugins
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Storage plugins are used for storing and reading the migration history state.
+Usually you'll want to store the migration history in the same database as the one which your migration files are targeting.
+
+## Using a storage plugin
+
+You can specify a storage plugin via the `--storage` (or `-s` for short) option:
+
+```bash
+npx emigrate list --storage mysql
+```
+
+Or set it up in your configuration file, see [Storage configuration](/reference/configuration/#storage) for more information.
+
+## Available storage plugins
+
+<CardGrid>
+  <LinkCard title="File System" href="/storage/file-system/" description="The most basic storage plugin - for simple setups" />
+  <LinkCard title="MySQL" href="/storage/mysql/" description="A storage plugin that uses a MySQL database for storing the migration history state" />
+</CardGrid>
+
+:::note
+More storage plugins are coming soon!
+:::
+
+:::tip[Is your database missing?]
+Writing a storage plugin is easy! Check out the [Storage Plugin API](/reference/storage-plugin-api/) for more information.
+:::
