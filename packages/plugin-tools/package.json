@@ -12,10 +12,6 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "types": "./dist/types.d.ts"
     }
   },
   "files": [
@@ -43,6 +39,7 @@
     "@emigrate/tsconfig": "workspace:*"
   },
   "dependencies": {
+    "@emigrate/types": "workspace:*",
     "import-from-esm": "1.3.3"
   },
   "volta": {

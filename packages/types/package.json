@@ -1,10 +1,10 @@
 {
-  "name": "@emigrate/storage-fs",
-  "version": "0.3.2",
+  "name": "@emigrate/types",
+  "version": "0.7.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "A storage plugin for Emigrate for storing the migration history in a file",
+  "description": "Common Emigrate TypeScript types to ease plugin development.",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "type": "module",
@@ -24,19 +24,15 @@
   },
   "keywords": [
     "emigrate",
-    "emigrate-storage",
-    "plugin",
+    "typescript",
     "migrations",
-    "storage"
+    "types"
   ],
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
-  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/storage-fs#readme",
-  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/storage-fs",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/types#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/types",
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
-  "dependencies": {
-    "@emigrate/types": "workspace:*"
-  },
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*"
   },

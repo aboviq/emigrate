@@ -4,20 +4,22 @@ export type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Await
 
 export type MigrationStatus = 'failed' | 'done' | 'pending';
 
-export type SerializedError = {
-  [key: string]: unknown;
-  name?: string;
-  message: string;
-  stack?: string;
-  cause?: unknown;
+export type SerializedError = Record<string, unknown>;
+
+export type FailedMigrationHistoryEntry = {
+  name: string;
+  status: 'failed';
+  date: Date;
+  error: SerializedError;
 };
 
-export type MigrationHistoryEntry = {
+export type NonFailedMigrationHistoryEntry = {
   name: string;
-  status: MigrationStatus;
+  status: Exclude<MigrationStatus, 'failed'>;
   date: Date;
-  error?: SerializedError;
 };
+
+export type MigrationHistoryEntry = FailedMigrationHistoryEntry | NonFailedMigrationHistoryEntry;
 
 export type Storage = {
   /**
@@ -71,10 +73,13 @@ export type Storage = {
   /**
    * Called when a migration has failed.
    *
+   * The passed error will be serialized so it's easily storable it in the history.
+   * If the original Error instance is needed it's available as the `error` property on the finished migration.
+   *
    * @param migration The name of the migration that should be marked as failed.
-   * @param error The error that caused the migration to fail.
+   * @param error The error that caused the migration to fail. Serialized for easy storage.
    */
-  onError(migration: MigrationMetadataFinished, error: Error): Promise<void>;
+  onError(migration: MigrationMetadataFinished, error: SerializedError): Promise<void>;
   /**
    * Called when the command is finished or aborted (e.g. by a SIGTERM or SIGINT signal).
    *
@@ -153,16 +158,36 @@ export type MigrationMetadata = {
   extension: string;
 };
 
-export type MigrationMetadataFinished = MigrationMetadata & {
-  status: MigrationStatus | 'skipped';
+export type FailedMigrationMetadata = MigrationMetadata & {
+  status: 'failed';
   duration: number;
-  error?: Error;
+  error: Error;
 };
+
+export type SkippedMigrationMetadata = MigrationMetadata & {
+  status: 'skipped' | 'pending';
+};
+
+export type SuccessfulMigrationMetadata = MigrationMetadata & {
+  status: 'done';
+  duration: number;
+};
+
+export type MigrationMetadataFinished =
+  | FailedMigrationMetadata
+  | SkippedMigrationMetadata
+  | SuccessfulMigrationMetadata;
 
 export const isFinishedMigration = (
   migration: MigrationMetadata | MigrationMetadataFinished,
 ): migration is MigrationMetadataFinished => {
   return 'status' in migration;
+};
+
+export const isFailedMigration = (
+  migration: MigrationMetadata | MigrationMetadataFinished,
+): migration is FailedMigrationMetadata => {
+  return 'status' in migration && migration.status === 'failed';
 };
 
 export type LoaderPlugin = {
@@ -243,13 +268,13 @@ export type EmigrateReporter = Partial<{
    *
    * This is only called when the command is 'remove'.
    */
-  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void>;
+  onMigrationRemoveSuccess(migration: SuccessfulMigrationMetadata): Awaitable<void>;
   /**
    * Called when a migration couldn't be removed from the migration history.
    *
    * This is only called when the command is 'remove'.
    */
-  onMigrationRemoveError(migration: MigrationMetadataFinished, error: Error): Awaitable<void>;
+  onMigrationRemoveError(migration: FailedMigrationMetadata, error: Error): Awaitable<void>;
   /**
    * Called when a migration is about to be executed.
    *
@@ -266,7 +291,7 @@ export type EmigrateReporter = Partial<{
    *
    * @param migration Information about the migration that was executed.
    */
-  onMigrationSuccess(migration: MigrationMetadataFinished): Awaitable<void>;
+  onMigrationSuccess(migration: SuccessfulMigrationMetadata): Awaitable<void>;
   /**
    * Called when a migration has failed.
    *
@@ -276,7 +301,7 @@ export type EmigrateReporter = Partial<{
    * @param migration Information about the migration that failed.
    * @param error The error that caused the migration to fail.
    */
-  onMigrationError(migration: MigrationMetadataFinished, error: Error): Awaitable<void>;
+  onMigrationError(migration: FailedMigrationMetadata, error: Error): Awaitable<void>;
   /**
    * Called when a migration is skipped
    *
@@ -288,7 +313,7 @@ export type EmigrateReporter = Partial<{
    *
    * @param migration Information about the migration that was skipped.
    */
-  onMigrationSkip(migration: MigrationMetadataFinished): Awaitable<void>;
+  onMigrationSkip(migration: SkippedMigrationMetadata): Awaitable<void>;
   /**
    * Called as a final step after all migrations have been executed, listed or removed.
    *

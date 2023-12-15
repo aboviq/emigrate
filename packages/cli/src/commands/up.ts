@@ -1,7 +1,7 @@
 import process from 'node:process';
 import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
-import { isFinishedMigration, type LoaderPlugin } from '@emigrate/plugin-tools/types';
-import { BadOptionError, MigrationLoadError, MissingOptionError, StorageInitError } from '../errors.js';
+import { isFinishedMigration, type LoaderPlugin } from '@emigrate/types';
+import { BadOptionError, MigrationLoadError, MissingOptionError, StorageInitError, toError } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { type GetMigrationsFunction } from '../get-migrations.js';
@@ -31,19 +31,19 @@ export default async function upCommand({
   getMigrations,
 }: Config & ExtraFlags): Promise<number> {
   if (!directory) {
-    throw new MissingOptionError('directory');
+    throw MissingOptionError.fromOption('directory');
   }
 
   const storagePlugin = await getOrLoadStorage([storageConfig]);
 
   if (!storagePlugin) {
-    throw new BadOptionError('storage', 'No storage found, please specify a storage using the storage option');
+    throw BadOptionError.fromOption('storage', 'No storage found, please specify a storage using the storage option');
   }
 
   const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
-    throw new BadOptionError(
+    throw BadOptionError.fromOption(
       'reporter',
       'No reporter found, please specify an existing reporter using the reporter option',
     );
@@ -54,57 +54,66 @@ export default async function upCommand({
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 
   if (storageError) {
-    await reporter.onFinished?.([], new StorageInitError('Could not initialize storage', { cause: storageError }));
+    await reporter.onFinished?.([], StorageInitError.fromError(storageError));
 
     return 1;
   }
 
-  const collectedMigrations = filterAsync(
-    collectMigrations(cwd, directory, storage.getHistory(), getMigrations),
-    (migration) => !isFinishedMigration(migration) || migration.status === 'failed',
-  );
+  try {
+    const collectedMigrations = filterAsync(
+      collectMigrations(cwd, directory, storage.getHistory(), getMigrations),
+      (migration) => !isFinishedMigration(migration) || migration.status === 'failed',
+    );
 
-  const loaderPlugins = await getOrLoadPlugins('loader', [lazyPluginLoaderJs, ...plugins]);
+    const loaderPlugins = await getOrLoadPlugins('loader', [lazyPluginLoaderJs, ...plugins]);
 
-  const loaderByExtension = new Map<string, LoaderPlugin | undefined>();
+    const loaderByExtension = new Map<string, LoaderPlugin | undefined>();
 
-  const getLoaderByExtension = (extension: string) => {
-    if (!loaderByExtension.has(extension)) {
-      const loader = loaderPlugins.find((plugin) =>
-        plugin.loadableExtensions.some((loadableExtension) => withLeadingPeriod(loadableExtension) === extension),
-      );
+    const getLoaderByExtension = (extension: string) => {
+      if (!loaderByExtension.has(extension)) {
+        const loader = loaderPlugins.find((plugin) =>
+          plugin.loadableExtensions.some((loadableExtension) => withLeadingPeriod(loadableExtension) === extension),
+        );
 
-      loaderByExtension.set(extension, loader);
-    }
-
-    return loaderByExtension.get(extension);
-  };
-
-  const error = await migrationRunner({
-    dry,
-    reporter,
-    storage,
-    migrations: await arrayFromAsync(collectedMigrations),
-    async validate(migration) {
-      const loader = getLoaderByExtension(migration.extension);
-
-      if (!loader) {
-        throw new BadOptionError('plugin', `No loader plugin found for file extension: ${migration.extension}`);
-      }
-    },
-    async execute(migration) {
-      const loader = getLoaderByExtension(migration.extension)!;
-      const [migrationFunction, loadError] = await exec(async () => loader.loadMigration(migration));
-
-      if (loadError) {
-        throw new MigrationLoadError(`Failed to load migration file: ${migration.relativeFilePath}`, migration, {
-          cause: loadError,
-        });
+        loaderByExtension.set(extension, loader);
       }
 
-      await migrationFunction();
-    },
-  });
+      return loaderByExtension.get(extension);
+    };
 
-  return error ? 1 : 0;
+    const error = await migrationRunner({
+      dry,
+      reporter,
+      storage,
+      migrations: await arrayFromAsync(collectedMigrations),
+      async validate(migration) {
+        const loader = getLoaderByExtension(migration.extension);
+
+        if (!loader) {
+          throw BadOptionError.fromOption(
+            'plugin',
+            `No loader plugin found for file extension: ${migration.extension}`,
+          );
+        }
+      },
+      async execute(migration) {
+        const loader = getLoaderByExtension(migration.extension)!;
+        const [migrationFunction, loadError] = await exec(async () => loader.loadMigration(migration));
+
+        if (loadError) {
+          throw MigrationLoadError.fromMetadata(migration, loadError);
+        }
+
+        await migrationFunction();
+      },
+    });
+
+    return error ? 1 : 0;
+  } catch (error) {
+    await reporter.onFinished?.([], toError(error));
+
+    return 1;
+  } finally {
+    await storage.end();
+  }
 }

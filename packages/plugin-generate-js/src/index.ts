@@ -1,5 +1,5 @@
 import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
-import { type GenerateMigrationFunction } from '@emigrate/plugin-tools/types';
+import { type GenerateMigrationFunction } from '@emigrate/types';
 
 export const generateMigration: GenerateMigrationFunction = async (name) => {
   return {

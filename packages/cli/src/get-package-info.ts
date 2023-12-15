@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { UnexpectedError } from './errors.js';
 
 type PackageInfo = {
   version: string;
@@ -24,7 +25,7 @@ const getPackageInfo = async () => {
     // ignore
   }
 
-  throw new Error(`Could not read package info from: ${packageInfoPath}`);
+  throw new UnexpectedError(`Could not read package info from: ${packageInfoPath}`);
 };
 
 export const { version } = await getPackageInfo();

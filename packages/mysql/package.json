@@ -38,6 +38,7 @@
   "license": "MIT",
   "dependencies": {
     "@emigrate/plugin-tools": "workspace:*",
+    "@emigrate/types": "workspace:*",
     "mysql2": "3.6.5"
   },
   "devDependencies": {

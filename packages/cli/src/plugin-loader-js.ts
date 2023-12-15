@@ -1,5 +1,5 @@
 import { promisify } from 'node:util';
-import { type LoaderPlugin } from '@emigrate/plugin-tools/types';
+import { type LoaderPlugin } from '@emigrate/types';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const promisifyIfNeeded = <T extends Function>(fn: T) => {

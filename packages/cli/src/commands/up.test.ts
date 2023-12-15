@@ -1,7 +1,6 @@
 import { describe, it, mock, type Mock } from 'node:test';
 import assert from 'node:assert';
 import path from 'node:path';
-import { serializeError } from '@emigrate/plugin-tools';
 import {
   type EmigrateReporter,
   type MigrationHistoryEntry,
@@ -9,7 +8,10 @@ import {
   type Storage,
   type Plugin,
   type SerializedError,
-} from '@emigrate/plugin-tools/types';
+  type FailedMigrationHistoryEntry,
+  type NonFailedMigrationHistoryEntry,
+} from '@emigrate/types';
+import { deserializeError } from 'serialize-error';
 import { version } from '../get-package-info.js';
 import upCommand from './up.js';
 
@@ -117,7 +119,10 @@ describe('up', () => {
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.strictEqual(getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]), failedEntry.error);
+    assert.deepStrictEqual(
+      getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]),
+      deserializeError(failedEntry.error),
+    );
     assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
     assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
     const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
@@ -125,7 +130,7 @@ describe('up', () => {
       error?.message,
       `Migration ${failedEntry.name} is in a failed state, it should be fixed and removed`,
     );
-    assert.strictEqual(getErrorCause(error), failedEntry.error);
+    assert.deepStrictEqual(getErrorCause(error), deserializeError(failedEntry.error));
     assert.strictEqual(entries?.length, 2);
     assert.deepStrictEqual(
       entries.map((entry) => `${entry.name} (${entry.status})`),
@@ -155,7 +160,10 @@ describe('up', () => {
     assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
     assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.strictEqual(getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]), failedEntry.error);
+    assert.deepStrictEqual(
+      getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]),
+      deserializeError(failedEntry.error),
+    );
     assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
     assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
     const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
@@ -163,7 +171,7 @@ describe('up', () => {
       error?.message,
       `Migration ${failedEntry.name} is in a failed state, it should be fixed and removed`,
     );
-    assert.strictEqual(getErrorCause(error), failedEntry.error);
+    assert.deepStrictEqual(getErrorCause(error), deserializeError(failedEntry.error));
     assert.strictEqual(entries?.length, 2);
     assert.deepStrictEqual(
       entries.map((entry) => `${entry.name} (${entry.status})`),
@@ -354,27 +362,38 @@ function toMigrations(cwd: string, directory: string, names: string[]): Migratio
   return names.map((name) => toMigration(cwd, directory, name));
 }
 
-function toEntry(
-  name: string | MigrationHistoryEntry,
-  status: MigrationHistoryEntry['status'] = 'done',
-): MigrationHistoryEntry {
-  if (typeof name === 'string') {
+function toEntry(name: MigrationHistoryEntry): MigrationHistoryEntry;
+function toEntry<S extends MigrationHistoryEntry['status']>(
+  name: string,
+  status?: S,
+): S extends 'failed' ? FailedMigrationHistoryEntry : NonFailedMigrationHistoryEntry;
+
+function toEntry(name: string | MigrationHistoryEntry, status?: 'done' | 'failed'): MigrationHistoryEntry {
+  if (typeof name !== 'string') {
+    return name.status === 'failed' ? name : name;
+  }
+
+  if (status === 'failed') {
     return {
       name,
       status,
       date: new Date(),
-      error: status === 'failed' ? serializeError(new Error('Failed')) : undefined,
+      error: { name: 'Error', message: 'Failed' },
     };
   }
 
-  return name;
+  return {
+    name,
+    status: status ?? 'done',
+    date: new Date(),
+  };
 }
 
 function toEntries(
   names: Array<string | MigrationHistoryEntry>,
-  status: MigrationHistoryEntry['status'] = 'done',
+  status?: MigrationHistoryEntry['status'],
 ): MigrationHistoryEntry[] {
-  return names.map((name) => toEntry(name, status));
+  return names.map((name) => (typeof name === 'string' ? toEntry(name, status) : name));
 }
 
 async function noop() {

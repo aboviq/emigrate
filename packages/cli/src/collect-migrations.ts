@@ -1,8 +1,4 @@
-import {
-  type MigrationHistoryEntry,
-  type MigrationMetadata,
-  type MigrationMetadataFinished,
-} from '@emigrate/plugin-tools/types';
+import { type MigrationHistoryEntry, type MigrationMetadata, type MigrationMetadataFinished } from '@emigrate/types';
 import { toMigrationMetadata } from './to-migration-metadata.js';
 import { getMigrations as getMigrationsOriginal } from './get-migrations.js';
 
