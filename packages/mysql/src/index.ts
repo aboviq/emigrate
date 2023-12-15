@@ -10,6 +10,7 @@ import {
   type ResultSetHeader,
   type RowDataPacket,
 } from 'mysql2/promise';
+import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
 import {
   type MigrationMetadata,
   type EmigrateStorage,
@@ -19,8 +20,8 @@ import {
   type MigrationMetadataFinished,
   type GenerateMigrationFunction,
   type GeneratorPlugin,
-} from '@emigrate/plugin-tools/types';
-import { getTimestampPrefix, sanitizeMigrationName, serializeError } from '@emigrate/plugin-tools';
+  type SerializedError,
+} from '@emigrate/types';
 
 const defaultTable = 'migrations';
 
@@ -87,7 +88,7 @@ type HistoryEntry = {
   name: string;
   status: MigrationStatus;
   date: Date;
-  error?: unknown;
+  error?: SerializedError;
 };
 
 const lockMigration = async (pool: Pool, table: string, migration: MigrationMetadata) => {
@@ -117,7 +118,12 @@ const unlockMigration = async (pool: Pool, table: string, migration: MigrationMe
   return result.affectedRows === 1;
 };
 
-const finishMigration = async (pool: Pool, table: string, migration: MigrationMetadataFinished) => {
+const finishMigration = async (
+  pool: Pool,
+  table: string,
+  migration: MigrationMetadataFinished,
+  _error?: SerializedError,
+) => {
   const [result] = await pool.execute<ResultSetHeader>({
     sql: `
       UPDATE
@@ -208,12 +214,20 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
           });
 
           for (const row of rows) {
+            if (row.status === 'failed') {
+              yield {
+                name: row.name,
+                status: row.status,
+                date: new Date(row.date),
+                error: row.error ?? { name: 'Error', message: 'Unknown error' },
+              };
+              continue;
+            }
+
             yield {
               name: row.name,
               status: row.status,
               date: new Date(row.date),
-              // FIXME: Migrate the migrations table to support the error column
-              error: row.status === 'failed' ? serializeError(new Error('Unknown error reason')) : undefined,
             };
           }
         },
@@ -221,7 +235,7 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
           await finishMigration(pool, table, migration);
         },
         async onError(migration, error) {
-          await finishMigration(pool, table, { ...migration, status: 'failed', error });
+          await finishMigration(pool, table, migration, error);
         },
         async end() {
           await pool.end();
