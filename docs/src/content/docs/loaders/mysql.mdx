@@ -1,0 +1,85 @@
+---
+title: MySQL Loader Plugin
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+The MySQL loader plugin transforms `.sql` files into JavaScript functions that Emigrate can use to execute the migrations.
+
+## Installation
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/mysql
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/mysql
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/mysql
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+The MySQL loader plugin can be configured either using environment variables or by configuring the plugin directly in the [`emigrate.config.js` file](/reference/configuration).
+
+### Configuration file
+
+```js title="emigrate.config.js" {1,4-8}
+import { createMysqlLoader } from '@emigrate/mysql';
+
+export default {
+  plugins: [
+    createMysqlLoader({
+      connection: { ... },
+    }),
+  ],
+};
+```
+
+#### Options
+
+##### `connection` (required)
+
+**type:** `object | string`
+
+The connection options to use for connecting to the MySQL database when the SQL statements from the migration files are executed. This can either be a connection URI or an object with connection options.
+For a list of supported connection options, see the [mysql documentation](https://github.com/mysqljs/mysql#connection-options).
+
+### Environment variables
+
+The following environment variables are supported:
+
+| Variable         | Description                                                                                         | Default        |
+| ---------------- | --------------------------------------------------------------------------------------------------- | -------------- |
+| `MYSQL_URL`      | The full URI for connecting to a MySQL database, e.g: `"mysql://user:pass@127.0.0.1:3306/database"` |                |
+| `MYSQL_HOST`     | The host on which the MySQL server instance is running                                              | `"localhost"`  |
+| `MYSQL_USER`     | The MySQL user account to use for the authentication                                                |                |
+| `MYSQL_PASSWORD` | The MySQL user password to use for the authentication                                               |                |
+| `MYSQL_PORT`     | The network port on which the MySQL server is listening                                             | `3306`         |
+| `MYSQL_DATABASE` | The MySQL database to use for the connection                                                        |                |
+
+:::note
+The `MYSQL_URL` environment variable takes precedence over the other environment variables. If `MYSQL_URL` is set, the other environment variables are ignored.
+:::
+
+The environment variables are used when the plugin is used using the `--plugin` command line option:
+
+```bash
+npx emigrate list --plugin mysql
+```
+
+Or when specifying the plugin in the [`emigrate.config.js` file](/reference/configuration) as a string:
+
+```js title="emigrate.config.js" {2}
+export default {
+  plugins: ['mysql'],
+};
+```

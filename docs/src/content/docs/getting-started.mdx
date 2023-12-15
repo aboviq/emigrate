@@ -1,0 +1,153 @@
+---
+title: Getting Started
+description: How to getting started with Emigrate, the database migration tool
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Emigrate is written in [TypeScript](https://www.typescriptlang.org) and is a database migration tool for any database.
+
+* It's the successor of [klei-migrate](https://github.com/klei/migrate) and is designed to be compatible with [Immigration](https://github.com/blakeembrey/node-immigration) and many of its storage plugins, as well as [Migrate](https://github.com/tj/node-migrate).
+* It supports migration files written using [CommonJS or ES Modules out of the box](/loaders/default/), with any of the following extensions: `.js`, `.cjs` or `.mjs`, and supports [async functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function), [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) or using the [NodeJS Callback Pattern](https://nodejs.org/en/learn/asynchronous-work/javascript-asynchronous-programming-and-callbacks#handling-errors-in-callbacks).
+* Other languages can be used by using a [Loader Plugin](/loaders/).
+* The migration history can be stored anywhere using a [Storage Plugin](/storage/).
+* The output can be customized using [Reporters](/reporters/).
+
+:::tip[Did you know?]
+Thanks to the plugin system you can even write migrations in plain SQL! So no need for Java-based tools like Liquibase or Flyway.
+:::
+
+## Quick Start
+
+:::note
+The following guide will be even simpler soon with the release of a initialization command.
+But for now, this is the way to go.
+:::
+
+### Install the Emigrate CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/cli
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/cli
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/cli
+    ```
+  </TabItem>
+</Tabs>
+
+### Pick a storage plugin
+
+Emigrate uses a storage plugin to store the migration history. You can use one of the following plugins:
+
+- [MySQL](/storage/mysql)
+- [File System](/storage/file-system)
+
+Install the plugin you want to use, for example:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/mysql
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/mysql
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/mysql
+    ```
+  </TabItem>
+</Tabs>
+
+### Create your first migration
+
+Create a new migration file in your project using:
+
+```bash title="Create a new migration file"
+npx emigrate new --plugin mysql create users table
+```
+
+```txt title="Output"
+Emigrate new v0.9.0 /your/project/path
+
+  ✔ migrations/20231215125421364_create_users_table.sql (done) 3ms
+
+  1 created
+
+```
+
+:::note
+The `mysql` plugin is used here to generate a migration file with the `.sql` extension.
+Otherwise the file would have the `.js` extension by default.
+:::
+
+:::tip[Did you know?]
+You can avoid typing `--plugin mysql` by configuring Emigrate using an `emigrate.config.js` file.
+See [Configuration](/configuration) for more information.
+:::
+
+#### Fill the migration file
+
+Open the migration file in your editor and fill it with your SQL query:
+
+```sql title="migrations/20231215125421364_create_users_table.sql" {2-7}
+-- Migration: create users table
+CREATE TABLE users (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+);
+```
+
+### Show migration status
+
+To show both pending and already applied migrations (or previously failed), use the `list` command:
+
+```bash title="Show all migrations"
+npx emigrate list --storage mysql
+```
+
+```txt title="Example output"
+Emigrate list v0.9.0 /your/project/path
+
+  ✔ migrations/20231211090830577_another_table.sql (done)
+  › migrations/20231215125421364_create_users_table.sql (pending)
+
+  1 done | 1 pending (2 total)
+
+```
+
+### Running the migrations
+
+A good way to test your configuration is to run the migrations in dry mode:
+
+```bash title="Show pending migrations"
+npx emigrate up --storage mysql --plugin mysql --dry
+```
+
+:::note
+This will connect to the database using some default values. For ways to configure the connection, see [Configuration](/configuration).
+:::
+
+:::caution
+Without the `--dry` flag this will run the migration and change your database!
+Be sure to configure the connection correctly and use the `--dry` flag to test your configuration.
+:::
+
+:::tip[Did you know?]
+In the example above the `@emigrate/mysql` plugin is used twice, once for the `--storage` option as a [Storage Plugin](/storage/)
+and once for the `--plugin` option as a [Loader Plugin](/loaders/) to be able to read `.sql` files.
+:::

@@ -1,0 +1,143 @@
+---
+title: Configuration Reference
+description: How to configure Emigrate to your needs
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Emigrate can be configured using a configuration file, and it uses [Cosmiconfig](https://github.com/cosmiconfig/cosmiconfig) under the hood
+so you can use a variety of formats and locations for your configuration file.
+
+## Configure Emigrate
+
+<Tabs>
+  <TabItem label="JavaScript">
+    ```js title="emigrate.config.js"
+    /** @type {import('@emigrate/cli').EmigrateConfig} */
+    export default {
+      directory: 'migrations',
+    };
+    ```
+  </TabItem>
+  <TabItem label="TypeScript">
+    ```ts title="emigrate.config.ts"
+    import { type EmigrateConfig } from '@emigrate/cli';
+
+    const config: EmigrateConfig = {
+      directory: 'migrations',
+    };
+
+    export default config;
+    ```
+  </TabItem>
+</Tabs>
+
+You can specify the following options:
+
+### `directory`
+
+**type:** `string`
+
+Set the directory where your migrations are located, relative to the project root. This option is required by all Emigrate commands.
+
+### `reporter`
+
+**type:** `string | EmigrateReporter | Promise<EmigrateReporter> | (() => Promise<EmigrateReporter>)`
+**default:** `"default"` - the default reporter
+
+Set the reporter to use for the different commands. Specifying a reporter is most useful in a CI or production environment where you either ship logs or want to have a machine-readable format.
+
+```js title="emigrate.config.js" {2}
+export default {
+  reporter: 'json',
+};
+```
+
+If you want to use different reporters for different commands, you can use an object:
+
+```js title="emigrate.config.js" {2-4}
+export default {
+  up: {
+    reporter: 'json',
+  },
+};
+```
+
+:::note
+Commands that are not specified will use the default reporter.
+:::
+
+:::tip[Did you know?]
+The default reporter automatically detects if the current environment is an interactive terminal or not, and will only render animations and similar if it is.
+:::
+
+### `storage`
+
+**type:** `string | EmigrateStorage | Promise<EmigrateStorage> | (() => Promise<EmigrateStorage>)`
+
+Set the storage plugin to use for storing and reading the migration history. This option is required by all Emigrate commands except `new` which doesn't use it.
+
+```js title="emigrate.config.js" {2}
+export default {
+  storage: 'mysql',
+};
+```
+
+:::note
+Each storage plugin can have its own configuration options, see the corresponding [Storage Plugin](/storage/) section for more information.
+:::
+
+### `plugins`
+
+**type:** `Array<string | EmigratePlugin | Promise<EmigratePlugin> | (() => Promise<EmigratePlugin>)>`
+
+Set the plugins to use for the different commands. There are different types of plugins, and some are only useful for specific commands.
+
+In short:
+
+* [Loader Plugins](/loaders/) - are used for transforming non-JavaScript files into JavaScript files that can be executed by Node.js. These are only used by the `up` command.
+* [Generator Plugins](/generators/) - are used for generating new migration files. These are only used by the `new` command.
+
+```js title="emigrate.config.js" {2}
+export default {
+  plugins: ['typescript'],
+};
+```
+
+:::tip[Did you know?]
+The same package can expose multiple plugins, so you can specify the plugin only once and it can be used as both a loader and a generator (and storage, in the case of [MySQL](/storage/mysql) for instance).
+:::
+
+### `template`
+
+**type:** `string`
+
+Set the path to a template file to use when creating new migrations. This option is only used by the `new` command.
+
+```js title="emigrate.config.js" {2-4}
+export default {
+  new: {
+    template: 'path/to/template.js',
+  },
+};
+```
+
+The migration file will use the template file's extension, unless the [extension](#extension) option is set.
+
+### `extension`
+
+**type:** `string`
+
+Set the extension to use for new migrations. This option is only used by the `new` command.
+
+```js title="emigrate.config.js" {2-4}
+export default {
+  new: {
+    extension: '.ts',
+  },
+};
+```
+
+Will create new migration files with the `.ts` extension.
