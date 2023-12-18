@@ -11,7 +11,7 @@ But for now, this is the way to go.
 :::
 
 <LinkCard
-  href="/intro/whats-emigrate/"
+  href="../whats-emigrate/"
   title="What's Emigrate?"
   description="Learn more about Emigrate and what it can do for you."
   />
@@ -38,7 +38,7 @@ But for now, this is the way to go.
 
 ### Pick a storage plugin
 
-Emigrate uses a [storage plugin](/plugins/storage/) to store the migration history.
+Emigrate uses a [storage plugin](../plugins/storage/) to store the migration history.
 
 Install the plugin you want to use, for example:
 
@@ -84,7 +84,7 @@ Otherwise the file would have the `.js` extension by default.
 
 :::tip[Did you know?]
 You can avoid typing `--plugin mysql` by configuring Emigrate using an `emigrate.config.js` file.
-See [Configuration](/configuration/) for more information.
+See [Configuration](../reference/configuration/) for more information.
 :::
 
 #### Fill the migration file
@@ -132,7 +132,7 @@ npx emigrate up --storage mysql --plugin mysql --dry
 ```
 
 :::note
-This will connect to the database using some default values. For ways to configure the connection, see [Configuration](/configuration).
+This will connect to the database using some default values. For ways to configure the connection, see [Configuration](../reference/configuration/).
 :::
 
 :::caution
@@ -141,6 +141,6 @@ Be sure to configure the connection correctly and use the `--dry` flag to test y
 :::
 
 :::tip[Did you know?]
-In the example above the `@emigrate/mysql` plugin is used twice, once for the `--storage` option as a [Storage Plugin](/plugins/storage/)
-and once for the `--plugin` option as a [Loader Plugin](/plugins/loaders/) to be able to read `.sql` files.
+In the example above the `@emigrate/mysql` plugin is used twice, once for the `--storage` option as a [Storage Plugin](../plugins/storage/)
+and once for the `--plugin` option as a [Loader Plugin](../plugins/loaders/) to be able to read `.sql` files.
 :::

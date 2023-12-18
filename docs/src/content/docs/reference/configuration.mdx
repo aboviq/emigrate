@@ -47,7 +47,7 @@ Set the directory where your migrations are located, relative to the project roo
 **type:** `string | EmigrateReporter | Promise<EmigrateReporter> | (() => Promise<EmigrateReporter>)`
 **default:** `"default"` - the default reporter
 
-Set the reporter to use for the different commands. Specifying a [reporter](/plugins/reporters/) is most useful in a CI or production environment where you either ship logs or want to have a machine-readable format.
+Set the reporter to use for the different commands. Specifying a [reporter](../plugins/reporters/) is most useful in a CI or production environment where you either ship logs or want to have a machine-readable format.
 
 ```js title="emigrate.config.js" {2}
 export default {
@@ -77,7 +77,7 @@ The default reporter automatically detects if the current environment is an inte
 
 **type:** `string | EmigrateStorage | Promise<EmigrateStorage> | (() => Promise<EmigrateStorage>)`
 
-Set the [storage plugin](/plugins/storage/) to use for storing and reading the migration history. This option is required by all Emigrate commands except `new` which doesn't use it.
+Set the [storage plugin](../plugins/storage/) to use for storing and reading the migration history. This option is required by all Emigrate commands except `new` which doesn't use it.
 
 ```js title="emigrate.config.js" {2}
 export default {
@@ -86,7 +86,7 @@ export default {
 ```
 
 :::note
-Each storage plugin can have its own configuration options, see the corresponding [Storage Plugin](/plugins/storage/) section for more information.
+Each storage plugin can have its own configuration options, see the corresponding [Storage Plugin](../plugins/storage/) section for more information.
 :::
 
 ### `plugins`
@@ -97,8 +97,8 @@ Set the plugins to use for the different commands. There are different types of 
 
 In short:
 
-* [Loader Plugins](/plugins/loaders/) - are used for transforming non-JavaScript files into JavaScript files that can be executed by Node.js. These are only used by the `up` command.
-* [Generator Plugins](/plugins/generators/) - are used for generating new migration files. These are only used by the `new` command.
+* [Loader Plugins](../plugins/loaders/) - are used for transforming non-JavaScript files into JavaScript files that can be executed by Node.js. These are only used by the `up` command.
+* [Generator Plugins](../plugins/generators/) - are used for generating new migration files. These are only used by the `new` command.
 
 ```js title="emigrate.config.js" {2}
 export default {
@@ -107,7 +107,7 @@ export default {
 ```
 
 :::tip[Did you know?]
-The same package can expose multiple plugins, so you can specify the plugin only once and it can be used as both a loader and a generator (and storage, in the case of [MySQL](/plugins/storage/mysql) for instance).
+The same package can expose multiple plugins, so you can specify the plugin only once and it can be used as both a loader and a generator (and storage, in the case of [MySQL](../plugins/storage/mysql) for instance).
 :::
 
 ### `template`

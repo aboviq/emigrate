@@ -4,7 +4,7 @@ title: MySQL Loader Plugin
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-The MySQL loader plugin transforms `.sql` files into JavaScript functions that Emigrate can use to execute the migrations. In the same package you can find the [MySQL Generator](/plugins/generators/mysql/) and the [MySQL Storage](/plugins/storage/mysql/).
+The MySQL loader plugin transforms `.sql` files into JavaScript functions that Emigrate can use to execute the migrations. In the same package you can find the [MySQL Generator](../../generators/mysql/) and the [MySQL Storage](../../storage/mysql/).
 
 ## Installation
 
@@ -28,7 +28,7 @@ The MySQL loader plugin transforms `.sql` files into JavaScript functions that E
 
 ## Configuration
 
-The MySQL loader plugin can be configured either using environment variables or by configuring the plugin directly in the [`emigrate.config.js` file](/reference/configuration).
+The MySQL loader plugin can be configured either using environment variables or by configuring the plugin directly in the [`emigrate.config.js` file](../../../reference/configuration/).
 
 ### Configuration file
 
@@ -76,7 +76,7 @@ The environment variables are used when the plugin is used using the `--plugin` 
 npx emigrate list --plugin mysql
 ```
 
-Or when specifying the plugin in the [`emigrate.config.js` file](/reference/configuration) as a string:
+Or when specifying the plugin in the [`emigrate.config.js` file](../../../reference/configuration) as a string:
 
 ```js title="emigrate.config.js" {2}
 export default {
