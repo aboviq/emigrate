@@ -2,4 +2,61 @@
 title: Pino Reporter
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 Emigrate's reporter that uses [Pino](https://getpino.io/#/) as the logger.
+
+This is useful in production environments where you want all logs as JSON, which is suitable for log aggregators/shippers.
+
+## Installation
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/reporter-pino
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/reporter-pino
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/reporter-pino
+    ```
+  </TabItem>
+</Tabs>
+
+## Usage
+
+:::tip
+The `@emigrate/reporter-` prefix is optional when using this reporter.
+:::
+
+### Via CLI
+
+```bash
+emigrate <command> --reporter pino
+```
+
+See for instance the [Reporter Option](/commands/up/#-r---reporter-name) for the `up` command for more information.
+
+### Via configuration file
+
+```js title="emigrate.config.js" {2}
+export default {
+  reporter: 'pino',
+};
+```
+
+See [Reporter Configuration](/docs/configuration/#reporter) for more information.
+
+## Example output
+
+```json
+{"level":30,"time":1702907697803,"scope":"list","version":"0.10.0","name":"emigrate","parameters":{"cwd":"/your/project/dir","dry":false,"directory":"migration-folder"},"msg":"Emigrate \"list\" initialized"}
+{"level":30,"time":1702907697836,"scope":"list","version":"0.10.0","name":"emigrate","migrationCount":1,"msg":"1 pending migrations to run"}
+{"level":30,"time":1702907697836,"scope":"list","version":"0.10.0","name":"emigrate","migration":"migration-folder/20231218135441244_create_some_table.sql","msg":"20231218135441244_create_some_table.sql (pending)"}
+{"level":30,"time":1702907697836,"scope":"list","version":"0.10.0","name":"emigrate","result":{"failed":0,"done":0,"skipped":0,"pending":1,"total":1},"msg":"Emigrate \"list\" finished successfully"}
+```
