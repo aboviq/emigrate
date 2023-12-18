@@ -27,6 +27,10 @@ export default defineConfig({
               label: 'Quick Start',
               link: '/intro/quick-start/',
             },
+            {
+              label: 'FAQ',
+              link: '/intro/faq/',
+            },
           ],
         },
         {
