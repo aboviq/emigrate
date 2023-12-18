@@ -17,14 +17,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      ASTRO_SITE: ${{ vars.ASTRO_SITE }}
+      ASTRO_BASE: ${{ vars.ASTRO_BASE }}
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v3
       - name: Install, build, and upload your site output
         uses: withastro/action@v1
-        environment:
-          ASTRO_SITE: 'https://aboviq.github.io'
-          ASTRO_BASE: '/emigrate'
         with:
           path: ./docs # The root location of your Astro project inside the repository. (optional)
           node-version: 20 # The specific version of Node that should be used to build your site. Defaults to 18. (optional)
