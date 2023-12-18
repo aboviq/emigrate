@@ -4,6 +4,8 @@ import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://aboviq.github.io',
+  base: '/emigrate',
   integrations: [
     starlight({
       title: 'Emigrate',
