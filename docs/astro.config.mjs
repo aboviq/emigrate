@@ -3,10 +3,12 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from '@astrojs/tailwind';
 
+const base = process.env.ASTRO_BASE || '';
+
 // https://astro.build/config
 export default defineConfig({
   site: process.env.ASTRO_SITE,
-  base: process.env.ASTRO_BASE,
+  base: base || undefined,
   integrations: [
     starlight({
       title: 'Emigrate',
@@ -18,7 +20,7 @@ export default defineConfig({
           attrs: {
             rel: 'apple-touch-icon',
             type: 'image/png',
-            href: '/apple-touch-icon.png',
+            href: `${base}/apple-touch-icon.png`,
             sizes: '180x180',
           },
         },
@@ -27,7 +29,7 @@ export default defineConfig({
           attrs: {
             rel: 'icon',
             type: 'image/png',
-            href: '/favicon-32x32.png',
+            href: `${base}/favicon-32x32.png`,
             sizes: '32x32',
           },
         },
@@ -36,7 +38,7 @@ export default defineConfig({
           attrs: {
             rel: 'icon',
             type: 'image/png',
-            href: '/favicon-16x16.png',
+            href: `${base}/favicon-16x16.png`,
             sizes: '16x16',
           },
         },
@@ -44,7 +46,7 @@ export default defineConfig({
           tag: 'link',
           attrs: {
             rel: 'manifest',
-            href: '/site.webmanifest',
+            href: `${base}/site.webmanifest`,
           },
         },
       ],
