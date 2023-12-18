@@ -1,0 +1,24 @@
+---
+title: "Generator Plugins"
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+A generator plugin is a plugin that generates new migration files.
+They are responsible for both generating the new file's name and its contents.
+
+:::tip[Did you know?]
+Many of the [Loader Plugins](/plugins/loaders/) usually include a generator plugin as well.
+The generator is responsible for generating migration files in a specific format and the loader is responsible for loading the same format.
+:::
+
+## Available Generator Plugins
+
+<CardGrid>
+  <LinkCard title="JavaScript generator" href="/plugins/generators/js/" description="A generator that generates .js migration files (using ESM and default export)" />
+  <LinkCard title="MySQL generator" href="/plugins/generators/mysql/" description="A generator that generates .sql migration files" />
+</CardGrid>
+
+:::note
+Instead of having to install a generator plugin, you can also use the much simpler [`--template`](/commands/new/#t---template-path) option to specify a custom template file for new migrations.
+:::
