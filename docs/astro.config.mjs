@@ -147,12 +147,28 @@ export default defineConfig({
                 {
                   label: 'Default Reporter',
                   link: '/plugins/reporters/default/',
-                  badge: 'WIP',
                 },
                 {
                   label: 'Pino Reporter',
                   link: '/plugins/reporters/pino/',
-                  badge: 'WIP',
+                },
+              ],
+            },
+            {
+              label: 'Generator Plugins',
+              collapsed: true,
+              items: [
+                {
+                  label: 'Introduction',
+                  link: '/plugins/generators/',
+                },
+                {
+                  label: 'JavaScript Generator',
+                  link: '/plugins/generators/js/',
+                },
+                {
+                  label: 'MySQL Generator',
+                  link: '/plugins/generators/mysql/',
                 },
               ],
             },
