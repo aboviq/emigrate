@@ -22,6 +22,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Install, build, and upload your site output
         uses: withastro/action@v1
+        environment:
+          ASTRO_SITE: 'https://aboviq.github.io'
+          ASTRO_BASE: '/emigrate'
         with:
           path: ./docs # The root location of your Astro project inside the repository. (optional)
           node-version: 20 # The specific version of Node that should be used to build your site. Defaults to 18. (optional)

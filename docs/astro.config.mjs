@@ -1,11 +1,12 @@
+import process from 'node:process';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://aboviq.github.io',
-  base: '/emigrate',
+  site: process.env.ASTRO_SITE,
+  base: process.env.ASTRO_BASE,
   integrations: [
     starlight({
       title: 'Emigrate',
