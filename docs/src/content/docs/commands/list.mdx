@@ -3,6 +3,8 @@ title: "`emigrate list`"
 description: "List migrations and their status."
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 The `list` command is used to list _all_ migrations, i.e. both already run migrations and migrations that haven't been run yet.
 
 Emigrate takes all migration files in the given directory that haven't been run yet and all migrations from the migration history.  
@@ -10,9 +12,32 @@ It then sorts the migrations by filename in ascending order and outputs them and
 
 ## Usage
 
-```bash
-emigrate list [options]
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate list [options]
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm exec emigrate list [options]
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn exec emigrate -- list [options]
+    ```
+  </TabItem>
+  <TabItem label="package.json">
+    ```json {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate list [options]"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
 
 ## Options
 

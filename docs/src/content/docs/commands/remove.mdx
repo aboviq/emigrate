@@ -3,13 +3,38 @@ title: "`emigrate remove`"
 description: "Remove a migration from the history."
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 The `remove` command is used to remove a migration from the history. This is useful if you want to retry a migration that has failed.
 
 ## Usage
 
-```bash
-emigrate remove [options] <name>
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate remove [options] <name>
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm exec emigrate remove [options] <name>
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn exec emigrate -- remove [options] <name>
+    ```
+  </TabItem>
+  <TabItem label="package.json">
+    ```json {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate remove [options] <name>"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
 
 ## Arguments
 
