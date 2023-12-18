@@ -14,8 +14,17 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: 'Getting Started',
-          link: '/getting-started/',
+          label: 'Introduction',
+          items: [
+            {
+              label: "What's Emigrate?",
+              link: '/intro/whats-emigrate/',
+            },
+            {
+              label: 'Quick Start',
+              link: '/intro/quick-start/',
+            },
+          ],
         },
         {
           label: 'Plugins',
