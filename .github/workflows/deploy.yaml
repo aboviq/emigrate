@@ -24,6 +24,10 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v3
+      - name: Show vars
+        run: |
+          echo $ASTRO_SITE
+          echo $ASTRO_BASE
       - name: Install, build, and upload your site output
         uses: withastro/action@v1
         with:
