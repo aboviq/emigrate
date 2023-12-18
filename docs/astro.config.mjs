@@ -12,6 +12,9 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/aboviq/emigrate/edit/main/docs/',
       },
+      components: {
+        PageTitle: './src/components/PageTitle.astro',
+      },
       sidebar: [
         {
           label: 'Introduction',
@@ -23,6 +26,27 @@ export default defineConfig({
             {
               label: 'Quick Start',
               link: '/intro/quick-start/',
+            },
+          ],
+        },
+        {
+          label: 'Commands',
+          items: [
+            {
+              label: 'emigrate up',
+              link: '/commands/up/',
+            },
+            {
+              label: 'emigrate list',
+              link: '/commands/list/',
+            },
+            {
+              label: 'emigrate new',
+              link: '/commands/new/',
+            },
+            {
+              label: 'emigrate remove',
+              link: '/commands/remove/',
             },
           ],
         },

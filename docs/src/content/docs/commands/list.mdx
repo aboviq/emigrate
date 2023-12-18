@@ -1,0 +1,55 @@
+---
+title: "`emigrate list`"
+description: "List migrations and their status."
+---
+
+The `list` command is used to list _all_ migrations, i.e. both already run migrations and migrations that haven't been run yet.
+
+Emigrate takes all migration files in the given directory that haven't been run yet and all migrations from the migration history.  
+It then sorts the migrations by filename in ascending order and outputs them and their respective status one by one.
+
+## Usage
+
+```bash
+emigrate list [options]
+```
+
+## Options
+
+### `-h`, `--help`
+
+Show command help and exit
+
+### `-d`, `--directory <path>`
+
+The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
+
+### `-s`, `--storage <name>`
+
+The storage to use for where to read the migration history.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/storage-`
+- `emigrate-storage-`
+- `@emigrate/plugin-storage-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-storage-somedb` package, you can specify either `emigrate-storage-somedb` or just `somedb` as the name.
+In case you have both a `emigrate-storage-somedb` and a `somedb` package installed, the `emigrate-storage-somedb` package will be used.
+
+### `-r`, `--reporter <name>`
+
+The reporter to use for listing the migrations.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/reporter-`
+- `emigrate-reporter-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-reporter-somereporter` package, you can specify either `emigrate-reporter-somereporter` or just `somereporter` as the name.

@@ -1,0 +1,27 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+
+const { title } = Astro.props.entry.data;
+const isCode = title.startsWith('`') && title.endsWith('`');
+---
+
+<h1 id="_top">{isCode ? <code>{title.slice(1, -1)}</code> : title}</h1>
+
+<style>
+  h1 {
+    margin-top: 1rem;
+    font-size: var(--sl-text-h1);
+    line-height: var(--sl-line-height-headings);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  code {
+    font-family: var(--sl-font-system-mono);
+    background-color: var(--sl-color-bg-inline-code);
+    border: 1px solid var(--sl-color-gray-3);
+    color: var(--sl-color-gray-1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+</style>
