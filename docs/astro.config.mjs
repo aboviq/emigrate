@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
@@ -7,6 +8,7 @@ export default defineConfig({
     starlight({
       title: 'Emigrate',
       favicon: '/favicon.ico',
+      customCss: ['./src/tailwind.css'],
       head: [
         {
           tag: 'link',
@@ -102,36 +104,70 @@ export default defineConfig({
               label: 'Storage Plugins',
               collapsed: true,
               items: [
-                { label: 'Introduction', link: '/plugins/storage/' },
-                { label: 'File System', link: '/plugins/storage/file-system/' },
-                { label: 'MySQL', link: '/plugins/storage/mysql/' },
+                {
+                  label: 'Introduction',
+                  link: '/plugins/storage/',
+                },
+                {
+                  label: 'File System',
+                  link: '/plugins/storage/file-system/',
+                },
+                {
+                  label: 'MySQL',
+                  link: '/plugins/storage/mysql/',
+                },
               ],
             },
             {
               label: 'Loader Plugins',
               collapsed: true,
               items: [
-                { label: 'Introduction', link: '/plugins/loaders/' },
-                { label: 'Default Loader', link: '/plugins/loaders/default/' },
-                { label: 'MySQL Loader', link: '/plugins/loaders/mysql/' },
+                {
+                  label: 'Introduction',
+                  link: '/plugins/loaders/',
+                },
+                {
+                  label: 'Default Loader',
+                  link: '/plugins/loaders/default/',
+                },
+                {
+                  label: 'MySQL Loader',
+                  link: '/plugins/loaders/mysql/',
+                },
               ],
             },
             {
               label: 'Reporters',
               collapsed: true,
               items: [
-                { label: 'Introduction', link: '/plugins/reporters/' },
-                { label: 'Default Reporter', link: '/plugins/reporters/default/', badge: 'WIP' },
-                { label: 'Pino Reporter', link: '/plugins/reporters/pino/', badge: 'WIP' },
+                {
+                  label: 'Introduction',
+                  link: '/plugins/reporters/',
+                },
+                {
+                  label: 'Default Reporter',
+                  link: '/plugins/reporters/default/',
+                  badge: 'WIP',
+                },
+                {
+                  label: 'Pino Reporter',
+                  link: '/plugins/reporters/pino/',
+                  badge: 'WIP',
+                },
               ],
             },
           ],
         },
         {
           label: 'Reference',
-          autogenerate: { directory: 'reference' },
+          autogenerate: {
+            directory: 'reference',
+          },
         },
       ],
+    }),
+    tailwind({
+      applyBaseStyles: false,
     }),
   ],
 });
