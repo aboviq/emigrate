@@ -1,0 +1,35 @@
+---
+title: The Plugin System
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Emigrate uses a plugin system to allow you to extend and customize the functionality so that it fits your needs.
+
+## The types of plugins
+
+Emigrate supports different types of plugins that all have different purposes.
+
+<LinkCard
+  href="/plugins/storage/"
+  title="Storage Plugins"
+  description="The most important plugin type. A storage plugin is responsible for storing and handling the migration history state."
+  />
+
+<LinkCard
+  href="/plugins/loaders/"
+  title="Loader Plugins"
+  description="A loader plugin is responsible for loading migration files with a specific format and transforming them into a JavaScript function."
+  />
+
+<LinkCard
+  href="/plugins/reporters/"
+  title="Reporters"
+  description="A reporter is responsible for the output of the migration process. Use a different reporter if you want the output suitable for log shipping or to be machine readable."
+  />
+
+<LinkCard
+  href="/plugins/generators/"
+  title="Generator Plugins"
+  description="A generator plugin generates new migration files. Usually included in loader plugin packages so the same package can be used for both creating and loading migrations in a certain format."
+  />

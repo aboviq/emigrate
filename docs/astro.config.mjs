@@ -18,27 +18,39 @@ export default defineConfig({
           link: '/getting-started/',
         },
         {
-          label: 'Storage Plugins',
+          label: 'Plugins',
           items: [
-            { label: 'Introduction', link: '/storage/' },
-            { label: 'File System', link: '/storage/file-system/' },
-            { label: 'MySQL', link: '/storage/mysql/' },
-          ],
-        },
-        {
-          label: 'Loader Plugins',
-          items: [
-            { label: 'Introduction', link: '/loaders/' },
-            { label: 'Default Loader', link: '/loaders/default/' },
-            { label: 'MySQL Loader', link: '/loaders/mysql/' },
-          ],
-        },
-        {
-          label: 'Reporters',
-          items: [
-            { label: 'Introduction', link: '/reporters/' },
-            { label: 'Default Reporter', link: '/reporters/default/', badge: 'WIP' },
-            { label: 'Pino Reporter', link: '/reporters/pino/', badge: 'WIP' },
+            {
+              label: 'Introduction',
+              link: '/plugins/',
+            },
+            {
+              label: 'Storage Plugins',
+              collapsed: true,
+              items: [
+                { label: 'Introduction', link: '/plugins/storage/' },
+                { label: 'File System', link: '/plugins/storage/file-system/' },
+                { label: 'MySQL', link: '/plugins/storage/mysql/' },
+              ],
+            },
+            {
+              label: 'Loader Plugins',
+              collapsed: true,
+              items: [
+                { label: 'Introduction', link: '/plugins/loaders/' },
+                { label: 'Default Loader', link: '/plugins/loaders/default/' },
+                { label: 'MySQL Loader', link: '/plugins/loaders/mysql/' },
+              ],
+            },
+            {
+              label: 'Reporters',
+              collapsed: true,
+              items: [
+                { label: 'Introduction', link: '/plugins/reporters/' },
+                { label: 'Default Reporter', link: '/plugins/reporters/default/', badge: 'WIP' },
+                { label: 'Pino Reporter', link: '/plugins/reporters/pino/', badge: 'WIP' },
+              ],
+            },
           ],
         },
         {

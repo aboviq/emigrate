@@ -14,7 +14,7 @@ Emigrate is written in [TypeScript](https://www.typescriptlang.org) and is a dat
 * The output can be customized using [Reporters](/reporters/).
 
 :::tip[Did you know?]
-Thanks to the plugin system you can even write migrations in plain SQL! So no need for Java-based tools like Liquibase or Flyway.
+Thanks to [the plugin system](/plugins/) you can even write migrations in plain SQL! So no need for Java-based tools like Liquibase or Flyway.
 :::
 
 ## Quick Start
@@ -46,10 +46,10 @@ But for now, this is the way to go.
 
 ### Pick a storage plugin
 
-Emigrate uses a storage plugin to store the migration history. You can use one of the following plugins:
+Emigrate uses a [storage plugin](/plugins/storage/) to store the migration history. You can use one of the following plugins:
 
-- [MySQL](/storage/mysql)
-- [File System](/storage/file-system)
+- [MySQL](/plugins/storage/mysql)
+- [File System](/plugins/storage/file-system)
 
 Install the plugin you want to use, for example:
 
@@ -95,7 +95,7 @@ Otherwise the file would have the `.js` extension by default.
 
 :::tip[Did you know?]
 You can avoid typing `--plugin mysql` by configuring Emigrate using an `emigrate.config.js` file.
-See [Configuration](/configuration) for more information.
+See [Configuration](/configuration/) for more information.
 :::
 
 #### Fill the migration file
