@@ -1,0 +1,62 @@
+---
+title: "`emigrate remove`"
+description: "Remove a migration from the history."
+---
+
+The `remove` command is used to remove a migration from the history. This is useful if you want to retry a migration that has failed.
+
+## Usage
+
+```bash
+emigrate remove [options] <name>
+```
+
+## Arguments
+
+### `<name>`
+
+The name of the migration file to remove, including the extension, e.g. `20200101000000_some_migration.js`.
+
+## Options
+
+### `-h`, `--help`
+
+Show command help and exit
+
+### `-d`, `--directory <path>`
+
+The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
+
+### `-f`, `--force`
+
+Force removal of the migration history entry even if the migration file does not exist or it's in a non-failed state.
+
+### `-s`, `--storage <name>`
+
+The storage to use for where to read the migration history.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/storage-`
+- `emigrate-storage-`
+- `@emigrate/plugin-storage-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-storage-somedb` package, you can specify either `emigrate-storage-somedb` or just `somedb` as the name.
+In case you have both a `emigrate-storage-somedb` and a `somedb` package installed, the `emigrate-storage-somedb` package will be used.
+
+### `-r`, `--reporter <name>`
+
+The reporter to use for listing the migrations.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/reporter-`
+- `emigrate-reporter-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-reporter-somereporter` package, you can specify either `emigrate-reporter-somereporter` or just `somereporter` as the name.

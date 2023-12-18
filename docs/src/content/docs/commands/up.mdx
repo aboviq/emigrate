@@ -1,0 +1,76 @@
+---
+title: "`emigrate up`"
+description: "Run migrations"
+---
+
+The `up` command is used to either list or run all pending migrations, i.e. migrations that haven't been run yet.
+
+Emigrate takes all migration files in the given directory and compares them to the migration history so that it knows which migrations are pending.  
+It then sorts the pending migrations by filename in ascending order and runs them one by one.
+
+If any of the migrations fail, the command will be aborted and the rest of the migrations will not be run.
+
+## Usage
+
+```bash
+emigrate up [options]
+```
+
+## Options
+
+### `-h`, `--help`
+
+Show command help and exit
+
+### `--dry`
+
+List the pending migrations that would be run without actually running them
+
+### `-d`, `--directory <path>`
+
+The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
+
+### `-s`, `--storage <name>`
+
+The storage to use for where to store the migration history.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/storage-`
+- `emigrate-storage-`
+- `@emigrate/plugin-storage-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-storage-somedb` package, you can specify either `emigrate-storage-somedb` or just `somedb` as the name.
+In case you have both a `emigrate-storage-somedb` and a `somedb` package installed, the `emigrate-storage-somedb` package will be used.
+
+### `-p`, `--plugin <name>`
+
+The [loader plugin(s)](/plugins/loaders/) to use. Can be specified multiple times to use multiple plugins.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/plugin-`
+- `emigrate-plugin-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-plugin-someplugin` package, you can specify either `emigrate-plugin-someplugin` or just `someplugin` as the name.
+In case you have both a `emigrate-plugin-someplugin` and a `someplugin` package installed, the `emigrate-plugin-someplugin` package will be used.
+
+### `-r`, `--reporter <name>`
+
+The reporter to use for reporting the migration progress.
+
+The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
+
+- `@emigrate/reporter-`
+- `emigrate-reporter-`
+- `@emigrate/`
+
+And then try to load the module/package with the given name.
+
+For example, if you want to use the `emigrate-reporter-somereporter` package, you can specify either `emigrate-reporter-somereporter` or just `somereporter` as the name.
