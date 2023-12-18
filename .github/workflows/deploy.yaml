@@ -14,12 +14,13 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  ASTRO_SITE: ${{ vars.ASTRO_SITE }}
+  ASTRO_BASE: ${{ vars.ASTRO_BASE }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      ASTRO_SITE: ${{ vars.ASTRO_SITE }}
-      ASTRO_BASE: ${{ vars.ASTRO_BASE }}
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v3
