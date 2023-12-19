@@ -1,5 +1,11 @@
 # @emigrate/types
 
+## 0.9.0
+
+### Minor Changes
+
+- ce6946c: Emigrate supports Bun, make use of the `bun` key in package.json `exports`
+
 ## 0.8.0
 
 ### Minor Changes
