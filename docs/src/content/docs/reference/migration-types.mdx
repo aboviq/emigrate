@@ -1,0 +1,93 @@
+---
+title: Migration Types
+---
+
+import Link from '@components/Link.astro';
+
+These are common TypeScript types for migration files used by <Link href="/plugins/">plugins</Link>.
+
+## `MigrationMetadata`
+
+```ts
+type MigrationMetadata = {
+  /**
+   * The name of the migration file
+   *
+   * @example 20210901123456000_create_users_table.js
+   */
+  name: string;
+  /**
+   * The directory where the migration file is located, relative to the current working directory
+   *
+   * @example migrations
+   */
+  directory: string;
+  /**
+   * The full absolute path to the migration file
+   *
+   * @example /home/user/project/migrations/20210901123456000_create_users_table.js
+   */
+  filePath: string;
+  /**
+   * The relative path to the migration file, relative to the current working directory
+   *
+   * @example migrations/20210901123456000_create_users_table.js
+   */
+  relativeFilePath: string;
+  /**
+   * The current working directory (the same as process.cwd())
+   */
+  cwd: string;
+  /**
+   * The extension of the migration file, with a leading period
+   *
+   * @example .js
+   */
+  extension: string;
+};
+```
+
+## `MigrationMetadataFinished`
+
+```ts
+type MigrationMetadataFinished = MigrationMetadata & {
+  status: 'done' | 'failed' | 'skipped' | 'pending';
+  /**
+   * The duration of the migration in milliseconds
+   */
+  duration: number;
+  /**
+   * The error that occurred during the migration, if `status` is `"failed"`
+   */
+  error?: Error;
+};
+```
+
+## `MigrationHistoryEntry`
+
+```ts
+type MigrationHistoryEntry = {
+  /**
+   * The name of the migration.
+   * 
+   * @example 20210901123456000_create_users_table.js
+   */
+  name: string;
+  /**
+   * The date when the migration was executed.
+   */
+  date: Date;
+  /**
+   * The status of the migration.
+   * 
+   * As an entry is only added to the history after the migration has finished, this will always be either `"done"` or `"failed"`.
+   */
+  status: 'done' | 'failed';
+  /**
+   * The error that occurred during the migration, if `status` is `"failed"`
+   * 
+   * This should be a plain object, as it is serialized when passed to the storage plugin's `onError` method.
+   */
+  error?: Record<string, unknown>;
+};
+```
