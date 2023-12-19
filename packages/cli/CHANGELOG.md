@@ -1,5 +1,13 @@
 # @emigrate/cli
 
+## 0.11.2
+
+### Patch Changes
+
+- Updated dependencies [a6c6e6d]
+  - @emigrate/types@0.9.1
+  - @emigrate/plugin-tools@0.9.2
+
 ## 0.11.1
 
 ### Patch Changes
