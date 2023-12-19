@@ -4,6 +4,8 @@
 
 It's effectively a successor of [klei-migrate](https://www.npmjs.com/package/klei-migrate) and [Immigration](https://www.npmjs.com/package/immigration).
 
+📖 Read the [documentation](https://emigrate.dev) for more information!
+
 ## Features
 
 - Database agnostic
@@ -29,6 +31,12 @@ Install the Emigrate CLI in your project:
 
 ```bash
 npm install --save-dev @emigrate/cli
+# or
+pnpm add --save-dev @emigrate/cli
+# or
+yarn add --dev @emigrate/cli
+# or
+bun add --dev @emigrate/cli
 ```
 
 ## Usage
@@ -36,7 +44,13 @@ npm install --save-dev @emigrate/cli
 Create a new migration:
 
 ```bash
-emigrate new -d migrations -e .js create some fancy table
+npx emigrate new -d migrations -e .js create some fancy table
+# or
+pnpm emigrate new -d migrations -e .js create some fancy table
+# or
+yarn emigrate new -d migrations -e .js create some fancy table
+# or
+bunx --bun emigrate new -d migrations -e .js create some fancy table
 ```
 
 Will create a new empty JavaScript migration file with the name "YYYYMMDDHHmmssuuu_create_some_fancy_table.js" in the `migrations` directory.
