@@ -40,6 +40,18 @@ But for now, this is the way to go.
     bun add @emigrate/cli
     ```
   </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Pick a storage plugin
@@ -69,15 +81,57 @@ Install the plugin you want to use, for example the <Link href="/plugins/storage
     bun add @emigrate/postgres
     ```
   </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {4}
+    {
+      "dependencies": {
+        "@emigrate/cli": "*",
+        "@emigrate/postgres": "*"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Create your first migration
 
 Create a new migration file in your project using:
 
-```bash title="Create a new migration file"
-npx emigrate new --plugin postgres create users table
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash title="Create a new migration file"
+    npx emigrate new --plugin postgres create users table
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash title="Create a new migration file"
+    pnpm emigrate new --plugin postgres create users table
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash title="Create a new migration file"
+    yarn emigrate new --plugin postgres create users table
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash title="Create a new migration file"
+    bunx --bun emigrate new --plugin postgres create users table
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash title="Create a new migration file"
+    deno task emigrate new --plugin postgres create users table
+    ```
+  </TabItem>
+</Tabs>
 
 ```txt title="Output"
 Emigrate new v0.10.0 /your/project/path
@@ -119,9 +173,41 @@ There's no magic about the first line comment as when using Liquibase, it's just
 
 To show both pending and already applied migrations (or previously failed), use the `list` command:
 
-```bash title="Show all migrations"
-npx emigrate list --storage postgres
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash title="Show all migrations"
+    npx emigrate list --storage postgres
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash title="Show all migrations"
+    pnpm emigrate list --storage postgres
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash title="Show all migrations"
+    yarn emigrate list --storage postgres
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash title="Show all migrations"
+    bunx --bun emigrate list --storage postgres
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash title="Show all migrations"
+    deno task emigrate list --storage postgres
+    ```
+  </TabItem>
+</Tabs>
 
 ```txt title="Example output"
 Emigrate list v0.10.0 /your/project/path
@@ -137,9 +223,41 @@ Emigrate list v0.10.0 /your/project/path
 
 A good way to test your configuration is to run the migrations in dry mode:
 
-```bash title="Show pending migrations"
-npx emigrate up --storage postgres --plugin postgres --dry
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash title="Show pending migrations"
+    npx emigrate up --storage postgres --plugin postgres --dry
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash title="Show pending migrations"
+    pnpm emigrate up --storage postgres --plugin postgres --dry
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash title="Show pending migrations"
+    yarn emigrate up --storage postgres --plugin postgres --dry
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash title="Show pending migrations"
+    bunx --bun emigrate up --storage postgres --plugin postgres --dry
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash title="Show pending migrations"
+    deno task emigrate up --storage postgres --plugin postgres --dry
+    ```
+  </TabItem>
+</Tabs>
 
 :::note
 This will connect to the database using some default values. For ways to configure the connection, see <Link href="/reference/configuration/">Configuration</Link>.

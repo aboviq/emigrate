@@ -7,7 +7,13 @@ This package contains an Emigrate plugin for generating migration files using Ja
 Install the package:
 
 ```bash
-npm install --save-dev @emigrate/plugin-generate-js
+npm install @emigrate/cli @emigrate/plugin-generate-js
+# or
+pnpm add @emigrate/cli @emigrate/plugin-generate-js
+# or
+yarn add @emigrate/cli @emigrate/plugin-generate-js
+# or
+bun add @emigrate/cli @emigrate/plugin-generate-js
 ```
 
 Use the plugin with the `emigrate new` command:

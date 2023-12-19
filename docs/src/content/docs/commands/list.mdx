@@ -34,13 +34,20 @@ It then sorts the migrations by filename in ascending order and outputs them and
     bunx --bun emigrate list [options]
     ```
   </TabItem>
-  <TabItem label="package.json">
-    ```json {3}
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
     {
       "scripts": {
-        "emigrate": "emigrate list [options]"
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
       }
     }
+    ```
+
+    ```bash
+    deno task emigrate list [options]
     ```
   </TabItem>
 </Tabs>

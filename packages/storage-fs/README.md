@@ -7,7 +7,13 @@ A file system storage plugin for Emigrate, suitable for simple migration setups.
 Install the storage plugin in your project, alongside the Emigrate CLI:
 
 ```bash
-npm install --save-dev @emigrate/cli @emigrate/storage-fs
+npm install @emigrate/cli @emigrate/storage-fs
+# or
+pnpm add @emigrate/cli @emigrate/storage-fs
+# or
+yarn add @emigrate/cli @emigrate/storage-fs
+# or
+bun add @emigrate/cli @emigrate/storage-fs
 ```
 
 ## Usage

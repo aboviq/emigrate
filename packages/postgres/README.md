@@ -17,7 +17,13 @@ This plugin is actually three different Emigrate plugins in one:
 Install the plugin in your project, alongside the Emigrate CLI:
 
 ```bash
-npm install --save-dev @emigrate/cli @emigrate/postgres
+npm install @emigrate/cli @emigrate/postgres
+# or
+pnpm add @emigrate/cli @emigrate/postgres
+# or
+yarn add @emigrate/cli @emigrate/postgres
+# or
+bun add @emigrate/cli @emigrate/postgres
 ```
 
 ## Usage

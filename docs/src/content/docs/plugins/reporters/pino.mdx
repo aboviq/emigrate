@@ -32,6 +32,15 @@ This is useful in production environments where you want all logs as JSON, which
     bun add @emigrate/reporter-pino
     ```
   </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "dependencies": {
+        "@emigrate/reporter-pino": "*"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Usage
@@ -42,9 +51,41 @@ The `@emigrate/reporter-` prefix is optional when using this reporter.
 
 ### Via CLI
 
-```bash
-emigrate <command> --reporter pino
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate <command> --reporter pino
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate <command> --reporter pino
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate <command> --reporter pino
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate <command> --reporter pino
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate <command> --reporter pino
+    ```
+  </TabItem>
+</Tabs>
 
 See for instance the <Link href="/commands/up/#-r---reporter-name">Reporter Option</Link> for the `up` command for more information.
 
