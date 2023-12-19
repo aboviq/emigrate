@@ -1,0 +1,86 @@
+---
+title: PostgreSQL Loader Plugin
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+The PostgreSQL loader plugin transforms `.sql` files into JavaScript functions that Emigrate can use to execute the migrations. In the same package you can find the <Link href="/plugins/generators/postgres/">PostgreSQL Generator</Link> and the <Link href="/plugins/storage/postgres/">PostgreSQL Storage</Link>.
+
+## Installation
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/postgres
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/postgres
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/postgres
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+The PostgreSQL loader plugin can be configured either using environment variables or by configuring the plugin directly in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link>.
+
+### Configuration file
+
+```js title="emigrate.config.js" {1,4-8}
+import { createPostgresLoader } from '@emigrate/postgres';
+
+export default {
+  plugins: [
+    createPostgresLoader({
+      connection: { ... },
+    }),
+  ],
+};
+```
+
+#### Options
+
+##### `connection` (required)
+
+**type:** `object | string`
+
+The connection options to use for connecting to the PostgreSQL database when the SQL statements from the migration files are executed. This can either be a connection URI or an object with connection options.
+For a list of supported connection options, see the [postgres documentation](https://github.com/porsager/postgres#connection).
+
+### Environment variables
+
+The following environment variables are supported:
+
+| Variable            | Description                                                                                                 | Default       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- | ------------- |
+| `POSTGRES_URL`      | The full URI for connecting to a PostgreSQL database, e.g: `"postgres://user:pass@127.0.0.1:3306/database"` |               |
+| `POSTGRES_HOST`     | The host on which the PostgreSQL server instance is running                                                 | `"localhost"` |
+| `POSTGRES_USER`     | The PostgreSQL user account to use for the authentication                                                   |               |
+| `POSTGRES_PASSWORD` | The PostgreSQL user password to use for the authentication                                                  |               |
+| `POSTGRES_PORT`     | The network port on which the PostgreSQL server is listening                                                | `5432`        |
+| `POSTGRES_DB`       | The PostgreSQL database to use for the connection                                                           |               |
+
+:::note
+The `POSTGRES_URL` environment variable takes precedence over the other environment variables. If `POSTGRES_URL` is set, the other environment variables are ignored.
+:::
+
+The environment variables are used when the plugin is used using the `--plugin` command line option:
+
+```bash
+npx emigrate list --plugin postgres
+```
+
+Or when specifying the plugin in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link> as a string:
+
+```js title="emigrate.config.js" {2}
+export default {
+  plugins: ['postgres'],
+};
+```

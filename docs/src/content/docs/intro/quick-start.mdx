@@ -41,22 +41,22 @@ But for now, this is the way to go.
 
 Emigrate uses a <Link href="/plugins/storage/">storage plugin</Link> to store the migration history.
 
-Install the plugin you want to use, for example:
+Install the plugin you want to use, for example the <Link href="/plugins/storage/postgres/">PostgreSQL Storage</Link>:
 
 <Tabs>
   <TabItem label="npm">
     ```bash
-    npm install @emigrate/mysql
+    npm install @emigrate/postgres
     ```
   </TabItem>
   <TabItem label="pnpm">
     ```bash
-    pnpm add @emigrate/mysql
+    pnpm add @emigrate/postgres
     ```
   </TabItem>
   <TabItem label="yarn">
     ```bash
-    yarn add @emigrate/mysql
+    yarn add @emigrate/postgres
     ```
   </TabItem>
 </Tabs>
@@ -66,7 +66,7 @@ Install the plugin you want to use, for example:
 Create a new migration file in your project using:
 
 ```bash title="Create a new migration file"
-npx emigrate new --plugin mysql create users table
+npx emigrate new --plugin postgres create users table
 ```
 
 ```txt title="Output"
@@ -79,12 +79,12 @@ Emigrate new v0.10.0 /your/project/path
 ```
 
 :::note
-The `mysql` plugin is used here to generate a migration file with the `.sql` extension.
+The `postgres` plugin is used here to generate a migration file with the `.sql` extension.
 Otherwise the file would have the `.js` extension by default.
 :::
 
 :::tip[Did you know?]
-You can avoid typing `--plugin mysql` by configuring Emigrate using an `emigrate.config.js` file.
+You can avoid typing `--plugin postgres` by configuring Emigrate using an `emigrate.config.js` file.
 See <Link href="/reference/configuration/">Configuration</Link> for more information.
 :::
 
@@ -95,10 +95,9 @@ Open the migration file in your editor and fill it with your SQL query:
 ```sql title="migrations/20231215125421364_create_users_table.sql" {2-7}
 -- Migration: create users table
 CREATE TABLE users (
-  id INT NOT NULL AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  PRIMARY KEY (id)
+  email VARCHAR(255) NOT NULL
 );
 ```
 
@@ -111,7 +110,7 @@ There's no magic about the first line comment as when using Liquibase, it's just
 To show both pending and already applied migrations (or previously failed), use the `list` command:
 
 ```bash title="Show all migrations"
-npx emigrate list --storage mysql
+npx emigrate list --storage postgres
 ```
 
 ```txt title="Example output"
@@ -129,7 +128,7 @@ Emigrate list v0.10.0 /your/project/path
 A good way to test your configuration is to run the migrations in dry mode:
 
 ```bash title="Show pending migrations"
-npx emigrate up --storage mysql --plugin mysql --dry
+npx emigrate up --storage postgres --plugin postgres --dry
 ```
 
 :::note
@@ -142,6 +141,6 @@ Be sure to configure the connection correctly and use the `--dry` flag to test y
 :::
 
 :::tip[Did you know?]
-In the example above the `@emigrate/mysql` plugin is used twice, once for the `--storage` option as a <Link href="/plugins/storage/">Storage Plugin</Link>
+In the example above the `@emigrate/postgres` plugin is used twice, once for the `--storage` option as a <Link href="/plugins/storage/">Storage Plugin</Link>
 and once for the `--plugin` option as a <Link href="/plugins/loaders/">Loader Plugin</Link> to be able to read `.sql` files.
 :::

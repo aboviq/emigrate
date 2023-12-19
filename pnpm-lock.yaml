@@ -148,6 +148,22 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
 
+  packages/postgres:
+    dependencies:
+      '@emigrate/plugin-tools':
+        specifier: workspace:*
+        version: link:../plugin-tools
+      '@emigrate/types':
+        specifier: workspace:*
+        version: link:../types
+      postgres:
+        specifier: 3.4.3
+        version: 3.4.3
+    devDependencies:
+      '@emigrate/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+
   packages/reporter-pino:
     dependencies:
       '@emigrate/types':
@@ -7028,6 +7044,11 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
+
+  /postgres@3.4.3:
+    resolution: {integrity: sha512-iHJn4+M9vbTdHSdDzNkC0crHq+1CUdFhx+YqCE+SqWxPjm+Zu63jq7yZborOBF64c8pc58O5uMudyL1FQcHacA==}
+    engines: {node: '>=12'}
     dev: false
 
   /prebuild-install@7.1.1:
