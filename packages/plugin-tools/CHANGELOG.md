@@ -1,5 +1,12 @@
 # @emigrate/plugin-tools
 
+## 0.9.2
+
+### Patch Changes
+
+- Updated dependencies [a6c6e6d]
+  - @emigrate/types@0.9.1
+
 ## 0.9.1
 
 ### Patch Changes

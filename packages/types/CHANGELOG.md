@@ -1,5 +1,11 @@
 # @emigrate/types
 
+## 0.9.1
+
+### Patch Changes
+
+- a6c6e6d: Remove the `bun` exports config in this package as well
+
 ## 0.9.0
 
 ### Minor Changes
