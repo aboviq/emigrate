@@ -1,5 +1,16 @@
 # @emigrate/storage-fs
 
+## 0.4.0
+
+### Minor Changes
+
+- ce6946c: Emigrate supports Bun, make use of the `bun` key in package.json `exports`
+
+### Patch Changes
+
+- Updated dependencies [ce6946c]
+  - @emigrate/types@0.9.0
+
 ## 0.3.3
 
 ### Patch Changes
