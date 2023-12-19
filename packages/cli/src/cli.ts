@@ -143,7 +143,7 @@ Options:
 Examples:
 
   emigrate new -d src/migrations -t migration-template.js create users table
-  emigrate new --directory ./migrations --plugin @emigrate/plugin-generate-sql create_users_table
+  emigrate new --directory ./migrations --plugin @emigrate/postgres create_users_table
   emigrate new -d ./migrations -e .sql create_users_table
   emigrate new -d ./migrations -t .migration-template -e .sql "drop some table"
 `;

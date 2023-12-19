@@ -8,6 +8,7 @@ import Link from '@components/Link.astro';
 Emigrate is written in [TypeScript](https://www.typescriptlang.org) and is a migration tool for any database or data.
 
 * It's database agnostic - you can use it with any database, or even with non-database data.
+* It can be run on multiple platforms - currently [NodeJS](https://nodejs.org) and [Bun](https://bun.sh) is supported, but more platforms is planned.
 * It's the successor of [klei-migrate](https://github.com/klei/migrate) and is designed to be compatible with [Immigration](https://github.com/blakeembrey/node-immigration) and many of its storage plugins, as well as [Migrate](https://github.com/tj/node-migrate).
 * It supports migration files written using <Link href="/plugins/loaders/default/">CommonJS or ES Modules out of the box</Link>, with any of the following extensions: `.js`, `.cjs` or `.mjs`, and supports [async functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function), [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) or using the [NodeJS Callback Pattern](https://nodejs.org/en/learn/asynchronous-work/javascript-asynchronous-programming-and-callbacks#handling-errors-in-callbacks).
 * Other languages can be used by using a <Link href="/plugins/loaders/">Loader Plugin</Link>.
