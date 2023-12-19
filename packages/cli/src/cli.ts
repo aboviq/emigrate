@@ -56,7 +56,7 @@ Options:
 Examples:
 
   emigrate up --directory src/migrations -s fs
-  emigrate up -d ./migrations --storage @emigrate/storage-mysql
+  emigrate up -d ./migrations --storage @emigrate/mysql
   emigrate up -d src/migrations -s postgres -r json --dry
 `;
 

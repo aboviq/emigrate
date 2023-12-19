@@ -118,6 +118,10 @@ export default defineConfig({
                   link: '/plugins/storage/file-system/',
                 },
                 {
+                  label: 'PostgreSQL',
+                  link: '/plugins/storage/postgres/',
+                },
+                {
                   label: 'MySQL',
                   link: '/plugins/storage/mysql/',
                 },
@@ -134,6 +138,10 @@ export default defineConfig({
                 {
                   label: 'Default Loader',
                   link: '/plugins/loaders/default/',
+                },
+                {
+                  label: 'PostgreSQL Loader',
+                  link: '/plugins/loaders/postgres/',
                 },
                 {
                   label: 'MySQL Loader',
@@ -170,6 +178,10 @@ export default defineConfig({
                 {
                   label: 'JavaScript Generator',
                   link: '/plugins/generators/js/',
+                },
+                {
+                  label: 'PostgreSQL Generator',
+                  link: '/plugins/generators/postgres/',
                 },
                 {
                   label: 'MySQL Generator',

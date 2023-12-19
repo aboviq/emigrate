@@ -1,0 +1,93 @@
+---
+title: PostgreSQL Storage
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+The PostgreSQL storage plugin uses a PostgreSQL database to store the migration history (*duh*). In the same package you can find the <Link href="/plugins/loaders/postgres/">PostgreSQL Loader</Link> and the <Link href="/plugins/generators/postgres/">PostgreSQL Generator</Link>.
+
+## Installation
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/postgres
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/postgres
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/postgres
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+The PostgreSQL storage can be configured either using environment variables or by configuring the plugin directly in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link>.
+
+### Configuration file
+
+```js title="emigrate.config.js" {1,4-7}
+import { createPostgresStorage } from '@emigrate/postgres';
+
+export default {
+  storage: createPostgresStorage({
+    table: 'migrations',
+    connection: { ... },
+  }),
+};
+```
+
+#### Options
+
+##### `table`
+
+**type:** `string`
+**default:** `"migrations"`
+
+The name of the table to use for storing the migrations.
+
+##### `connection` (required)
+
+**type:** `object | string`
+
+The connection options to use for connecting to the PostgreSQL database. This can either be a connection URI or an object with connection options.
+For a list of supported connection options, see the [postgres documentation](https://github.com/porsager/postgres#connection).
+
+### Environment variables
+
+The following environment variables are supported:
+
+| Variable            | Description                                                                                                 | Default        |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- | -------------- |
+| `POSTGRES_TABLE`    | The name of the table to use for storing the migrations                                                     | `"migrations"` |
+| `POSTGRES_URL`      | The full URI for connecting to a PostgreSQL database, e.g: `"postgres://user:pass@127.0.0.1:3306/database"` |                |
+| `POSTGRES_HOST`     | The host on which the PostgreSQL server instance is running                                                 | `"localhost"`  |
+| `POSTGRES_USER`     | The PostgreSQL user account to use for the authentication                                                   |                |
+| `POSTGRES_PASSWORD` | The PostgreSQL user password to use for the authentication                                                  |                |
+| `POSTGRES_PORT`     | The network port on which the PostgreSQL server is listening                                                | `5432`         |
+| `POSTGRES_DB`       | The PostgreSQL database to use for the connection                                                           |                |
+
+:::note
+The `POSTGRES_URL` environment variable takes precedence over the other environment variables. If `POSTGRES_URL` is set, the other environment variables are ignored, except for `POSTGRES_TABLE`.
+:::
+
+The environment variables are used when the storage plugin is used using the `--storage` command line option:
+
+```bash
+npx emigrate list --storage postgres
+```
+
+Or when specifying the storage in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link> as a string:
+
+```js title="emigrate.config.js" {2}
+export default {
+  storage: 'postgres',
+};
+```

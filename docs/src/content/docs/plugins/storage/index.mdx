@@ -13,7 +13,7 @@ Usually you'll want to store the migration history in the same database as the o
 You can specify a storage plugin via the `--storage` (or `-s` for short) option:
 
 ```bash
-npx emigrate list --storage mysql
+npx emigrate list --storage postgres
 ```
 
 Or set it up in your configuration file, see <Link href="/reference/configuration/#storage">Storage configuration</Link> for more information.
@@ -22,6 +22,7 @@ Or set it up in your configuration file, see <Link href="/reference/configuratio
 
 <CardGrid>
   <LinkCard title="File System" href="file-system/" description="The most basic storage plugin - for simple setups" />
+  <LinkCard title="PostgreSQL" href="postgres/" description="A storage plugin that uses a PostgreSQL database for storing the migration history state" />
   <LinkCard title="MySQL" href="mysql/" description="A storage plugin that uses a MySQL database for storing the migration history state" />
 </CardGrid>
 

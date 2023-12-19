@@ -1,0 +1,51 @@
+{
+  "name": "@emigrate/postgres",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A PostgreSQL plugin for Emigrate. Uses a PostgreSQL database for storing migration history. Can load and generate .sql migration files.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --pretty",
+    "build:watch": "tsc --pretty --watch",
+    "lint": "xo --cwd=../.. $(pwd)"
+  },
+  "keywords": [
+    "emigrate",
+    "emigrate-storage",
+    "emigrate-loader",
+    "emigrate-plugin",
+    "emigrate-generator",
+    "migrations",
+    "postgres",
+    "postgresql"
+  ],
+  "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
+  "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/postgres#readme",
+  "repository": "https://github.com/aboviq/emigrate/tree/main/packages/postgres",
+  "bugs": "https://github.com/aboviq/emigrate/issues",
+  "license": "MIT",
+  "dependencies": {
+    "@emigrate/plugin-tools": "workspace:*",
+    "@emigrate/types": "workspace:*",
+    "postgres": "3.4.3"
+  },
+  "devDependencies": {
+    "@emigrate/tsconfig": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

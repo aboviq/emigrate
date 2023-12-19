@@ -1,6 +1,6 @@
-# @emigrate/storage-mysql
+# @emigrate/mysql
 
-A MySQL plugin for Emigrate. Uses a MySQL database for storing migration history. Can load and generate .sql migration files.
+A MySQL plugin for Emigrate. Uses a MySQL database for storing the migration history. Can load and generate .sql migration files.
 
 The table used for storing the migration history is compatible with the [immigration-mysql](https://github.com/joakimbeng/immigration-mysql) package, so you can use this together with the [@emigrate/cli](../cli) as a drop-in replacement for that package.
 
