@@ -30,6 +30,15 @@ The PostgreSQL loader plugin transforms `.sql` files into JavaScript functions t
     bun add @emigrate/postgres
     ```
   </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "dependencies": {
+        "@emigrate/postgres": "*"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Configuration
@@ -78,9 +87,41 @@ The `POSTGRES_URL` environment variable takes precedence over the other environm
 
 The environment variables are used when the plugin is used using the `--plugin` command line option:
 
-```bash
-npx emigrate list --plugin postgres
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate list --plugin postgres
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate list --plugin postgres
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate list --plugin postgres
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate list --plugin postgres
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate list --plugin postgres
+    ```
+  </TabItem>
+</Tabs>
 
 Or when specifying the plugin in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link> as a string:
 

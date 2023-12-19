@@ -31,13 +31,20 @@ The `remove` command is used to remove a migration from the history. This is use
     bunx --bun emigrate remove [options] <name>
     ```
   </TabItem>
-  <TabItem label="package.json">
-    ```json {3}
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
     {
       "scripts": {
-        "emigrate": "emigrate remove [options] <name>"
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
       }
     }
+    ```
+
+    ```bash
+    deno task emigrate remove [options] <name>
     ```
   </TabItem>
 </Tabs>

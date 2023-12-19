@@ -8,7 +8,13 @@ Which is great both in production environments and for piping the output to othe
 Install the reporter in your project, alongside the Emigrate CLI:
 
 ```bash
-npm install --save-dev @emigrate/cli @emigrate/reporter-pino
+npm install @emigrate/cli @emigrate/reporter-pino
+# or
+pnpm add @emigrate/cli @emigrate/reporter-pino
+# or
+yarn add @emigrate/cli @emigrate/reporter-pino
+# or
+bun add @emigrate/cli @emigrate/reporter-pino
 ```
 
 ## Usage

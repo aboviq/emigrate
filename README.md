@@ -30,13 +30,13 @@ It's effectively a successor of [klei-migrate](https://www.npmjs.com/package/kle
 Install the Emigrate CLI in your project:
 
 ```bash
-npm install --save-dev @emigrate/cli
+npm install @emigrate/cli
 # or
-pnpm add --save-dev @emigrate/cli
+pnpm add @emigrate/cli
 # or
-yarn add --dev @emigrate/cli
+yarn add @emigrate/cli
 # or
-bun add --dev @emigrate/cli
+bun add @emigrate/cli
 ```
 
 ## Usage

@@ -30,6 +30,15 @@ The MySQL loader plugin transforms `.sql` files into JavaScript functions that E
     bun add @emigrate/mysql
     ```
   </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "dependencies": {
+        "@emigrate/mysql": "*"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Configuration
@@ -78,9 +87,41 @@ The `MYSQL_URL` environment variable takes precedence over the other environment
 
 The environment variables are used when the plugin is used using the `--plugin` command line option:
 
-```bash
-npx emigrate list --plugin mysql
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate list --plugin mysql
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate list --plugin mysql
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate list --plugin mysql
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate list --plugin mysql
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate list --plugin mysql
+    ```
+  </TabItem>
+</Tabs>
 
 Or when specifying the plugin in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link> as a string:
 

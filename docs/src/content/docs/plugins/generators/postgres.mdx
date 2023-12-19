@@ -30,12 +30,53 @@ The PostgreSQL generator creates new migration files with the `.sql` extension. 
     bun add @emigrate/postgres
     ```
   </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "dependencies": {
+        "@emigrate/postgres": "*"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Usage
 
-```bash
-emigrate new --plugin postgres create some fancy table
-```
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate new --plugin postgres create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate new --plugin postgres create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate new --plugin postgres create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate new --plugin postgres create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate new --plugin postgres create some fancy table
+    ```
+  </TabItem>
+</Tabs>
 
 For more information see <Link href="/commands/new/">the `new` command</Link>'s documentation.

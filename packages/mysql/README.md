@@ -17,7 +17,13 @@ This plugin is actually three different Emigrate plugins in one:
 Install the plugin in your project, alongside the Emigrate CLI:
 
 ```bash
-npm install --save-dev @emigrate/cli @emigrate/mysql
+npm install @emigrate/cli @emigrate/mysql
+# or
+pnpm add @emigrate/cli @emigrate/mysql
+# or
+yarn add @emigrate/cli @emigrate/mysql
+# or
+bun add @emigrate/cli @emigrate/mysql
 ```
 
 ## Usage
