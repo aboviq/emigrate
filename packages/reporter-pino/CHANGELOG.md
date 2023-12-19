@@ -1,5 +1,11 @@
 # @emigrate/reporter-pino
 
+## 0.4.1
+
+### Patch Changes
+
+- 3a8b06b: Don't use the `bun` key in `exports` as that would mean we have to include both built files and source files in each package, which is a bit wasteful. Maybe reconsider in the future if we can package only source files.
+
 ## 0.4.0
 
 ### Minor Changes
