@@ -1,5 +1,13 @@
 # @emigrate/mysql
 
+## 0.2.1
+
+### Patch Changes
+
+- 3a8b06b: Don't use the `bun` key in `exports` as that would mean we have to include both built files and source files in each package, which is a bit wasteful. Maybe reconsider in the future if we can package only source files.
+- Updated dependencies [3a8b06b]
+  - @emigrate/plugin-tools@0.9.1
+
 ## 0.2.0
 
 ### Minor Changes
