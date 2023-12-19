@@ -4,6 +4,7 @@ description: Get going with Emigrate quickly
 ---
 
 import { Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 :::note
 The following guide will be even simpler soon with the release of a initialization command.
@@ -38,7 +39,7 @@ But for now, this is the way to go.
 
 ### Pick a storage plugin
 
-Emigrate uses a [storage plugin](../../plugins/storage/) to store the migration history.
+Emigrate uses a <Link href="/plugins/storage/">storage plugin</Link> to store the migration history.
 
 Install the plugin you want to use, for example:
 
@@ -84,7 +85,7 @@ Otherwise the file would have the `.js` extension by default.
 
 :::tip[Did you know?]
 You can avoid typing `--plugin mysql` by configuring Emigrate using an `emigrate.config.js` file.
-See [Configuration](../../reference/configuration/) for more information.
+See <Link href="/reference/configuration/">Configuration</Link> for more information.
 :::
 
 #### Fill the migration file
@@ -132,7 +133,7 @@ npx emigrate up --storage mysql --plugin mysql --dry
 ```
 
 :::note
-This will connect to the database using some default values. For ways to configure the connection, see [Configuration](../../reference/configuration/).
+This will connect to the database using some default values. For ways to configure the connection, see <Link href="/reference/configuration/">Configuration</Link>.
 :::
 
 :::caution
@@ -141,6 +142,6 @@ Be sure to configure the connection correctly and use the `--dry` flag to test y
 :::
 
 :::tip[Did you know?]
-In the example above the `@emigrate/mysql` plugin is used twice, once for the `--storage` option as a [Storage Plugin](../../plugins/storage/)
-and once for the `--plugin` option as a [Loader Plugin](../../plugins/loaders/) to be able to read `.sql` files.
+In the example above the `@emigrate/mysql` plugin is used twice, once for the `--storage` option as a <Link href="/plugins/storage/">Storage Plugin</Link>
+and once for the `--plugin` option as a <Link href="/plugins/loaders/">Loader Plugin</Link> to be able to read `.sql` files.
 :::

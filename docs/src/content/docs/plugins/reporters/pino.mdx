@@ -3,6 +3,7 @@ title: Pino Reporter
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 Emigrate's reporter that uses [Pino](https://getpino.io/#/) as the logger.
 
@@ -40,7 +41,7 @@ The `@emigrate/reporter-` prefix is optional when using this reporter.
 emigrate <command> --reporter pino
 ```
 
-See for instance the [Reporter Option](../../../commands/up/#-r---reporter-name) for the `up` command for more information.
+See for instance the <Link href="/commands/up/#-r---reporter-name">Reporter Option</Link> for the `up` command for more information.
 
 ### Via configuration file
 
@@ -50,7 +51,7 @@ export default {
 };
 ```
 
-See [Reporter Configuration](../../../reference/configuration/#reporter) for more information.
+See <Link href="/reference/configuration/#reporter">Reporter Configuration</Link> for more information.
 
 ## Example output
 

@@ -7,7 +7,7 @@ const base = process.env.ASTRO_BASE || '';
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.ASTRO_SITE,
+  site: process.env.ASTRO_SITE ?? 'http://localhost:4321',
   base: base || undefined,
   integrations: [
     starlight({

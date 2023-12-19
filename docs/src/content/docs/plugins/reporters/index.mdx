@@ -3,6 +3,7 @@ title: Reporters
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 A reporter is a plugin that's responsible for printing the migration progress and results to the console.
 
@@ -14,7 +15,7 @@ You can specify a reporter via the `--reporter` (or `-r` for short) option:
 npx emigrate list --reporter pino
 ```
 
-Or set it up in your configuration file, see [Reporter configuration](../../reference/configuration/#reporter) for more information.
+Or set it up in your configuration file, see <Link href="/reference/configuration/#reporter">Reporter configuration</Link> for more information.
 
 ## Available Reporters
 

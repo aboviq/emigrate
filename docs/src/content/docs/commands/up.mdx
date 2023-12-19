@@ -4,6 +4,7 @@ description: "Run migrations"
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 The `up` command is used to either list or run all pending migrations, i.e. migrations that haven't been run yet.
 
@@ -57,7 +58,7 @@ The directory where the migration files are located. The given path should be ab
 
 ### `-s`, `--storage <name>`
 
-The [storage plugin](../../plugins/storage/) to use, which is responsible for where to store the migration history.
+The <Link href="/plugins/storage/">storage plugin</Link> to use, which is responsible for where to store the migration history.
 
 The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
 
@@ -73,7 +74,7 @@ In case you have both a `emigrate-storage-somedb` and a `somedb` package install
 
 ### `-p`, `--plugin <name>`
 
-The [loader plugin(s)](../../plugins/loaders/) to use. Can be specified multiple times to use multiple plugins.
+The <Link href="/plugins/loaders/">loader plugin(s)</Link> to use. Can be specified multiple times to use multiple plugins.
 
 The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
 
@@ -88,7 +89,7 @@ In case you have both a `emigrate-plugin-someplugin` and a `someplugin` package 
 
 ### `-r`, `--reporter <name>`
 
-The reporter to use for reporting the migration progress.
+The <Link href="/plugins/reporters/">reporter</Link> to use for reporting the migration progress.
 
 The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
 

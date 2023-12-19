@@ -3,10 +3,11 @@ title: Loader Plugins
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 Loader plugins are used to transform any file type into a JavaScript function that will be called when the migration file is executed.
 
-Out of the box, Emigrate supports the following file extensions: `.js`, `.cjs` and `.mjs`. And both CommonJS and ES Modules are supported. See the [Default Loader](default/) for more information.
+Out of the box, Emigrate supports the following file extensions: `.js`, `.cjs` and `.mjs`. And both CommonJS and ES Modules are supported. See the <Link href="/plugins/loaders/default/">Default Loader</Link> for more information.
 
 ## Using a loader plugin
 
@@ -16,12 +17,12 @@ You can specify a loader plugin via the `--plugin` (or `-p` for short) option:
 npx emigrate up --plugin mysql
 ```
 
-Or set it up in your configuration file, see [Plugin configuration](../../reference/configuration/#plugins) for more information.
+Or set it up in your configuration file, see <Link href="/reference/configuration/#plugins">Plugin configuration</Link> for more information.
 
 :::tip[Did you know?]
 You can specify multiple loader plugins at the same time, which is needed when you mix file types in your migrations folder.
 For example, you can use the `mysql` loader for `.sql` files and the `typescript` loader for `.ts` files.
-The [default loader](default/) will be used for all other file types, and doesn't need to be specified.
+The <Link href="/plugins/loaders/default/">default loader</Link> will be used for all other file types, and doesn't need to be specified.
 :::
 
 ## Available Loader Plugins

@@ -17,6 +17,7 @@ hero:
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 ## Key features
 
@@ -29,10 +30,10 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 		Migrate many databases from one repository or many repositories to one database. There's no need to synchronize deployments.
 	</Card>
 	<Card title="SQL, JavaScript, TypeScript, etc." icon="document">
-		Write your migration files using the [language of your choice](plugins/loaders/).
+		Write your migration files using the <Link href="/plugins/loaders/">language of your choice</Link>.
 		And mix and match them as you need. E.g. `SQL` for database schema changes, and `JavaScript` for data transformation.
 	</Card>
 	<Card title="Customize to your setup" icon="puzzle">
-		Emigrate is designed to be flexible and customizable to suite any environment and setup using its [plugin system](plugins/).
+		Emigrate is designed to be flexible and customizable to suite any environment and setup using its <Link href="/plugins/">plugin system</Link>.
 	</Card>
 </CardGrid>

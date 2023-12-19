@@ -4,6 +4,7 @@ description: "List migrations and their status."
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
 The `list` command is used to list _all_ migrations, i.e. both already run migrations and migrations that haven't been run yet.
 
@@ -51,7 +52,7 @@ The directory where the migration files are located. The given path should be ab
 
 ### `-s`, `--storage <name>`
 
-The [storage plugin](../../plugins/storage/) to use, which is responsible for where to store the migration history.
+The <Link href="/plugins/storage/">storage plugin</Link> to use, which is responsible for where to store the migration history.
 
 The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
 
@@ -67,7 +68,7 @@ In case you have both a `emigrate-storage-somedb` and a `somedb` package install
 
 ### `-r`, `--reporter <name>`
 
-The reporter to use for listing the migrations.
+The <Link href="/plugins/reporters/">reporter</Link> to use for listing the migrations.
 
 The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:
 

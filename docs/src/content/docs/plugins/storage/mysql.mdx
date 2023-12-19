@@ -3,8 +3,9 @@ title: MySQL Storage
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
-The MySQL storage plugin uses a MySQL database to store the migration history (*duh*). In the same package you can find the [MySQL Loader](../../loaders/mysql/) and the [MySQL Generator](../../generators/mysql/).
+The MySQL storage plugin uses a MySQL database to store the migration history (*duh*). In the same package you can find the <Link href="/plugins/loaders/mysql/">MySQL Loader</Link> and the <Link href="/plugins/generators/mysql/">MySQL Generator</Link>.
 
 ## Installation
 
@@ -28,7 +29,7 @@ The MySQL storage plugin uses a MySQL database to store the migration history (*
 
 ## Configuration
 
-The MySQL storage can be configured either using environment variables or by configuring the plugin directly in the [`emigrate.config.js` file](../../../reference/configuration/).
+The MySQL storage can be configured either using environment variables or by configuring the plugin directly in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link>.
 
 ### Configuration file
 
@@ -83,7 +84,7 @@ The environment variables are used when the storage plugin is used using the `--
 npx emigrate list --storage mysql
 ```
 
-Or when specifying the storage in the [`emigrate.config.js` file](../../../reference/configuration) as a string:
+Or when specifying the storage in the <Link href="/reference/configuration/">`emigrate.config.js` file</Link> as a string:
 
 ```js title="emigrate.config.js" {2}
 export default {
