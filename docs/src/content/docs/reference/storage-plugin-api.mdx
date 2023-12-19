@@ -1,0 +1,86 @@
+---
+title: Storage Plugin API
+---
+
+import Link from '@components/Link.astro';
+
+When writing a storage plugin, you will need to implement the following interface:
+
+```ts
+type EmigrateStorage = {
+  initializeStorage(): Promise<Storage>;
+};
+```
+
+Where `Storage` is the following interface:
+
+```ts
+type Storage = {
+  /**
+   * Acquire a lock on the given migrations.
+   *
+   * To best support concurrent migrations (e.g. when multiple services are deployed at the same time and want to migrate the same database)
+   * the plugin should try to lock all migrations at once (i.e. in a transaction) and ignore migrations that are already locked (or done).
+   * The successfully locked migrations should be returned and are the migrations that will be executed.
+   *
+   * If one of the migrations to lock is in a failed state, the plugin should throw an error to abort the migration attempt.
+   *
+   * @returns The migrations that were successfully locked.
+   */
+  lock(migrations: MigrationMetadata[]): Promise<MigrationMetadata[]>;
+  /**
+   * The unlock method is called after all migrations have been executed or when the process is interrupted (e.g. by a SIGTERM or SIGINT signal).
+   *
+   * Depending on the plugin implementation, the unlock method is usually a no-op for already succeeded or failed migrations.
+   *
+   * @param migrations The previously successfully locked migrations that should now be unlocked.
+   */
+  unlock(migrations: MigrationMetadata[]): Promise<void>;
+
+  /**
+   * Remove a migration from the history.
+   *
+   * This is used to remove a migration from the history which is needed for failed migrations to be re-executed.
+   *
+   * @param migration The migration that should be removed from the history.
+   */
+  remove(migration: MigrationMetadata): Promise<void>;
+  /**
+   * Get the history of previously executed migrations.
+   *
+   * For failed migrations, the error property should be set.
+   * Emigrate will not sort the history entries, so the plugin should return the entries in the order they were executed.
+   * The order doesn't affect the execution of migrations, but it does affect the order in which the history is displayed in the CLI.
+   * Migrations that have not yet been executed will always be run in alphabetical order.
+   *
+   * The history has two purposes:
+   * 1. To determine which migrations have already been executed.
+   * 2. To list the migration history in the CLI.
+   */
+  getHistory(): AsyncIterable<MigrationHistoryEntry>;
+  /**
+   * Called when a migration has been successfully executed.
+   *
+   * @param migration The name of the migration that should be marked as done.
+   */
+  onSuccess(migration: MigrationMetadataFinished): Promise<void>;
+  /**
+   * Called when a migration has failed.
+   *
+   * The passed error will be serialized so it's easily storable it in the history.
+   * If the original Error instance is needed it's available as the `error` property on the finished migration.
+   *
+   * @param migration The name of the migration that should be marked as failed.
+   * @param error The error that caused the migration to fail. Serialized for easy storage.
+   */
+  onError(migration: MigrationMetadataFinished, error: SerializedError): Promise<void>;
+  /**
+   * Called when the command is finished or aborted (e.g. by a SIGTERM or SIGINT signal).
+   *
+   * Use this to clean up any resources like database connections or file handles.
+   */
+  end(): Promise<void>;
+};
+```
+
+See the <Link href="/reference/migration-types/">Migration Types</Link> page for more information about the `MigrationMetadata`, `MigrationMetadataFinished`, and `MigrationHistoryEntry` types.
