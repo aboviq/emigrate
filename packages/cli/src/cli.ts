@@ -123,7 +123,7 @@ const newMigration: Action = async (args) => {
       },
       extension: {
         type: 'string',
-        short: 'e',
+        short: 'x',
       },
       plugin: {
         type: 'string',
@@ -157,7 +157,7 @@ Options:
   -p, --plugin      The plugin(s) to use (can be specified multiple times)
   -t, --template    A template file to use as contents for the new migration file
                     (if the extension option is not provided the template file's extension will be used)
-  -e, --extension   The extension to use for the new migration file
+  -x, --extension   The extension to use for the new migration file
                     (if no template or plugin is provided an empty migration file will be created with the given extension)
   --color           Force color output (this option is passed to the reporter)
   --no-color        Disable color output (this option is passed to the reporter)
@@ -168,8 +168,8 @@ Examples:
 
   emigrate new -d src/migrations -t migration-template.js create users table
   emigrate new --directory ./migrations --plugin @emigrate/postgres create_users_table
-  emigrate new -d ./migrations -e .sql create_users_table
-  emigrate new -d ./migrations -t .migration-template -e .sql "drop some table"
+  emigrate new -d ./migrations -x .sql create_users_table
+  emigrate new -d ./migrations -t .migration-template -x .sql "drop some table"
 `;
 
   if (values.help) {
