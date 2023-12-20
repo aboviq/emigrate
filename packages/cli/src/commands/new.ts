@@ -19,7 +19,7 @@ import { getDuration } from '../get-duration.js';
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
 export default async function newCommand(
-  { directory, template, reporter: reporterConfig, plugins = [], extension }: Config,
+  { directory, template, reporter: reporterConfig, plugins = [], extension, color }: Config,
   name: string,
 ) {
   if (!directory) {
@@ -45,7 +45,7 @@ export default async function newCommand(
     );
   }
 
-  await reporter.onInit?.({ command: 'new', version, cwd, dry: false, directory });
+  await reporter.onInit?.({ command: 'new', version, cwd, dry: false, directory, color });
 
   const start = process.hrtime();
 

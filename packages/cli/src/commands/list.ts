@@ -10,7 +10,12 @@ import { version } from '../get-package-info.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
-export default async function listCommand({ directory, reporter: reporterConfig, storage: storageConfig }: Config) {
+export default async function listCommand({
+  directory,
+  reporter: reporterConfig,
+  storage: storageConfig,
+  color,
+}: Config) {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }
@@ -31,7 +36,7 @@ export default async function listCommand({ directory, reporter: reporterConfig,
     );
   }
 
-  await reporter.onInit?.({ command: 'list', version, cwd, dry: false, directory });
+  await reporter.onInit?.({ command: 'list', version, cwd, dry: false, directory, color });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 

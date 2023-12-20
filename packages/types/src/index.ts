@@ -229,6 +229,13 @@ export type ReporterInitParameters = {
    * Will only be true when the command is 'up' and the --dry option is specified.
    */
   dry: boolean;
+  /**
+   * Forcibly enable or disable colors in the output.
+   *
+   * If set to true, the reporter should use colors in the output.
+   * If set to false, the reporter should not use colors in the output.
+   */
+  color?: boolean;
 };
 
 export type EmigrateReporter = Partial<{

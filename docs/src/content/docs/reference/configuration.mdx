@@ -46,6 +46,7 @@ Set the directory where your migrations are located, relative to the project roo
 ### `reporter`
 
 **type:** `string | EmigrateReporter | Promise<EmigrateReporter> | (() => Promise<EmigrateReporter>)`
+
 **default:** `"default"` - the default reporter
 
 Set the reporter to use for the different commands. Specifying a <Link href="/plugins/reporters/">reporter</Link> is most useful in a CI or production environment where you either ship logs or want to have a machine-readable format.
@@ -73,6 +74,20 @@ Commands that are not specified will use the default reporter.
 :::tip[Did you know?]
 The default reporter automatically detects if the current environment is an interactive terminal or not, and will only render animations and similar if it is.
 :::
+
+### `color`
+
+**type:** `boolean | undefined`
+
+**default:** `undefined`
+
+Set whether to force colors in the output or not. This option is passed to the reporter which should respect it.
+
+```js title="emigrate.config.js" {2}
+export default {
+  color: false,
+};
+```
 
 ### `storage`
 

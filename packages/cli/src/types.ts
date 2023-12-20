@@ -11,6 +11,7 @@ export type Config = {
   directory?: string;
   template?: string;
   extension?: string;
+  color?: boolean;
 };
 
 export type EmigrateConfig = Config & {

@@ -25,6 +25,7 @@ export default async function upCommand({
   storage: storageConfig,
   reporter: reporterConfig,
   directory,
+  color,
   dry = false,
   plugins = [],
   cwd = process.cwd(),
@@ -49,7 +50,7 @@ export default async function upCommand({
     );
   }
 
-  await reporter.onInit?.({ command: 'up', version, cwd, dry, directory });
+  await reporter.onInit?.({ command: 'up', version, cwd, dry, directory, color });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 
