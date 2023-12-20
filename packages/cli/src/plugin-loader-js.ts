@@ -17,7 +17,7 @@ const promisifyIfNeeded = <T extends Function>(fn: T) => {
 };
 
 const loaderJs: LoaderPlugin = {
-  loadableExtensions: ['.js', '.cjs', '.mjs'],
+  loadableExtensions: ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts'],
   async loadMigration(migration) {
     const migrationModule: unknown = await import(migration.filePath);
 

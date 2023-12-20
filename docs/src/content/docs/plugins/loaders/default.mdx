@@ -3,8 +3,9 @@ title: Default Loader Plugin
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
 
-The default loader plugin is responsible for importing migration files written in JavaScript.
+The default loader plugin is responsible for importing migration files written in JavaScript or TypeScript.
 Migration files can be written using either CommonJS or ES Modules.
 
 ## Supported extensions
@@ -14,6 +15,13 @@ The default loader plugin supports the following extensions:
 * `.js` - either CommonJS or ES Modules depending on your package.json's [`type` field](https://nodejs.org/api/packages.html#type)
 * `.cjs` - CommonJS
 * `.mjs` - ES Modules
+* `.ts` - either CommonJS or ES Modules written in TypeScript
+* `.cts` - CommonJS written in TypeScript
+* `.mts` - ES Modules written in TypeScript
+
+:::note
+To enable TypeScript support in NodeJS you also need to follow the <Link href="/guides/typescript/">TypeScript setup guide</Link>.
+:::
 
 ## Supported exports
 

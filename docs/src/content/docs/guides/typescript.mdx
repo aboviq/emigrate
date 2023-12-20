@@ -1,0 +1,132 @@
+---
+title: Using TypeScript
+description: A guide on how to support migration files written in TypeScript
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+:::tip[Using Bun or Deno?]
+If you are using [Bun](https://bun.sh) or [Deno](https://deno.land) you are already good to go as they both support TypeScript out of the box.
+:::
+
+You have at least the two following options to support running TypeScript migration files in NodeJS.
+
+## Using `tsx`
+
+If you want to be able to write and run migration files written in TypeScript the easiest way is to install the [`tsx`](https://github.com/privatenumber/tsx) package.
+
+### Installing `tsx`
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install tsx
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add tsx
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add tsx
+    ```
+  </TabItem>
+</Tabs>
+
+:::note
+You must install `tsx` as an ordinary dependency, not as a dev dependency,
+in case you are pruning your development dependencies before deploying your application (which you should).
+:::
+
+### Loading TypeScript migrations
+
+After installing `tsx` you can load it in two ways.
+
+#### Via CLI
+
+Using the <Link href="/commands/up/#-i---import-module">`--import`</Link> flag you can load `tsx` before running your migration files.
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate up --import tsx
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate up --import tsx
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate up --import tsx
+    ```
+  </TabItem>
+</Tabs>
+
+#### Via configuration file
+
+You can also directly import `tsx` in your configuration file.
+
+```js title="emigrate.config.js" {1}
+import 'tsx';
+
+export default {
+  // ...
+};
+```
+
+Then you can run your migration files as usual:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate up
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate up
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate up
+    ```
+  </TabItem>
+</Tabs>
+
+## Building TypeScript migrations
+
+If you don't want to have `tsx` (or similar) as a dependency included in your production environment then
+you can build your TypeScript migration files using the [`tsc`](https://www.typescriptlang.org/docs/handbook/compiler-options.html) compiler or
+some other tool that are already part of your build process when transpiling your TypeScript code to JavaScript.
+
+Assume that you have all of your migrations in a `src/migrations` directory and you have built them to a `dist/migrations` directory.
+
+Then you can run your migration files by pointing to the `dist/migrations` directory:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate up -d dist/migrations
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate up -d dist/migrations
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate up -d dist/migrations
+    ```
+  </TabItem>
+</Tabs>
+
+:::note
+If you're mixing languages for your migration files, e.g. you have both `.sql` and `.ts` files in `src/migrations`, make sure that they are all copied to the destination directory if not part of the TypeScript build process.
+:::

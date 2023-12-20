@@ -99,6 +99,15 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Guides',
+          items: [
+            {
+              label: 'Using TypeScript',
+              link: '/guides/typescript/',
+            },
+          ],
+        },
+        {
           label: 'Plugins',
           items: [
             {
