@@ -1,5 +1,12 @@
 # @emigrate/cli
 
+## 0.13.0
+
+### Minor Changes
+
+- 9a605a8: Add support for loading TypeScript migration files in the default loader
+- 9a605a8: Add a guide for running migration files written in TypeScript to the documentation
+
 ## 0.12.0
 
 ### Minor Changes
