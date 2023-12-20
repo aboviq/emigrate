@@ -69,6 +69,12 @@ The directory where the migration files are located. The given path should be ab
 
 Force removal of the migration history entry even if the migration file does not exist or it's in a non-failed state.
 
+### `-i`, `--import <module>`
+
+A module to import before remove the migration. This option can be specified multiple times.
+
+Can for instance be used to load environment variables using [dotenv](https://github.com/motdotla/dotenv) with `--import dotenv/config`.
+
 ### `-s`, `--storage <name>`
 
 The <Link href="/plugins/storage/">storage plugin</Link> to use, which is responsible for where to store the migration history.

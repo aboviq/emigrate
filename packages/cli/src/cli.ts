@@ -1,6 +1,7 @@
 #!/usr/bin/env node --enable-source-maps
 import process from 'node:process';
 import { parseArgs } from 'node:util';
+import importFromEsm from 'import-from-esm';
 import { ShowUsageError } from './errors.js';
 import { getConfig } from './get-config.js';
 
@@ -12,6 +13,12 @@ const useColors = (values: { color?: boolean; 'no-color'?: boolean }) => {
   }
 
   return values.color;
+};
+
+const importAll = async (cwd: string, modules: string[]) => {
+  for await (const module of modules) {
+    await importFromEsm(cwd, module);
+  }
 };
 
 const up: Action = async (args) => {
@@ -26,6 +33,12 @@ const up: Action = async (args) => {
       directory: {
         type: 'string',
         short: 'd',
+      },
+      import: {
+        type: 'string',
+        short: 'i',
+        multiple: true,
+        default: [],
       },
       reporter: {
         type: 'string',
@@ -60,20 +73,23 @@ Run all pending migrations
 
 Options:
 
-  -h, --help       Show this help message and exit
-  -d, --directory  The directory where the migration files are located (required)
-  -s, --storage    The storage to use for where to store the migration history (required)
-  -p, --plugin     The plugin(s) to use (can be specified multiple times)
-  -r, --reporter   The reporter to use for reporting the migration progress
-  --dry            List the pending migrations that would be run without actually running them
-  --color          Force color output (this option is passed to the reporter)
-  --no-color       Disable color output (this option is passed to the reporter)
+  -h, --help        Show this help message and exit
+  -d, --directory   The directory where the migration files are located (required)
+  -i, --import      Additional modules/packages to import before running the migrations (can be specified multiple times)
+                    For example if you want to use Dotenv to load environment variables or when using TypeScript
+  -s, --storage     The storage to use for where to store the migration history (required)
+  -p, --plugin      The plugin(s) to use (can be specified multiple times)
+  -r, --reporter    The reporter to use for reporting the migration progress
+  --dry             List the pending migrations that would be run without actually running them
+  --color           Force color output (this option is passed to the reporter)
+  --no-color        Disable color output (this option is passed to the reporter)
 
 Examples:
 
   emigrate up --directory src/migrations -s fs
   emigrate up -d ./migrations --storage @emigrate/mysql
   emigrate up -d src/migrations -s postgres -r json --dry
+  emigrate up -d ./migrations -s mysql --import dotenv/config
 `;
 
   if (values.help) {
@@ -82,12 +98,21 @@ Examples:
     return;
   }
 
-  const { directory = config.directory, storage = config.storage, reporter = config.reporter, dry } = values;
+  const cwd = process.cwd();
+  const {
+    directory = config.directory,
+    storage = config.storage,
+    reporter = config.reporter,
+    dry,
+    import: imports = [],
+  } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
+
+  await importAll(cwd, imports);
 
   try {
     const { default: upCommand } = await import('./commands/up.js');
-    process.exitCode = await upCommand({ storage, reporter, directory, plugins, dry, color: useColors(values) });
+    process.exitCode = await upCommand({ storage, reporter, directory, plugins, cwd, dry, color: useColors(values) });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -178,6 +203,7 @@ Examples:
     return;
   }
 
+  const cwd = process.cwd();
   const {
     directory = config.directory,
     template = config.template,
@@ -189,7 +215,7 @@ Examples:
 
   try {
     const { default: newCommand } = await import('./commands/new.js');
-    await newCommand({ directory, template, plugins, extension, reporter, color: useColors(values) }, name);
+    await newCommand({ directory, template, plugins, extension, reporter, cwd, color: useColors(values) }, name);
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -215,6 +241,12 @@ const list: Action = async (args) => {
         type: 'string',
         short: 'd',
       },
+      import: {
+        type: 'string',
+        short: 'i',
+        multiple: true,
+        default: [],
+      },
       reporter: {
         type: 'string',
         short: 'r',
@@ -239,10 +271,12 @@ List all migrations and their status. This command does not run any migrations.
 
 Options:
 
-  -h, --help       Show this help message and exit
-  -d, --directory  The directory where the migration files are located (required)
-  -r, --reporter   The reporter to use for reporting the migrations
-  -s, --storage    The storage to use to get the migration history (required)
+  -h, --help        Show this help message and exit
+  -d, --directory   The directory where the migration files are located (required)
+  -i, --import      Additional modules/packages to import before listing the migrations (can be specified multiple times)
+                    For example if you want to use Dotenv to load environment variables
+  -r, --reporter    The reporter to use for reporting the migrations
+  -s, --storage     The storage to use to get the migration history (required)
   --color           Force color output (this option is passed to the reporter)
   --no-color        Disable color output (this option is passed to the reporter)
 
@@ -258,11 +292,19 @@ Examples:
     return;
   }
 
-  const { directory = config.directory, storage = config.storage, reporter = config.reporter } = values;
+  const cwd = process.cwd();
+  const {
+    directory = config.directory,
+    storage = config.storage,
+    reporter = config.reporter,
+    import: imports = [],
+  } = values;
+
+  await importAll(cwd, imports);
 
   try {
     const { default: listCommand } = await import('./commands/list.js');
-    process.exitCode = await listCommand({ directory, storage, reporter, color: useColors(values) });
+    process.exitCode = await listCommand({ directory, storage, reporter, cwd, color: useColors(values) });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -287,6 +329,12 @@ const remove: Action = async (args) => {
       directory: {
         type: 'string',
         short: 'd',
+      },
+      import: {
+        type: 'string',
+        short: 'i',
+        multiple: true,
+        default: [],
       },
       force: {
         type: 'boolean',
@@ -323,6 +371,8 @@ Options:
 
   -h, --help        Show this help message and exit
   -d, --directory   The directory where the migration files are located (required)
+  -i, --import      Additional modules/packages to import before removing the migration (can be specified multiple times)
+                    For example if you want to use Dotenv to load environment variables
   -r, --reporter    The reporter to use for reporting the removal process
   -s, --storage     The storage to use to get the migration history (required)
   -f, --force       Force removal of the migration history entry even if the migration file does not exist
@@ -334,6 +384,7 @@ Examples:
 
   emigrate remove -d migrations -s fs 20231122120529381_some_migration_file.js
   emigrate remove --directory ./migrations --storage postgres 20231122120529381_some_migration_file.sql
+  emigrate remove -i dotenv/config -d ./migrations -s postgres 20231122120529381_some_migration_file.sql
 `;
 
   if (values.help) {
@@ -342,12 +393,21 @@ Examples:
     return;
   }
 
-  const { directory = config.directory, storage = config.storage, reporter = config.reporter, force } = values;
+  const cwd = process.cwd();
+  const {
+    directory = config.directory,
+    storage = config.storage,
+    reporter = config.reporter,
+    force,
+    import: imports = [],
+  } = values;
+
+  await importAll(cwd, imports);
 
   try {
     const { default: removeCommand } = await import('./commands/remove.js');
     process.exitCode = await removeCommand(
-      { directory, storage, reporter, force, color: useColors(values) },
+      { directory, storage, reporter, force, cwd, color: useColors(values) },
       positionals[0] ?? '',
     );
   } catch (error) {
@@ -428,9 +488,9 @@ try {
   await main(process.argv.slice(2));
 } catch (error) {
   if (error instanceof Error) {
-    console.error(error.message);
+    console.error(error);
     if (error.cause instanceof Error) {
-      console.error(error.cause.stack);
+      console.error(error.cause);
     }
   } else {
     console.error(error);

@@ -68,6 +68,12 @@ List the pending migrations that would be run without actually running them
 
 The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
 
+### `-i`, `--import <module>`
+
+A module to import before running the migrations. This option can be specified multiple times.
+
+Can for instance be used to load environment variables using [dotenv](https://github.com/motdotla/dotenv) with `--import dotenv/config`.
+
 ### `-s`, `--storage <name>`
 
 The <Link href="/plugins/storage/">storage plugin</Link> to use, which is responsible for where to store the migration history.

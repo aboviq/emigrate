@@ -16,13 +16,14 @@ import { exec } from '../exec.js';
 import { version } from '../get-package-info.js';
 
 type ExtraFlags = {
+  cwd: string;
   force?: boolean;
 };
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
 export default async function removeCommand(
-  { directory, reporter: reporterConfig, storage: storageConfig, color, force = false }: Config & ExtraFlags,
+  { directory, reporter: reporterConfig, storage: storageConfig, color, cwd, force = false }: Config & ExtraFlags,
   name: string,
 ) {
   if (!directory) {
@@ -33,7 +34,6 @@ export default async function removeCommand(
     throw MissingArgumentsError.fromArgument('name');
   }
 
-  const cwd = process.cwd();
   const storagePlugin = await getOrLoadStorage([storageConfig]);
 
   if (!storagePlugin) {
@@ -49,6 +49,8 @@ export default async function removeCommand(
     );
   }
 
+  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, directory, color });
+
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 
   if (storageError) {
@@ -56,8 +58,6 @@ export default async function removeCommand(
 
     return 1;
   }
-
-  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, directory, color });
 
   const [migrationFile, fileError] = await exec(async () => getMigration(cwd, directory, name, !force));
 
