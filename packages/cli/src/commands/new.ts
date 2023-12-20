@@ -1,4 +1,4 @@
-import process from 'node:process';
+import { hrtime } from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin, getOrLoadReporter } from '@emigrate/plugin-tools';
@@ -18,8 +18,12 @@ import { getDuration } from '../get-duration.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
+type ExtraFlags = {
+  cwd: string;
+};
+
 export default async function newCommand(
-  { directory, template, reporter: reporterConfig, plugins = [], extension, color }: Config,
+  { directory, template, reporter: reporterConfig, plugins = [], cwd, extension, color }: Config & ExtraFlags,
   name: string,
 ) {
   if (!directory) {
@@ -34,8 +38,6 @@ export default async function newCommand(
     throw MissingOptionError.fromOption(['extension', 'template', 'plugin']);
   }
 
-  const cwd = process.cwd();
-
   const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
 
   if (!reporter) {
@@ -47,14 +49,14 @@ export default async function newCommand(
 
   await reporter.onInit?.({ command: 'new', version, cwd, dry: false, directory, color });
 
-  const start = process.hrtime();
+  const start = hrtime();
 
   let filename: string | undefined;
   let content: string | undefined;
 
   if (template) {
     const fs = await import('node:fs/promises');
-    const templatePath = path.resolve(process.cwd(), template);
+    const templatePath = path.resolve(cwd, template);
     const fileExtension = path.extname(templatePath);
 
     try {
@@ -98,7 +100,7 @@ export default async function newCommand(
     );
   }
 
-  const directoryPath = path.resolve(process.cwd(), directory);
+  const directoryPath = path.resolve(cwd, directory);
   const filePath = path.resolve(directoryPath, filename);
 
   const migration: MigrationMetadata = {

@@ -1,4 +1,3 @@
-import process from 'node:process';
 import { getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { BadOptionError, MissingOptionError, StorageInitError, toError } from '../errors.js';
 import { type Config } from '../types.js';
@@ -10,17 +9,21 @@ import { version } from '../get-package-info.js';
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
+type ExtraFlags = {
+  cwd: string;
+};
+
 export default async function listCommand({
   directory,
   reporter: reporterConfig,
   storage: storageConfig,
   color,
-}: Config) {
+  cwd,
+}: Config & ExtraFlags) {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }
 
-  const cwd = process.cwd();
   const storagePlugin = await getOrLoadStorage([storageConfig]);
 
   if (!storagePlugin) {

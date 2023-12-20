@@ -1,4 +1,4 @@
-import process from 'node:process';
+import { hrtime } from 'node:process';
 import {
   isFinishedMigration,
   isFailedMigration,
@@ -123,7 +123,7 @@ export const migrationRunner = async ({
 
     await reporter.onMigrationStart?.(migration);
 
-    const start = process.hrtime();
+    const start = hrtime();
 
     const [, migrationError] = await exec(async () => execute(migration));
 

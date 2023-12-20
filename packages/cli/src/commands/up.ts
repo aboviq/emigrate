@@ -1,4 +1,3 @@
-import process from 'node:process';
 import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { isFinishedMigration, type LoaderPlugin } from '@emigrate/types';
 import { BadOptionError, MigrationLoadError, MissingOptionError, StorageInitError, toError } from '../errors.js';
@@ -13,7 +12,7 @@ import { arrayFromAsync } from '../array-from-async.js';
 import { version } from '../get-package-info.js';
 
 type ExtraFlags = {
-  cwd?: string;
+  cwd: string;
   dry?: boolean;
   getMigrations?: GetMigrationsFunction;
 };
@@ -28,7 +27,7 @@ export default async function upCommand({
   color,
   dry = false,
   plugins = [],
-  cwd = process.cwd(),
+  cwd,
   getMigrations,
 }: Config & ExtraFlags): Promise<number> {
   if (!directory) {
