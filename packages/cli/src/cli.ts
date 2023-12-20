@@ -6,6 +6,14 @@ import { getConfig } from './get-config.js';
 
 type Action = (args: string[]) => Promise<void>;
 
+const useColors = (values: { color?: boolean; 'no-color'?: boolean }) => {
+  if (values['no-color']) {
+    return false;
+  }
+
+  return values.color;
+};
+
 const up: Action = async (args) => {
   const config = await getConfig('up');
   const { values } = parseArgs({
@@ -36,6 +44,12 @@ const up: Action = async (args) => {
         multiple: true,
         default: [],
       },
+      color: {
+        type: 'boolean',
+      },
+      'no-color': {
+        type: 'boolean',
+      },
     },
     allowPositionals: false,
   });
@@ -52,6 +66,8 @@ Options:
   -p, --plugin     The plugin(s) to use (can be specified multiple times)
   -r, --reporter   The reporter to use for reporting the migration progress
   --dry            List the pending migrations that would be run without actually running them
+  --color          Force color output (this option is passed to the reporter)
+  --no-color       Disable color output (this option is passed to the reporter)
 
 Examples:
 
@@ -71,7 +87,7 @@ Examples:
 
   try {
     const { default: upCommand } = await import('./commands/up.js');
-    process.exitCode = await upCommand({ storage, reporter, directory, plugins, dry });
+    process.exitCode = await upCommand({ storage, reporter, directory, plugins, dry, color: useColors(values) });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -115,6 +131,12 @@ const newMigration: Action = async (args) => {
         multiple: true,
         default: [],
       },
+      color: {
+        type: 'boolean',
+      },
+      'no-color': {
+        type: 'boolean',
+      },
     },
     allowPositionals: true,
   });
@@ -137,6 +159,8 @@ Options:
                     (if the extension option is not provided the template file's extension will be used)
   -e, --extension   The extension to use for the new migration file
                     (if no template or plugin is provided an empty migration file will be created with the given extension)
+  --color           Force color output (this option is passed to the reporter)
+  --no-color        Disable color output (this option is passed to the reporter)
 
   One of the --template, --extension or the --plugin options must be specified
 
@@ -165,7 +189,7 @@ Examples:
 
   try {
     const { default: newCommand } = await import('./commands/new.js');
-    await newCommand({ directory, template, plugins, extension, reporter }, name);
+    await newCommand({ directory, template, plugins, extension, reporter, color: useColors(values) }, name);
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -199,6 +223,12 @@ const list: Action = async (args) => {
         type: 'string',
         short: 's',
       },
+      color: {
+        type: 'boolean',
+      },
+      'no-color': {
+        type: 'boolean',
+      },
     },
     allowPositionals: false,
   });
@@ -213,6 +243,8 @@ Options:
   -d, --directory  The directory where the migration files are located (required)
   -r, --reporter   The reporter to use for reporting the migrations
   -s, --storage    The storage to use to get the migration history (required)
+  --color           Force color output (this option is passed to the reporter)
+  --no-color        Disable color output (this option is passed to the reporter)
 
 Examples:
 
@@ -230,7 +262,7 @@ Examples:
 
   try {
     const { default: listCommand } = await import('./commands/list.js');
-    process.exitCode = await listCommand({ directory, storage, reporter });
+    process.exitCode = await listCommand({ directory, storage, reporter, color: useColors(values) });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
@@ -268,6 +300,12 @@ const remove: Action = async (args) => {
         type: 'string',
         short: 's',
       },
+      color: {
+        type: 'boolean',
+      },
+      'no-color': {
+        type: 'boolean',
+      },
     },
     allowPositionals: true,
   });
@@ -289,6 +327,8 @@ Options:
   -s, --storage     The storage to use to get the migration history (required)
   -f, --force       Force removal of the migration history entry even if the migration file does not exist
                     or it's in a non-failed state
+  --color           Force color output (this option is passed to the reporter)
+  --no-color        Disable color output (this option is passed to the reporter)
 
 Examples:
 
@@ -306,7 +346,10 @@ Examples:
 
   try {
     const { default: removeCommand } = await import('./commands/remove.js');
-    process.exitCode = await removeCommand({ directory, storage, reporter, force }, positionals[0] ?? '');
+    process.exitCode = await removeCommand(
+      { directory, storage, reporter, force, color: useColors(values) },
+      positionals[0] ?? '',
+    );
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');

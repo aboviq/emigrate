@@ -33,6 +33,7 @@ describe('up', () => {
         command: 'up',
         cwd: '/emigrate',
         dry: false,
+        color: undefined,
         version,
         directory: 'migrations',
       },
@@ -111,6 +112,7 @@ describe('up', () => {
         cwd: '/emigrate',
         version,
         dry: false,
+        color: undefined,
         directory: 'migrations',
       },
     ]);
@@ -152,6 +154,7 @@ describe('up', () => {
         cwd: '/emigrate',
         version,
         dry: true,
+        color: undefined,
         directory: 'migrations',
       },
     ]);
@@ -193,6 +196,7 @@ describe('up', () => {
         cwd: '/emigrate',
         version,
         dry: false,
+        color: undefined,
         directory: 'migrations',
       },
     ]);
@@ -219,6 +223,7 @@ describe('up', () => {
         cwd: '/emigrate',
         version,
         dry: false,
+        color: undefined,
         directory: 'migrations',
       },
     ]);
@@ -265,6 +270,7 @@ describe('up', () => {
         cwd: '/emigrate',
         version,
         dry: false,
+        color: undefined,
         directory: 'migrations',
       },
     ]);
@@ -312,6 +318,7 @@ describe('up', () => {
         cwd: '/emigrate',
         version,
         dry: false,
+        color: undefined,
         directory: 'migrations',
       },
     ]);

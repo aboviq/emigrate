@@ -22,7 +22,7 @@ type ExtraFlags = {
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
 export default async function removeCommand(
-  { directory, reporter: reporterConfig, storage: storageConfig, force }: Config & ExtraFlags,
+  { directory, reporter: reporterConfig, storage: storageConfig, color, force = false }: Config & ExtraFlags,
   name: string,
 ) {
   if (!directory) {
@@ -57,7 +57,7 @@ export default async function removeCommand(
     return 1;
   }
 
-  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, directory });
+  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, directory, color });
 
   const [migrationFile, fileError] = await exec(async () => getMigration(cwd, directory, name, !force));
 
