@@ -44,13 +44,13 @@ bun add @emigrate/cli
 Create a new migration:
 
 ```bash
-npx emigrate new -d migrations -e .js create some fancy table
+npx emigrate new -d migrations create some fancy table
 # or
-pnpm emigrate new -d migrations -e .js create some fancy table
+pnpm emigrate new -d migrations create some fancy table
 # or
-yarn emigrate new -d migrations -e .js create some fancy table
+yarn emigrate new -d migrations create some fancy table
 # or
-bunx --bun emigrate new -d migrations -e .js create some fancy table
+bunx --bun emigrate new -d migrations create some fancy table
 ```
 
 Will create a new empty JavaScript migration file with the name "YYYYMMDDHHmmssuuu_create_some_fancy_table.js" in the `migrations` directory.

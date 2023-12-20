@@ -74,11 +74,15 @@ The directory where the migration files are located. The given path should be ab
 
 The template file to use for generating the migration file. The given path should be absolute or relative to the current working directory.
 
-The template can contain a `{{name}}` placeholder which will be replaced with the migration name provided to the command. The generated file will have the same extension as the template file, unless the [`--extension`](#-e---extension-ext) option is used.
+The template can contain a `{{name}}` placeholder which will be replaced with the migration name provided to the command. The generated file will have the same extension as the template file, unless the [`--extension`](#-x---extension-ext) option is used.
 
-### `-e`, `--extension <ext>`
+### `-x`, `--extension <ext>`
 
 The extension to use for the migration file. Unless the [`--template`](#-t---template-path) option is also specified the file will be empty.
+
+If both the `--template` and `--extension` options are specified, the extension will override the template file extension.
+
+**Example:** `--extension .sql` will generate a file with the `.sql` extension.
 
 ### `-p`, `--plugin <name>`
 
