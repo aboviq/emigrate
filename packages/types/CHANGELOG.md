@@ -1,5 +1,11 @@
 # @emigrate/types
 
+## 0.10.0
+
+### Minor Changes
+
+- f9a16d8: Add `color` option to the CLI and configuration file, which is used to force enable/disable color output from the reporter (the option is passed to the chosen reporter which should respect it)
+
 ## 0.9.1
 
 ### Patch Changes
