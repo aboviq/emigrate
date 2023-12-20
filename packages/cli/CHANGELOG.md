@@ -1,5 +1,19 @@
 # @emigrate/cli
 
+## 0.12.0
+
+### Minor Changes
+
+- 9f91bdc: Add support for the `--import` option to import modules/packages before any command is run. This can for instance be used to load environment variables using the [dotenv](https://github.com/motdotla/dotenv) package with `--import dotenv/config`.
+- f9a16d8: Add `color` option to the CLI and configuration file, which is used to force enable/disable color output from the reporter (the option is passed to the chosen reporter which should respect it)
+- e6e4433: BREAKING CHANGE: Rename the `extension` short CLI option from `-e` to `-x` in preparation for an upcoming option that will take its place
+
+### Patch Changes
+
+- Updated dependencies [f9a16d8]
+  - @emigrate/types@0.10.0
+  - @emigrate/plugin-tools@0.9.3
+
 ## 0.11.2
 
 ### Patch Changes
