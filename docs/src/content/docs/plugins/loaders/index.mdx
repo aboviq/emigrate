@@ -7,7 +7,7 @@ import Link from '@components/Link.astro';
 
 Loader plugins are used to transform any file type into a JavaScript function that will be called when the migration file is executed.
 
-Out of the box, Emigrate supports the following file extensions: `.js`, `.cjs` and `.mjs`. And both CommonJS and ES Modules are supported. See the <Link href="/plugins/loaders/default/">Default Loader</Link> for more information.
+Out of the box, Emigrate supports the following file extensions: `.js`, `.cjs`, `.mjs`, `.ts`, `.cts` and `.mts`. And both CommonJS and ES Modules are supported. See the <Link href="/plugins/loaders/default/">Default Loader</Link> for more information.
 
 ## Using a loader plugin
 
@@ -21,14 +21,14 @@ Or set it up in your configuration file, see <Link href="/reference/configuratio
 
 :::tip[Did you know?]
 You can specify multiple loader plugins at the same time, which is needed when you mix file types in your migrations folder.
-For example, you can use the `postgres` or `mysql` loader for `.sql` files and the `typescript` loader for `.ts` files.
+For example, you can use the `postgres` or `mysql` loader for `.sql` files and a `yaml` loader for `.yml` files.
 The <Link href="/plugins/loaders/default/">default loader</Link> will be used for all other file types, and doesn't need to be specified.
 :::
 
 ## Available Loader Plugins
 
 <CardGrid>
-  <LinkCard title="Default Loader" href="default/" description="The loader responsible for loading .js, .cjs and .mjs files" />
+  <LinkCard title="Default Loader" href="default/" description="The loader responsible for loading .js, .cjs, .mjs, .ts, .cts and .mts files" />
   <LinkCard title="PostgreSQL Loader" href="postgres/" description="Can load and execute .sql files against a PostgreSQL database" />
   <LinkCard title="MySQL Loader" href="mysql/" description="Can load and execute .sql files against a MySQL database" />
 </CardGrid>
