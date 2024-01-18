@@ -1,5 +1,11 @@
 # @emigrate/cli
 
+## 0.13.1
+
+### Patch Changes
+
+- 83dc618: Remove the --enable-source-maps flag from the shebang for better NodeJS compatibility
+
 ## 0.13.0
 
 ### Minor Changes
