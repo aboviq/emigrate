@@ -73,16 +73,16 @@ Run all pending migrations
 
 Options:
 
-  -h, --help        Show this help message and exit
-  -d, --directory   The directory where the migration files are located (required)
-  -i, --import      Additional modules/packages to import before running the migrations (can be specified multiple times)
-                    For example if you want to use Dotenv to load environment variables or when using TypeScript
-  -s, --storage     The storage to use for where to store the migration history (required)
-  -p, --plugin      The plugin(s) to use (can be specified multiple times)
-  -r, --reporter    The reporter to use for reporting the migration progress
-  --dry             List the pending migrations that would be run without actually running them
-  --color           Force color output (this option is passed to the reporter)
-  --no-color        Disable color output (this option is passed to the reporter)
+  -h, --help              Show this help message and exit
+  -d, --directory <path>  The directory where the migration files are located (required)
+  -i, --import <module>   Additional modules/packages to import before running the migrations (can be specified multiple times)
+                          For example if you want to use Dotenv to load environment variables or when using TypeScript
+  -s, --storage <name>    The storage to use for where to store the migration history (required)
+  -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
+  -r, --reporter <name>   The reporter to use for reporting the migration progress
+  --dry                   List the pending migrations that would be run without actually running them
+  --color                 Force color output (this option is passed to the reporter)
+  --no-color              Disable color output (this option is passed to the reporter)
 
 Examples:
 
@@ -176,16 +176,16 @@ Arguments:
 
 Options:
 
-  -h, --help        Show this help message and exit
-  -d, --directory   The directory where the migration files are located (required)
-  -r, --reporter    The reporter to use for reporting the migration file creation progress
-  -p, --plugin      The plugin(s) to use (can be specified multiple times)
-  -t, --template    A template file to use as contents for the new migration file
-                    (if the extension option is not provided the template file's extension will be used)
-  -x, --extension   The extension to use for the new migration file
-                    (if no template or plugin is provided an empty migration file will be created with the given extension)
-  --color           Force color output (this option is passed to the reporter)
-  --no-color        Disable color output (this option is passed to the reporter)
+  -h, --help              Show this help message and exit
+  -d, --directory <path>  The directory where the migration files are located (required)
+  -r, --reporter <name>   The reporter to use for reporting the migration file creation progress
+  -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
+  -t, --template <path>   A template file to use as contents for the new migration file
+                          (if the extension option is not provided the template file's extension will be used)
+  -x, --extension <ext>   The extension to use for the new migration file
+                          (if no template or plugin is provided an empty migration file will be created with the given extension)
+  --color                 Force color output (this option is passed to the reporter)
+  --no-color              Disable color output (this option is passed to the reporter)
 
   One of the --template, --extension or the --plugin options must be specified
 
@@ -271,14 +271,14 @@ List all migrations and their status. This command does not run any migrations.
 
 Options:
 
-  -h, --help        Show this help message and exit
-  -d, --directory   The directory where the migration files are located (required)
-  -i, --import      Additional modules/packages to import before listing the migrations (can be specified multiple times)
-                    For example if you want to use Dotenv to load environment variables
-  -r, --reporter    The reporter to use for reporting the migrations
-  -s, --storage     The storage to use to get the migration history (required)
-  --color           Force color output (this option is passed to the reporter)
-  --no-color        Disable color output (this option is passed to the reporter)
+  -h, --help              Show this help message and exit
+  -d, --directory <path>  The directory where the migration files are located (required)
+  -i, --import <module>   Additional modules/packages to import before listing the migrations (can be specified multiple times)
+                          For example if you want to use Dotenv to load environment variables
+  -r, --reporter <name>   The reporter to use for reporting the migrations
+  -s, --storage <name>    The storage to use to get the migration history (required)
+  --color                 Force color output (this option is passed to the reporter)
+  --no-color              Disable color output (this option is passed to the reporter)
 
 Examples:
 
@@ -369,16 +369,16 @@ Arguments:
 
 Options:
 
-  -h, --help        Show this help message and exit
-  -d, --directory   The directory where the migration files are located (required)
-  -i, --import      Additional modules/packages to import before removing the migration (can be specified multiple times)
-                    For example if you want to use Dotenv to load environment variables
-  -r, --reporter    The reporter to use for reporting the removal process
-  -s, --storage     The storage to use to get the migration history (required)
-  -f, --force       Force removal of the migration history entry even if the migration file does not exist
-                    or it's in a non-failed state
-  --color           Force color output (this option is passed to the reporter)
-  --no-color        Disable color output (this option is passed to the reporter)
+  -h, --help              Show this help message and exit
+  -d, --directory <path>  The directory where the migration files are located (required)
+  -i, --import <module>   Additional modules/packages to import before removing the migration (can be specified multiple times)
+                          For example if you want to use Dotenv to load environment variables
+  -r, --reporter <name>   The reporter to use for reporting the removal process
+  -s, --storage <name>    The storage to use to get the migration history (required)
+  -f, --force             Force removal of the migration history entry even if the migration file does not exist
+                          or it's in a non-failed state
+  --color                 Force color output (this option is passed to the reporter)
+  --no-color              Disable color output (this option is passed to the reporter)
 
 Examples:
 
