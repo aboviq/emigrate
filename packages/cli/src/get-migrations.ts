@@ -23,7 +23,10 @@ export const getMigrations = async (cwd: string, directory: string): Promise<Mig
   const allFilesInMigrationDirectory = await tryReadDirectory(directoryPath);
 
   const migrationFiles: MigrationMetadata[] = allFilesInMigrationDirectory
-    .filter((file) => file.isFile() && !file.name.startsWith('.') && !file.name.startsWith('_'))
+    .filter(
+      (file) =>
+        file.isFile() && !file.name.startsWith('.') && !file.name.startsWith('_') && path.extname(file.name) !== '',
+    )
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(({ name }) => {
       const filePath = path.join(directoryPath, name);
