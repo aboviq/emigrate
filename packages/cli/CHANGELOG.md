@@ -1,5 +1,11 @@
 # @emigrate/cli
 
+## 0.14.0
+
+### Minor Changes
+
+- b083e88: Upgrade cosmiconfig to 9.0.0
+
 ## 0.13.1
 
 ### Patch Changes
