@@ -48,6 +48,10 @@ const up: Action = async (args) => {
         type: 'string',
         short: 's',
       },
+      limit: {
+        type: 'string',
+        short: 'l',
+      },
       dry: {
         type: 'boolean',
       },
@@ -80,6 +84,7 @@ Options:
   -s, --storage <name>    The storage to use for where to store the migration history (required)
   -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
   -r, --reporter <name>   The reporter to use for reporting the migration progress
+  -l, --limit <count>     Limit the number of migrations to run
   --dry                   List the pending migrations that would be run without actually running them
   --color                 Force color output (this option is passed to the reporter)
   --no-color              Disable color output (this option is passed to the reporter)
@@ -104,15 +109,34 @@ Examples:
     storage = config.storage,
     reporter = config.reporter,
     dry,
+    limit: limitString,
     import: imports = [],
   } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
+
+  const limit = limitString === undefined ? undefined : Number.parseInt(limitString, 10);
+
+  if (Number.isNaN(limit)) {
+    console.error('Invalid limit value, expected an integer but was:', limitString);
+    console.log(usage);
+    process.exitCode = 1;
+    return;
+  }
 
   await importAll(cwd, imports);
 
   try {
     const { default: upCommand } = await import('./commands/up.js');
-    process.exitCode = await upCommand({ storage, reporter, directory, plugins, cwd, dry, color: useColors(values) });
+    process.exitCode = await upCommand({
+      storage,
+      reporter,
+      directory,
+      plugins,
+      cwd,
+      dry,
+      limit,
+      color: useColors(values),
+    });
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');

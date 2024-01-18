@@ -64,6 +64,11 @@ Show command help and exit
 
 List the pending migrations that would be run without actually running them
 
+### `-l, --limit <count>`
+
+Limit the number of migrations to run. Can be combined with `--dry` which will show "pending" for the migrations that would be run if not in dry-run mode,
+and "skipped" for the migrations that also haven't been run but won't because of the set limit.
+
 ### `-d`, `--directory <path>`
 
 The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
