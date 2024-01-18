@@ -14,6 +14,7 @@ import { version } from '../get-package-info.js';
 type ExtraFlags = {
   cwd: string;
   dry?: boolean;
+  limit?: number;
   getMigrations?: GetMigrationsFunction;
 };
 
@@ -25,6 +26,7 @@ export default async function upCommand({
   reporter: reporterConfig,
   directory,
   color,
+  limit,
   dry = false,
   plugins = [],
   cwd,
@@ -83,6 +85,7 @@ export default async function upCommand({
 
     const error = await migrationRunner({
       dry,
+      limit,
       reporter,
       storage,
       migrations: await arrayFromAsync(collectedMigrations),

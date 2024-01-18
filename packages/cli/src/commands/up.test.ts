@@ -198,7 +198,7 @@ describe('up', () => {
     const failedEntry = toEntry('some_failed_migration.js', 'failed');
     const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
 
-    const exitCode = await run(true);
+    const exitCode = await run({ dry: true });
 
     assert.strictEqual(exitCode, 1);
     assert.strictEqual(reporter.onInit.mock.calls.length, 1);
@@ -341,6 +341,88 @@ describe('up', () => {
     assert.deepStrictEqual(
       entries.map((entry) => `${entry.name} (${entry.status})`),
       ['some_migration.js (done)', 'some_other_migration.js (done)'],
+    );
+  });
+
+  it('returns 0 and finishes without an error when the given number of pending migrations are run successfully', async () => {
+    const { reporter, run } = getUpCommand(
+      ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
+      getStorage(['some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return async () => {
+              // Success
+            };
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run({ limit: 1 });
+
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        version,
+        dry: false,
+        color: undefined,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+    assert.strictEqual(error, undefined);
+    assert.strictEqual(entries?.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_migration.js (done)', 'some_other_migration.js (skipped)'],
+    );
+  });
+
+  it('returns 0 and finishes without an error with the given number of pending migrations are validated and listed successfully in dry-mode', async () => {
+    const { reporter, run } = getUpCommand(
+      ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
+      getStorage(['some_already_run_migration.js']),
+    );
+
+    const exitCode = await run({ dry: true, limit: 1 });
+
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        version,
+        dry: true,
+        color: undefined,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 2);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+    assert.strictEqual(error, undefined);
+    assert.strictEqual(entries?.length, 2);
+    assert.deepStrictEqual(
+      entries.map((entry) => `${entry.name} (${entry.status})`),
+      ['some_migration.js (pending)', 'some_other_migration.js (skipped)'],
     );
   });
 
@@ -495,7 +577,12 @@ function getUpCommand(migrationFiles: string[], storage?: Mocked<Storage>, plugi
     onMigrationSkip: mock.fn(noop),
   };
 
-  const run = async (dry = false) => {
+  const run = async (
+    options?: Omit<
+      Parameters<typeof upCommand>[0],
+      'cwd' | 'directory' | 'storage' | 'reporter' | 'plugins' | 'getMigrations'
+    >,
+  ) => {
     return upCommand({
       cwd: '/emigrate',
       directory: 'migrations',
@@ -509,11 +596,11 @@ function getUpCommand(migrationFiles: string[], storage?: Mocked<Storage>, plugi
         },
       },
       reporter,
-      dry,
       plugins: plugins ?? [],
       async getMigrations(cwd, directory) {
         return toMigrations(cwd, directory, migrationFiles);
       },
+      ...options,
     });
   };
 

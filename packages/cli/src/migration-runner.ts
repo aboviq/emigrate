@@ -15,6 +15,7 @@ import { getDuration } from './get-duration.js';
 
 type MigrationRunnerParameters = {
   dry: boolean;
+  limit?: number;
   reporter: EmigrateReporter;
   storage: Storage;
   migrations: Array<MigrationMetadata | MigrationMetadataFinished>;
@@ -24,6 +25,7 @@ type MigrationRunnerParameters = {
 
 export const migrationRunner = async ({
   dry,
+  limit,
   reporter,
   storage,
   migrations,
@@ -70,7 +72,12 @@ export const migrationRunner = async ({
     }
   }
 
-  const [lockedMigrations, lockError] = dry ? [migrationsToRun] : await exec(async () => storage.lock(migrationsToRun));
+  const migrationsToLock = limit ? migrationsToRun.slice(0, limit) : migrationsToRun;
+  const migrationsToSkip = limit ? migrationsToRun.slice(limit) : [];
+
+  const [lockedMigrations, lockError] = dry
+    ? [migrationsToLock]
+    : await exec(async () => storage.lock(migrationsToLock));
 
   if (lockError) {
     for await (const migration of migrationsToRun) {
@@ -150,6 +157,17 @@ export const migrationRunner = async ({
       await reporter.onMigrationSuccess?.(finishedMigration);
       finishedMigrations.push(finishedMigration);
     }
+  }
+
+  for await (const migration of migrationsToSkip) {
+    const finishedMigration: MigrationMetadataFinished = {
+      ...migration,
+      status: 'skipped',
+    };
+
+    await reporter.onMigrationSkip?.(finishedMigration);
+
+    finishedMigrations.push(finishedMigration);
   }
 
   const [, unlockError] = dry ? [] : await exec(async () => storage.unlock(lockedMigrations ?? []));
