@@ -48,6 +48,60 @@ describe('up', () => {
     assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
   });
 
+  it('returns 0 and finishes without an error when all migrations have already been run', async () => {
+    const { reporter, run } = getUpCommand(['my_migration.js'], getStorage(['my_migration.js']));
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: false,
+        color: undefined,
+        version,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
+  });
+
+  it('returns 0 and finishes without an error when all migrations have already been run even when the history responds without file extensions', async () => {
+    const { reporter, run } = getUpCommand(['my_migration.js'], getStorage(['my_migration']));
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 0);
+    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+      {
+        command: 'up',
+        cwd: '/emigrate',
+        dry: false,
+        color: undefined,
+        version,
+        directory: 'migrations',
+      },
+    ]);
+    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
+    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
+    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
+    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
+    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
+  });
+
   it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
     const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
 
