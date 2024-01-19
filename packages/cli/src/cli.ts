@@ -52,6 +52,14 @@ const up: Action = async (args) => {
         type: 'string',
         short: 'l',
       },
+      from: {
+        type: 'string',
+        short: 'f',
+      },
+      to: {
+        type: 'string',
+        short: 't',
+      },
       dry: {
         type: 'boolean',
       },
@@ -85,6 +93,10 @@ Options:
   -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
   -r, --reporter <name>   The reporter to use for reporting the migration progress
   -l, --limit <count>     Limit the number of migrations to run
+  -f, --from <name>       Start running migrations from the given migration name, the given name doesn't need to exist
+                          and is compared in lexicographical order
+  -t, --to <name>         Skip migrations after the given migration name, the given name doesn't need to exist
+                          and is compared in lexicographical order
   --dry                   List the pending migrations that would be run without actually running them
   --color                 Force color output (this option is passed to the reporter)
   --no-color              Disable color output (this option is passed to the reporter)
@@ -95,6 +107,8 @@ Examples:
   emigrate up -d ./migrations --storage @emigrate/mysql
   emigrate up -d src/migrations -s postgres -r json --dry
   emigrate up -d ./migrations -s mysql --import dotenv/config
+  emigrate up --limit 1
+  emigrate up --to 20231122120529381_some_migration_file.js
 `;
 
   if (values.help) {
@@ -109,6 +123,8 @@ Examples:
     storage = config.storage,
     reporter = config.reporter,
     dry,
+    from,
+    to,
     limit: limitString,
     import: imports = [],
   } = values;
@@ -135,6 +151,8 @@ Examples:
       cwd,
       dry,
       limit,
+      from,
+      to,
       color: useColors(values),
     });
   } catch (error) {

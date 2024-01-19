@@ -16,6 +16,8 @@ import { getDuration } from './get-duration.js';
 type MigrationRunnerParameters = {
   dry: boolean;
   limit?: number;
+  from?: string;
+  to?: string;
   reporter: EmigrateReporter;
   storage: Storage;
   migrations: Array<MigrationMetadata | MigrationMetadataFinished>;
@@ -26,6 +28,8 @@ type MigrationRunnerParameters = {
 export const migrationRunner = async ({
   dry,
   limit,
+  from,
+  to,
   reporter,
   storage,
   migrations,
@@ -34,8 +38,8 @@ export const migrationRunner = async ({
 }: MigrationRunnerParameters): Promise<Error | undefined> => {
   await reporter.onCollectedMigrations?.(migrations);
 
-  const finishedMigrations: MigrationMetadataFinished[] = [];
-  const migrationsToRun: MigrationMetadata[] = [];
+  const validatedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
+  const migrationsToLock: MigrationMetadata[] = [];
 
   let skip = false;
 
@@ -43,24 +47,35 @@ export const migrationRunner = async ({
     if (isFinishedMigration(migration)) {
       skip ||= migration.status === 'failed' || migration.status === 'skipped';
 
-      finishedMigrations.push(migration);
-    } else if (skip) {
-      finishedMigrations.push({
+      validatedMigrations.push(migration);
+    } else if (
+      skip ||
+      Boolean(from && migration.name < from) ||
+      Boolean(to && migration.name > to) ||
+      (limit && migrationsToLock.length >= limit)
+    ) {
+      validatedMigrations.push({
         ...migration,
-        status: dry ? 'pending' : 'skipped',
+        status: 'skipped',
       });
     } else {
       try {
         await validate(migration);
-        migrationsToRun.push(migration);
+        migrationsToLock.push(migration);
+        validatedMigrations.push(migration);
       } catch (error) {
-        for await (const migration of migrationsToRun) {
-          finishedMigrations.push({ ...migration, status: 'skipped' });
+        for (const migration of migrationsToLock) {
+          const validatedIndex = validatedMigrations.indexOf(migration);
+
+          validatedMigrations[validatedIndex] = {
+            ...migration,
+            status: 'skipped',
+          };
         }
 
-        migrationsToRun.length = 0;
+        migrationsToLock.length = 0;
 
-        finishedMigrations.push({
+        validatedMigrations.push({
           ...migration,
           status: 'failed',
           duration: 0,
@@ -72,50 +87,70 @@ export const migrationRunner = async ({
     }
   }
 
-  const migrationsToLock = limit ? migrationsToRun.slice(0, limit) : migrationsToRun;
-  const migrationsToSkip = limit ? migrationsToRun.slice(limit) : [];
-
   const [lockedMigrations, lockError] = dry
     ? [migrationsToLock]
     : await exec(async () => storage.lock(migrationsToLock));
 
   if (lockError) {
-    for await (const migration of migrationsToRun) {
-      finishedMigrations.push({ ...migration, status: 'skipped' });
+    for (const migration of migrationsToLock) {
+      const validatedIndex = validatedMigrations.indexOf(migration);
+
+      validatedMigrations[validatedIndex] = {
+        ...migration,
+        status: 'skipped',
+      };
     }
 
-    migrationsToRun.length = 0;
+    migrationsToLock.length = 0;
 
     skip = true;
   } else {
+    for (const migration of migrationsToLock) {
+      const isLocked = lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name);
+
+      if (!isLocked) {
+        const validatedIndex = validatedMigrations.indexOf(migration);
+
+        validatedMigrations[validatedIndex] = {
+          ...migration,
+          status: 'skipped',
+        };
+      }
+    }
+
     await reporter.onLockedMigrations?.(lockedMigrations);
   }
 
-  for await (const finishedMigration of finishedMigrations) {
-    switch (finishedMigration.status) {
-      case 'failed': {
-        await reporter.onMigrationError?.(finishedMigration, finishedMigration.error);
-        break;
+  const finishedMigrations: MigrationMetadataFinished[] = [];
+
+  for await (const migration of validatedMigrations) {
+    if (isFinishedMigration(migration)) {
+      switch (migration.status) {
+        case 'failed': {
+          await reporter.onMigrationError?.(migration, migration.error);
+          break;
+        }
+
+        case 'pending': {
+          await reporter.onMigrationSkip?.(migration);
+          break;
+        }
+
+        case 'skipped': {
+          await reporter.onMigrationSkip?.(migration);
+          break;
+        }
+
+        default: {
+          await reporter.onMigrationSuccess?.(migration);
+          break;
+        }
       }
 
-      case 'pending': {
-        await reporter.onMigrationSkip?.(finishedMigration);
-        break;
-      }
-
-      case 'skipped': {
-        await reporter.onMigrationSkip?.(finishedMigration);
-        break;
-      }
-
-      default: {
-        await reporter.onMigrationSuccess?.(finishedMigration);
-        break;
-      }
+      finishedMigrations.push(migration);
+      continue;
     }
-  }
 
-  for await (const migration of lockedMigrations ?? []) {
     if (dry || skip) {
       const finishedMigration: MigrationMetadataFinished = {
         ...migration,
@@ -157,17 +192,6 @@ export const migrationRunner = async ({
       await reporter.onMigrationSuccess?.(finishedMigration);
       finishedMigrations.push(finishedMigration);
     }
-  }
-
-  for await (const migration of migrationsToSkip) {
-    const finishedMigration: MigrationMetadataFinished = {
-      ...migration,
-      status: 'skipped',
-    };
-
-    await reporter.onMigrationSkip?.(finishedMigration);
-
-    finishedMigrations.push(finishedMigration);
   }
 
   const [, unlockError] = dry ? [] : await exec(async () => storage.unlock(lockedMigrations ?? []));

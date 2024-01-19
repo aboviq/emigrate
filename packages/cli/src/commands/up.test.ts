@@ -10,9 +10,11 @@ import {
   type SerializedError,
   type FailedMigrationHistoryEntry,
   type NonFailedMigrationHistoryEntry,
+  type MigrationMetadataFinished,
 } from '@emigrate/types';
 import { deserializeError } from 'serialize-error';
 import { version } from '../get-package-info.js';
+import { BadOptionError, MigrationHistoryError, MigrationRunError, StorageInitError } from '../errors.js';
 import upCommand from './up.js';
 
 type Mocked<T> = {
@@ -27,25 +29,7 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        dry: false,
-        color: undefined,
-        version,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
+    assertPreconditionsFulfilled({ dry: false }, reporter, []);
   });
 
   it('returns 0 and finishes without an error when all migrations have already been run', async () => {
@@ -54,25 +38,7 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        dry: false,
-        color: undefined,
-        version,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
+    assertPreconditionsFulfilled({ dry: false }, reporter, []);
   });
 
   it('returns 0 and finishes without an error when all migrations have already been run even when the history responds without file extensions', async () => {
@@ -81,25 +47,7 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        dry: false,
-        color: undefined,
-        version,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
+    assertPreconditionsFulfilled({ dry: false }, reporter, []);
   });
 
   it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
@@ -108,48 +56,40 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 1);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
-    const args = reporter.onFinished.mock.calls[0]?.arguments;
-    assert.strictEqual(args?.length, 2);
-    const entries = args[0];
-    const error = args[1];
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_other.js (skipped)', 'some_file.sql (failed)'],
+    assertPreconditionsFulfilled(
+      { dry: false },
+      reporter,
+      [
+        { name: 'some_other.js', status: 'skipped' },
+        {
+          name: 'some_file.sql',
+          status: 'failed',
+          error: BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
+        },
+      ],
+      BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
     );
-    assert.strictEqual(entries.length, 2);
-    assert.strictEqual(error?.message, 'No loader plugin found for file extension: .sql');
   });
 
   it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
     const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
 
-    const exitCode = await run();
+    const exitCode = await run({ dry: true });
 
     assert.strictEqual(exitCode, 1);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
-    const args = reporter.onFinished.mock.calls[0]?.arguments;
-    assert.strictEqual(args?.length, 2);
-    const entries = args[0];
-    const error = args[1];
-    assert.strictEqual(entries.length, 2);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_other.js (skipped)', 'some_file.sql (failed)'],
+    assertPreconditionsFulfilled(
+      { dry: true },
+      reporter,
+      [
+        { name: 'some_other.js', status: 'skipped' },
+        {
+          name: 'some_file.sql',
+          status: 'failed',
+          error: BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
+        },
+      ],
+      BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
     );
-    assert.strictEqual(error?.message, 'No loader plugin found for file extension: .sql');
   });
 
   it('returns 1 and finishes with an error when there are failed migrations in the history', async () => {
@@ -159,38 +99,24 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 1);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: false,
-        color: undefined,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.deepStrictEqual(
-      getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]),
-      deserializeError(failedEntry.error),
-    );
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-    assert.strictEqual(
-      error?.message,
-      `Migration ${failedEntry.name} is in a failed state, it should be fixed and removed`,
-    );
-    assert.deepStrictEqual(getErrorCause(error), deserializeError(failedEntry.error));
-    assert.strictEqual(entries?.length, 2);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_failed_migration.js (failed)', 'some_file.js (skipped)'],
+    assertPreconditionsFulfilled(
+      { dry: false },
+      reporter,
+      [
+        {
+          name: 'some_failed_migration.js',
+          status: 'failed',
+          error: new MigrationHistoryError(
+            'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+            { cause: failedEntry.error },
+          ),
+        },
+        { name: 'some_file.js', status: 'skipped' },
+      ],
+      new MigrationHistoryError(
+        'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+        { cause: failedEntry.error },
+      ),
     );
   });
 
@@ -201,38 +127,24 @@ describe('up', () => {
     const exitCode = await run({ dry: true });
 
     assert.strictEqual(exitCode, 1);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: true,
-        color: undefined,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.deepStrictEqual(
-      getErrorCause(reporter.onMigrationError.mock.calls[0]?.arguments[1]),
-      deserializeError(failedEntry.error),
-    );
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-    assert.strictEqual(
-      error?.message,
-      `Migration ${failedEntry.name} is in a failed state, it should be fixed and removed`,
-    );
-    assert.deepStrictEqual(getErrorCause(error), deserializeError(failedEntry.error));
-    assert.strictEqual(entries?.length, 2);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_failed_migration.js (failed)', 'some_file.js (pending)'],
+    assertPreconditionsFulfilled(
+      { dry: true },
+      reporter,
+      [
+        {
+          name: 'some_failed_migration.js',
+          status: 'failed',
+          error: new MigrationHistoryError(
+            'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+            { cause: failedEntry.error },
+          ),
+        },
+        { name: 'some_file.js', status: 'skipped' },
+      ],
+      new MigrationHistoryError(
+        'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+        { cause: failedEntry.error },
+      ),
     );
   });
 
@@ -243,25 +155,7 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: false,
-        color: undefined,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onFinished.mock.calls[0]?.arguments, [[], undefined]);
+    assertPreconditionsFulfilled({ dry: false }, reporter, []);
   });
 
   it("returns 1 and finishes with an error when the storage couldn't be initialized", async () => {
@@ -270,32 +164,7 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 1);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: false,
-        color: undefined,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const args = reporter.onFinished.mock.calls[0]?.arguments;
-    assert.strictEqual(args?.length, 2);
-    const entries = args[0];
-    const error = args[1];
-    const cause = getErrorCause(error);
-    assert.deepStrictEqual(entries, []);
-    assert.strictEqual(error?.message, 'Could not initialize storage');
-    assert.strictEqual(cause?.message, 'No storage configured');
+    assertPreconditionsFailed({ dry: false }, reporter, StorageInitError.fromError(new Error('No storage configured')));
   });
 
   it('returns 0 and finishes without an error when all pending migrations are run successfully', async () => {
@@ -317,31 +186,10 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: false,
-        color: undefined,
-        directory: 'migrations',
-      },
+    assertPreconditionsFulfilled({ dry: false }, reporter, [
+      { name: 'some_migration.js', status: 'done', started: true },
+      { name: 'some_other_migration.js', status: 'done', started: true },
     ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 2);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 2);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-    assert.strictEqual(error, undefined);
-    assert.strictEqual(entries?.length, 2);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_migration.js (done)', 'some_other_migration.js (done)'],
-    );
   });
 
   it('returns 0 and finishes without an error when the given number of pending migrations are run successfully', async () => {
@@ -363,31 +211,10 @@ describe('up', () => {
     const exitCode = await run({ limit: 1 });
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: false,
-        color: undefined,
-        directory: 'migrations',
-      },
+    assertPreconditionsFulfilled({ dry: false }, reporter, [
+      { name: 'some_migration.js', status: 'done', started: true },
+      { name: 'some_other_migration.js', status: 'skipped' },
     ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-    assert.strictEqual(error, undefined);
-    assert.strictEqual(entries?.length, 2);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_migration.js (done)', 'some_other_migration.js (skipped)'],
-    );
   });
 
   it('returns 0 and finishes without an error with the given number of pending migrations are validated and listed successfully in dry-mode', async () => {
@@ -399,31 +226,125 @@ describe('up', () => {
     const exitCode = await run({ dry: true, limit: 1 });
 
     assert.strictEqual(exitCode, 0);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: true,
-        color: undefined,
-        directory: 'migrations',
-      },
+    assertPreconditionsFulfilled({ dry: true }, reporter, [
+      { name: 'some_migration.js', status: 'pending' },
+      { name: 'some_other_migration.js', status: 'skipped' },
     ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0);
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 2);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-    assert.strictEqual(error, undefined);
-    assert.strictEqual(entries?.length, 2);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_migration.js (pending)', 'some_other_migration.js (skipped)'],
+  });
+
+  it('returns 0 and finishes without an error when pending migrations after given "from" parameter are run successfully, even when the "from" is not an existing migration', async () => {
+    const { reporter, run } = getUpCommand(
+      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+      getStorage(['1_some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return async () => {
+              // Success
+            };
+          },
+        },
+      ],
     );
+
+    const exitCode = await run({ from: '3_non_existing_migration.js' });
+
+    assert.strictEqual(exitCode, 0);
+    assertPreconditionsFulfilled({ dry: false }, reporter, [
+      { name: '2_some_migration.js', status: 'skipped' },
+      { name: '4_some_other_migration.js', status: 'done', started: true },
+    ]);
+  });
+
+  it('returns 0 and finishes without an error when pending migrations after given "from" parameter are validated and listed successfully in dry-mode, even when the "from" is not an existing migration', async () => {
+    const { reporter, run } = getUpCommand(
+      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+      getStorage(['1_some_already_run_migration.js']),
+    );
+
+    const exitCode = await run({ dry: true, from: '3_non_existing_migration.js' });
+
+    assert.strictEqual(exitCode, 0);
+    assertPreconditionsFulfilled({ dry: true }, reporter, [
+      { name: '2_some_migration.js', status: 'skipped' },
+      { name: '4_some_other_migration.js', status: 'pending' },
+    ]);
+  });
+
+  it('returns 0 and finishes without an error when pending migrations before given "to" parameter are run successfully, even when the "to" is not an existing migration', async () => {
+    const { reporter, run } = getUpCommand(
+      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+      getStorage(['1_some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return async () => {
+              // Success
+            };
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run({ to: '3_non_existing_migration.js' });
+
+    assert.strictEqual(exitCode, 0);
+    assertPreconditionsFulfilled({ dry: false }, reporter, [
+      { name: '2_some_migration.js', status: 'done', started: true },
+      { name: '4_some_other_migration.js', status: 'skipped' },
+    ]);
+  });
+
+  it('returns 0 and finishes without an error when pending migrations after given "to" parameter are validated and listed successfully in dry-mode, even when the "to" is not an existing migration', async () => {
+    const { reporter, run } = getUpCommand(
+      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+      getStorage(['1_some_already_run_migration.js']),
+    );
+
+    const exitCode = await run({ dry: true, to: '3_non_existing_migration.js' });
+
+    assert.strictEqual(exitCode, 0);
+    assertPreconditionsFulfilled({ dry: true }, reporter, [
+      { name: '2_some_migration.js', status: 'pending' },
+      { name: '4_some_other_migration.js', status: 'skipped' },
+    ]);
+  });
+
+  it('returns 0 and finishes without an error when the pending migrations fulfilling "from", "to" and "limit" are run successfully', async () => {
+    const { reporter, run } = getUpCommand(
+      [
+        '1_some_already_run_migration.js',
+        '2_some_migration.js',
+        '3_another_migration.js',
+        '4_some_other_migration.js',
+        '5_yet_another_migration.js',
+        '6_some_more_migration.js',
+      ],
+      getStorage(['1_some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return async () => {
+              // Success
+            };
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run({ from: '3_another_migration.js', to: '5_yet_another_migration.js', limit: 2 });
+
+    assert.strictEqual(exitCode, 0);
+    assertPreconditionsFulfilled({ dry: false }, reporter, [
+      { name: '2_some_migration.js', status: 'skipped' },
+      { name: '3_another_migration.js', status: 'done', started: true },
+      { name: '4_some_other_migration.js', status: 'done', started: true },
+      { name: '5_yet_another_migration.js', status: 'skipped' },
+      { name: '6_some_more_migration.js', status: 'skipped' },
+    ]);
   });
 
   it('returns 1 and finishes with an error when a pending migration throw when run', async () => {
@@ -447,33 +368,15 @@ describe('up', () => {
     const exitCode = await run();
 
     assert.strictEqual(exitCode, 1);
-    assert.strictEqual(reporter.onInit.mock.calls.length, 1);
-    assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
-      {
-        command: 'up',
-        cwd: '/emigrate',
-        version,
-        dry: false,
-        color: undefined,
-        directory: 'migrations',
-      },
-    ]);
-    assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 2);
-    assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationError.mock.calls.length, 1);
-    assert.strictEqual(reporter.onMigrationError.mock.calls[0]?.arguments[1]?.message, 'Oh noes!');
-    assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 1);
-    assert.strictEqual(reporter.onFinished.mock.calls.length, 1);
-    const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-    assert.strictEqual(error?.message, 'Failed to run migration: migrations/fail.js');
-    const cause = getErrorCause(error);
-    assert.strictEqual(cause?.message, 'Oh noes!');
-    assert.strictEqual(entries?.length, 3);
-    assert.deepStrictEqual(
-      entries.map((entry) => `${entry.name} (${entry.status})`),
-      ['some_migration.js (done)', 'fail.js (failed)', 'some_other_migration.js (skipped)'],
+    assertPreconditionsFulfilled(
+      { dry: false },
+      reporter,
+      [
+        { name: 'some_migration.js', status: 'done', started: true },
+        { name: 'fail.js', status: 'failed', started: true, error: new Error('Oh noes!') },
+        { name: 'some_other_migration.js', status: 'skipped' },
+      ],
+      new MigrationRunError('Failed to run migration: migrations/fail.js', { cause: new Error('Oh noes!') }),
     );
   });
 });
@@ -609,4 +512,128 @@ function getUpCommand(migrationFiles: string[], storage?: Mocked<Storage>, plugi
     storage,
     run,
   };
+}
+
+function assertPreconditionsFulfilled(
+  options: { dry: boolean },
+  reporter: Mocked<Required<EmigrateReporter>>,
+  expected: Array<{ name: string; status: MigrationMetadataFinished['status']; started?: boolean; error?: Error }>,
+  finishedError?: Error,
+) {
+  assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+  assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+    {
+      command: 'up',
+      cwd: '/emigrate',
+      version,
+      dry: options.dry,
+      color: undefined,
+      directory: 'migrations',
+    },
+  ]);
+
+  let started = 0;
+  let done = 0;
+  let failed = 0;
+  let skipped = 0;
+  let pending = 0;
+  const failedEntries: typeof expected = [];
+
+  for (const entry of expected) {
+    if (entry.started) {
+      started++;
+    }
+
+    // eslint-disable-next-line default-case
+    switch (entry.status) {
+      case 'done': {
+        done++;
+        break;
+      }
+
+      case 'failed': {
+        failed++;
+        failedEntries.push(entry);
+        break;
+      }
+
+      case 'skipped': {
+        skipped++;
+        break;
+      }
+
+      case 'pending': {
+        pending++;
+        break;
+      }
+    }
+  }
+
+  assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 1, 'Collected call');
+  assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 1, 'Locked call');
+  assert.strictEqual(reporter.onMigrationStart.mock.calls.length, started, 'Started migrations');
+  assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, done, 'Successful migrations');
+  assert.strictEqual(reporter.onMigrationError.mock.calls.length, failed, 'Failed migrations');
+
+  for (const [index, entry] of failedEntries.entries()) {
+    if (entry.status === 'failed') {
+      const error = reporter.onMigrationError.mock.calls[index]?.arguments[1];
+      assert.deepStrictEqual(error, entry.error, 'Error');
+      const cause = entry.error?.cause;
+      assert.deepStrictEqual(error?.cause, cause ? deserializeError(cause) : cause, 'Error cause');
+    }
+  }
+
+  assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, pending + skipped, 'Total pending and skipped');
+  assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
+  const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+  assert.deepStrictEqual(error, finishedError, 'Finished error');
+  const cause = getErrorCause(error);
+  const expectedCause = finishedError?.cause;
+  assert.deepStrictEqual(
+    cause,
+    expectedCause ? deserializeError(expectedCause) : expectedCause,
+    'Finished error cause',
+  );
+  assert.strictEqual(entries?.length, expected.length, 'Finished entries length');
+  assert.deepStrictEqual(
+    entries.map((entry) => `${entry.name} (${entry.status})`),
+    expected.map((entry) => `${entry.name} (${entry.status})`),
+    'Finished entries',
+  );
+}
+
+function assertPreconditionsFailed(
+  options: { dry: boolean },
+  reporter: Mocked<Required<EmigrateReporter>>,
+  finishedError?: Error,
+) {
+  assert.strictEqual(reporter.onInit.mock.calls.length, 1);
+  assert.deepStrictEqual(reporter.onInit.mock.calls[0]?.arguments, [
+    {
+      command: 'up',
+      cwd: '/emigrate',
+      version,
+      dry: options.dry,
+      color: undefined,
+      directory: 'migrations',
+    },
+  ]);
+  assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0, 'Collected call');
+  assert.strictEqual(reporter.onLockedMigrations.mock.calls.length, 0, 'Locked call');
+  assert.strictEqual(reporter.onMigrationStart.mock.calls.length, 0, 'Started migrations');
+  assert.strictEqual(reporter.onMigrationSuccess.mock.calls.length, 0, 'Successful migrations');
+  assert.strictEqual(reporter.onMigrationError.mock.calls.length, 0, 'Failed migrations');
+  assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0, 'Total pending and skipped');
+  assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
+  const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+  assert.deepStrictEqual(error, finishedError, 'Finished error');
+  const cause = getErrorCause(error);
+  const expectedCause = finishedError?.cause;
+  assert.deepStrictEqual(
+    cause,
+    expectedCause ? deserializeError(expectedCause) : expectedCause,
+    'Finished error cause',
+  );
+  assert.strictEqual(entries?.length, 0, 'Finished entries length');
 }

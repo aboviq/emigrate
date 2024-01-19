@@ -15,6 +15,8 @@ type ExtraFlags = {
   cwd: string;
   dry?: boolean;
   limit?: number;
+  from?: string;
+  to?: string;
   getMigrations?: GetMigrationsFunction;
 };
 
@@ -27,6 +29,8 @@ export default async function upCommand({
   directory,
   color,
   limit,
+  from,
+  to,
   dry = false,
   plugins = [],
   cwd,
@@ -86,6 +90,8 @@ export default async function upCommand({
     const error = await migrationRunner({
       dry,
       limit,
+      from,
+      to,
       reporter,
       storage,
       migrations: await arrayFromAsync(collectedMigrations),

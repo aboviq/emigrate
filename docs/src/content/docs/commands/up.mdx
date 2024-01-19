@@ -73,6 +73,24 @@ and "skipped" for the migrations that also haven't been run but won't because of
 
 The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
 
+### `-f`, `--from <name>`
+
+The name of the migration to start from. This can be used to run only a subset of the pending migrations.
+
+The given migration name does not need to exist and is compared in lexicographical order with the migration names, so it can be a prefix of a migration name or similar.
+
+Can be combined with `--dry` which will show "pending" for the migrations that would be run if not in dry-run mode,
+and "skipped" for the migrations that also haven't been run but won't because of the set "from".
+
+### `-t`, `--to <name>`
+
+The name of the migration to end at. This can be used to run only a subset of the pending migrations.
+
+The given migration name does not need to exist and is compared in lexicographical order with the migration names, so it can be a prefix of a migration name or similar.
+
+Can be combined with `--dry` which will show "pending" for the migrations that would be run if not in dry-run mode,
+and "skipped" for the migrations that also haven't been run but won't because of the set "to".
+
 ### `-i`, `--import <module>`
 
 A module to import before running the migrations. This option can be specified multiple times.
