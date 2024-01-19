@@ -105,13 +105,17 @@ export default defineConfig({
               label: 'Using TypeScript',
               link: '/guides/typescript/',
             },
+            {
+              label: 'Baseline',
+              link: '/guides/baseline/',
+            },
           ],
         },
         {
           label: 'Plugins',
           items: [
             {
-              label: 'Introduction',
+              label: 'Plugins Introduction',
               link: '/plugins/',
             },
             {
@@ -119,7 +123,7 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  label: 'Introduction',
+                  label: 'Storage Plugins',
                   link: '/plugins/storage/',
                 },
                 {
@@ -141,7 +145,7 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  label: 'Introduction',
+                  label: 'Loader Plugins',
                   link: '/plugins/loaders/',
                 },
                 {
@@ -163,7 +167,7 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  label: 'Introduction',
+                  label: 'Reporters',
                   link: '/plugins/reporters/',
                 },
                 {
@@ -181,7 +185,7 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  label: 'Introduction',
+                  label: 'Generator Plugins',
                   link: '/plugins/generators/',
                 },
                 {

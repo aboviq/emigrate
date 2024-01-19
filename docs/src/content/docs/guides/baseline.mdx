@@ -1,0 +1,255 @@
+---
+title: Baseline
+description: A guide on how to baseline an existing database at a specific version
+---
+
+import { Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+A common scenario is to have an existing database that you want to start managing with Emigrate. This is called baselining.
+
+## Baselining an existing database schema
+
+Let's assume you have a PostgreSQL database with the following schema:
+
+```sql
+CREATE TABLE public.users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE public.posts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES public.users(id),
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+<LinkCard
+  href="../../plugins/storage/postgres/"
+  title="PostgreSQL Storage Plugin"
+  description="See how to configure the PostgreSQL storage plugin here..."
+  />
+
+<LinkCard
+  href="../../plugins/storage/"
+  title="Storage Plugins"
+  description="Learn more about storage plugins here..."
+  />
+
+### Create a baseline migration
+
+You can baseline this database by first creating a baseline migration (here we name it "baseline"):
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate new --plugin postgres baseline
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate new --plugin postgres baseline
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate new --plugin postgres baseline
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate new --plugin postgres baseline
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate new --plugin postgres baseline
+    ```
+  </TabItem>
+</Tabs>
+
+Which will generate an empty migration file in your migration directory:
+
+```sql title="migrations/20240118123456789_baseline.sql"
+-- Migration: baseline
+
+```
+
+You can then add the SQL statements for your database schema to this migration file:
+
+```sql title="migrations/20240118123456789_baseline.sql"
+-- Migration: baseline
+CREATE TABLE public.users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE public.posts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES public.users(id),
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+### Log the baseline migration
+
+For new environments this baseline migration will automatically be run when you run <Link href="/commands/up/">`emigrate up`</Link>.
+For any existing environments you will need to run `emigrate up` with the <Link href="/commands/up/#--no-execution">`--no-execution`</Link> flag to prevent the migration from being executed and only log the migration:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate up --no-execution
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate up --no-execution
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate up --no-execution
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate up --no-execution
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate up --no-execution
+    ```
+  </TabItem>
+</Tabs>
+
+In case you have already added more migration files to your migration directory you can limit the "up" command to just log the baseline migration by specifying the <Link href="/commands/up/#-t---to-name">`--to`</Link> option:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate up --no-execution --to 20240118123456789_baseline.sql
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate up --no-execution --to 20240118123456789_baseline.sql
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate up --no-execution --to 20240118123456789_baseline.sql
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate up --no-execution --to 20240118123456789_baseline.sql
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate up --no-execution --to 20240118123456789_baseline.sql
+    ```
+  </TabItem>
+</Tabs>
+
+### Verify the baseline migration status
+
+You can verify the status of the baseline migration by running the <Link href="/commands/list/">`emigrate list`</Link> command:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate list
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate list
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate list
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate list
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate list
+    ```
+  </TabItem>
+</Tabs>
+
+Which should output something like this:
+
+```txt title="emigrate list"
+Emigrate list v0.14.1 /your/project/path
+
+  ✔ migrations/20240118123456789_baseline.sql (done)
+
+  1 done (1 total)
+```
+
+### Happy migrating!
+
+You can now start adding new migrations to your migration directory and run <Link href="/commands/up/">`emigrate up`</Link> to apply them to your database.
+Which should be part of your CD pipeline to ensure that your database schema is always up to date in each environment.

@@ -95,6 +95,12 @@ Install the plugin you want to use, for example the <Link href="/plugins/storage
 
 ### Create your first migration
 
+<LinkCard
+  href="../../guides/baseline/"
+  title="Baseline your database"
+  description="Learn how to create a baseline of your existing database."
+  />
+
 Create a new migration file in your project using:
 
 <Tabs>
@@ -133,7 +139,7 @@ Create a new migration file in your project using:
   </TabItem>
 </Tabs>
 
-```txt title="Output"
+```txt title="emigrate new"
 Emigrate new v0.10.0 /your/project/path
 
   ✔ migrations/20231215125421364_create_users_table.sql (done) 3ms
@@ -209,7 +215,7 @@ To show both pending and already applied migrations (or previously failed), use 
   </TabItem>
 </Tabs>
 
-```txt title="Example output"
+```txt title="emigrate list"
 Emigrate list v0.10.0 /your/project/path
 
   ✔ migrations/20231211090830577_another_table.sql (done)
