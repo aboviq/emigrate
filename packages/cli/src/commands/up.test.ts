@@ -23,6 +23,15 @@ type Mocked<T> = {
 };
 
 describe('up', () => {
+  it("returns 1 and finishes with an error when the storage couldn't be initialized", async () => {
+    const { reporter, run } = getUpCommand(['some_migration.js']);
+
+    const exitCode = await run();
+
+    assert.strictEqual(exitCode, 1);
+    assertPreconditionsFailed({ dry: false }, reporter, StorageInitError.fromError(new Error('No storage configured')));
+  });
+
   it('returns 0 and finishes without an error when there are no migrations to run', async () => {
     const { reporter, run } = getUpCommand([], getStorage([]));
 
@@ -50,124 +59,10 @@ describe('up', () => {
     assertPreconditionsFulfilled({ dry: false }, reporter, []);
   });
 
-  it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
-    const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
-
-    const exitCode = await run();
-
-    assert.strictEqual(exitCode, 1);
-    assertPreconditionsFulfilled(
-      { dry: false },
-      reporter,
-      [
-        { name: 'some_other.js', status: 'skipped' },
-        {
-          name: 'some_file.sql',
-          status: 'failed',
-          error: BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
-        },
-      ],
-      BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
-    );
-  });
-
-  it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
-    const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
-
-    const exitCode = await run({ dry: true });
-
-    assert.strictEqual(exitCode, 1);
-    assertPreconditionsFulfilled(
-      { dry: true },
-      reporter,
-      [
-        { name: 'some_other.js', status: 'skipped' },
-        {
-          name: 'some_file.sql',
-          status: 'failed',
-          error: BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
-        },
-      ],
-      BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
-    );
-  });
-
-  it('returns 1 and finishes with an error when there are failed migrations in the history', async () => {
-    const failedEntry = toEntry('some_failed_migration.js', 'failed');
-    const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
-
-    const exitCode = await run();
-
-    assert.strictEqual(exitCode, 1);
-    assertPreconditionsFulfilled(
-      { dry: false },
-      reporter,
-      [
-        {
-          name: 'some_failed_migration.js',
-          status: 'failed',
-          error: new MigrationHistoryError(
-            'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-            { cause: failedEntry.error },
-          ),
-        },
-        { name: 'some_file.js', status: 'skipped' },
-      ],
-      new MigrationHistoryError(
-        'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-        { cause: failedEntry.error },
-      ),
-    );
-  });
-
-  it('returns 1 and finishes with an error when there are failed migrations in the history in dry-run mode as well', async () => {
-    const failedEntry = toEntry('some_failed_migration.js', 'failed');
-    const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
-
-    const exitCode = await run({ dry: true });
-
-    assert.strictEqual(exitCode, 1);
-    assertPreconditionsFulfilled(
-      { dry: true },
-      reporter,
-      [
-        {
-          name: 'some_failed_migration.js',
-          status: 'failed',
-          error: new MigrationHistoryError(
-            'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-            { cause: failedEntry.error },
-          ),
-        },
-        { name: 'some_file.js', status: 'skipped' },
-      ],
-      new MigrationHistoryError(
-        'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-        { cause: failedEntry.error },
-      ),
-    );
-  });
-
-  it('returns 0 and finishes without an error when the failed migrations in the history are not part of the current set of migrations', async () => {
-    const failedEntry = toEntry('some_failed_migration.js', 'failed');
-    const { reporter, run } = getUpCommand([], getStorage([failedEntry]));
-
-    const exitCode = await run();
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: false }, reporter, []);
-  });
-
-  it("returns 1 and finishes with an error when the storage couldn't be initialized", async () => {
-    const { reporter, run } = getUpCommand(['some_migration.js']);
-
-    const exitCode = await run();
-
-    assert.strictEqual(exitCode, 1);
-    assertPreconditionsFailed({ dry: false }, reporter, StorageInitError.fromError(new Error('No storage configured')));
-  });
-
   it('returns 0 and finishes without an error when all pending migrations are run successfully', async () => {
+    const migration = mock.fn(async () => {
+      // Success
+    });
     const { reporter, run } = getUpCommand(
       ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
       getStorage(['some_already_run_migration.js']),
@@ -175,9 +70,7 @@ describe('up', () => {
         {
           loadableExtensions: ['.js'],
           async loadMigration() {
-            return async () => {
-              // Success
-            };
+            return migration;
           },
         },
       ],
@@ -190,161 +83,7 @@ describe('up', () => {
       { name: 'some_migration.js', status: 'done', started: true },
       { name: 'some_other_migration.js', status: 'done', started: true },
     ]);
-  });
-
-  it('returns 0 and finishes without an error when the given number of pending migrations are run successfully', async () => {
-    const { reporter, run } = getUpCommand(
-      ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
-      getStorage(['some_already_run_migration.js']),
-      [
-        {
-          loadableExtensions: ['.js'],
-          async loadMigration() {
-            return async () => {
-              // Success
-            };
-          },
-        },
-      ],
-    );
-
-    const exitCode = await run({ limit: 1 });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: false }, reporter, [
-      { name: 'some_migration.js', status: 'done', started: true },
-      { name: 'some_other_migration.js', status: 'skipped' },
-    ]);
-  });
-
-  it('returns 0 and finishes without an error with the given number of pending migrations are validated and listed successfully in dry-mode', async () => {
-    const { reporter, run } = getUpCommand(
-      ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
-      getStorage(['some_already_run_migration.js']),
-    );
-
-    const exitCode = await run({ dry: true, limit: 1 });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: true }, reporter, [
-      { name: 'some_migration.js', status: 'pending' },
-      { name: 'some_other_migration.js', status: 'skipped' },
-    ]);
-  });
-
-  it('returns 0 and finishes without an error when pending migrations after given "from" parameter are run successfully, even when the "from" is not an existing migration', async () => {
-    const { reporter, run } = getUpCommand(
-      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
-      getStorage(['1_some_already_run_migration.js']),
-      [
-        {
-          loadableExtensions: ['.js'],
-          async loadMigration() {
-            return async () => {
-              // Success
-            };
-          },
-        },
-      ],
-    );
-
-    const exitCode = await run({ from: '3_non_existing_migration.js' });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: false }, reporter, [
-      { name: '2_some_migration.js', status: 'skipped' },
-      { name: '4_some_other_migration.js', status: 'done', started: true },
-    ]);
-  });
-
-  it('returns 0 and finishes without an error when pending migrations after given "from" parameter are validated and listed successfully in dry-mode, even when the "from" is not an existing migration', async () => {
-    const { reporter, run } = getUpCommand(
-      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
-      getStorage(['1_some_already_run_migration.js']),
-    );
-
-    const exitCode = await run({ dry: true, from: '3_non_existing_migration.js' });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: true }, reporter, [
-      { name: '2_some_migration.js', status: 'skipped' },
-      { name: '4_some_other_migration.js', status: 'pending' },
-    ]);
-  });
-
-  it('returns 0 and finishes without an error when pending migrations before given "to" parameter are run successfully, even when the "to" is not an existing migration', async () => {
-    const { reporter, run } = getUpCommand(
-      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
-      getStorage(['1_some_already_run_migration.js']),
-      [
-        {
-          loadableExtensions: ['.js'],
-          async loadMigration() {
-            return async () => {
-              // Success
-            };
-          },
-        },
-      ],
-    );
-
-    const exitCode = await run({ to: '3_non_existing_migration.js' });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: false }, reporter, [
-      { name: '2_some_migration.js', status: 'done', started: true },
-      { name: '4_some_other_migration.js', status: 'skipped' },
-    ]);
-  });
-
-  it('returns 0 and finishes without an error when pending migrations after given "to" parameter are validated and listed successfully in dry-mode, even when the "to" is not an existing migration', async () => {
-    const { reporter, run } = getUpCommand(
-      ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
-      getStorage(['1_some_already_run_migration.js']),
-    );
-
-    const exitCode = await run({ dry: true, to: '3_non_existing_migration.js' });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: true }, reporter, [
-      { name: '2_some_migration.js', status: 'pending' },
-      { name: '4_some_other_migration.js', status: 'skipped' },
-    ]);
-  });
-
-  it('returns 0 and finishes without an error when the pending migrations fulfilling "from", "to" and "limit" are run successfully', async () => {
-    const { reporter, run } = getUpCommand(
-      [
-        '1_some_already_run_migration.js',
-        '2_some_migration.js',
-        '3_another_migration.js',
-        '4_some_other_migration.js',
-        '5_yet_another_migration.js',
-        '6_some_more_migration.js',
-      ],
-      getStorage(['1_some_already_run_migration.js']),
-      [
-        {
-          loadableExtensions: ['.js'],
-          async loadMigration() {
-            return async () => {
-              // Success
-            };
-          },
-        },
-      ],
-    );
-
-    const exitCode = await run({ from: '3_another_migration.js', to: '5_yet_another_migration.js', limit: 2 });
-
-    assert.strictEqual(exitCode, 0);
-    assertPreconditionsFulfilled({ dry: false }, reporter, [
-      { name: '2_some_migration.js', status: 'skipped' },
-      { name: '3_another_migration.js', status: 'done', started: true },
-      { name: '4_some_other_migration.js', status: 'done', started: true },
-      { name: '5_yet_another_migration.js', status: 'skipped' },
-      { name: '6_some_more_migration.js', status: 'skipped' },
-    ]);
+    assert.strictEqual(migration.mock.calls.length, 2);
   });
 
   it('returns 1 and finishes with an error when a pending migration throw when run', async () => {
@@ -378,6 +117,283 @@ describe('up', () => {
       ],
       new MigrationRunError('Failed to run migration: migrations/fail.js', { cause: new Error('Oh noes!') }),
     );
+  });
+
+  describe('each migration file extension needs a corresponding loader plugin', () => {
+    it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
+      const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
+
+      const exitCode = await run();
+
+      assert.strictEqual(exitCode, 1);
+      assertPreconditionsFulfilled(
+        { dry: false },
+        reporter,
+        [
+          { name: 'some_other.js', status: 'skipped' },
+          {
+            name: 'some_file.sql',
+            status: 'failed',
+            error: BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
+          },
+        ],
+        BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
+      );
+    });
+
+    it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
+      const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], getStorage([]));
+
+      const exitCode = await run({ dry: true });
+
+      assert.strictEqual(exitCode, 1);
+      assertPreconditionsFulfilled(
+        { dry: true },
+        reporter,
+        [
+          { name: 'some_other.js', status: 'skipped' },
+          {
+            name: 'some_file.sql',
+            status: 'failed',
+            error: BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
+          },
+        ],
+        BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
+      );
+    });
+  });
+
+  describe('failed migrations in the history are blocking', () => {
+    it('returns 1 and finishes with an error when there are failed migrations in the history', async () => {
+      const failedEntry = toEntry('some_failed_migration.js', 'failed');
+      const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
+
+      const exitCode = await run();
+
+      assert.strictEqual(exitCode, 1);
+      assertPreconditionsFulfilled(
+        { dry: false },
+        reporter,
+        [
+          {
+            name: 'some_failed_migration.js',
+            status: 'failed',
+            error: new MigrationHistoryError(
+              'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+              { cause: failedEntry.error },
+            ),
+          },
+          { name: 'some_file.js', status: 'skipped' },
+        ],
+        new MigrationHistoryError(
+          'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+          { cause: failedEntry.error },
+        ),
+      );
+    });
+
+    it('returns 1 and finishes with an error when there are failed migrations in the history in dry-run mode as well', async () => {
+      const failedEntry = toEntry('some_failed_migration.js', 'failed');
+      const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], getStorage([failedEntry]));
+
+      const exitCode = await run({ dry: true });
+
+      assert.strictEqual(exitCode, 1);
+      assertPreconditionsFulfilled(
+        { dry: true },
+        reporter,
+        [
+          {
+            name: 'some_failed_migration.js',
+            status: 'failed',
+            error: new MigrationHistoryError(
+              'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+              { cause: failedEntry.error },
+            ),
+          },
+          { name: 'some_file.js', status: 'skipped' },
+        ],
+        new MigrationHistoryError(
+          'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
+          { cause: failedEntry.error },
+        ),
+      );
+    });
+
+    it('returns 0 and finishes without an error when the failed migrations in the history are not part of the current set of migrations', async () => {
+      const failedEntry = toEntry('some_failed_migration.js', 'failed');
+      const { reporter, run } = getUpCommand([], getStorage([failedEntry]));
+
+      const exitCode = await run();
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: false }, reporter, []);
+    });
+  });
+
+  it('returns 0 and finishes without an error when the given number of pending migrations are run successfully', async () => {
+    const migration = mock.fn(async () => {
+      // Success
+    });
+    const { reporter, run } = getUpCommand(
+      ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
+      getStorage(['some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return migration;
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run({ limit: 1 });
+
+    assert.strictEqual(exitCode, 0);
+    assertPreconditionsFulfilled({ dry: false }, reporter, [
+      { name: 'some_migration.js', status: 'done', started: true },
+      { name: 'some_other_migration.js', status: 'skipped' },
+    ]);
+    assert.strictEqual(migration.mock.calls.length, 1);
+  });
+
+  describe('limiting which pending migrations to run', () => {
+    it('returns 0 and finishes without an error with the given number of pending migrations are validated and listed successfully in dry-mode', async () => {
+      const { reporter, run } = getUpCommand(
+        ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
+        getStorage(['some_already_run_migration.js']),
+      );
+
+      const exitCode = await run({ dry: true, limit: 1 });
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: true }, reporter, [
+        { name: 'some_migration.js', status: 'pending' },
+        { name: 'some_other_migration.js', status: 'skipped' },
+      ]);
+    });
+
+    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are run successfully, even when the "from" is not an existing migration', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ from: '3_non_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'skipped' },
+        { name: '4_some_other_migration.js', status: 'done', started: true },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 1);
+    });
+
+    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are validated and listed successfully in dry-mode, even when the "from" is not an existing migration', async () => {
+      const { reporter, run } = getUpCommand(
+        ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+        getStorage(['1_some_already_run_migration.js']),
+      );
+
+      const exitCode = await run({ dry: true, from: '3_non_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: true }, reporter, [
+        { name: '2_some_migration.js', status: 'skipped' },
+        { name: '4_some_other_migration.js', status: 'pending' },
+      ]);
+    });
+
+    it('returns 0 and finishes without an error when pending migrations before given "to" parameter are run successfully, even when the "to" is not an existing migration', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ to: '3_non_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'done', started: true },
+        { name: '4_some_other_migration.js', status: 'skipped' },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 1);
+    });
+
+    it('returns 0 and finishes without an error when pending migrations after given "to" parameter are validated and listed successfully in dry-mode, even when the "to" is not an existing migration', async () => {
+      const { reporter, run } = getUpCommand(
+        ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+        getStorage(['1_some_already_run_migration.js']),
+      );
+
+      const exitCode = await run({ dry: true, to: '3_non_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: true }, reporter, [
+        { name: '2_some_migration.js', status: 'pending' },
+        { name: '4_some_other_migration.js', status: 'skipped' },
+      ]);
+    });
+
+    it('returns 0 and finishes without an error when the pending migrations fulfilling "from", "to" and "limit" are run successfully', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        [
+          '1_some_already_run_migration.js',
+          '2_some_migration.js',
+          '3_another_migration.js',
+          '4_some_other_migration.js',
+          '5_yet_another_migration.js',
+          '6_some_more_migration.js',
+        ],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ from: '3_another_migration.js', to: '5_yet_another_migration.js', limit: 2 });
+
+      assert.strictEqual(exitCode, 0);
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'skipped' },
+        { name: '3_another_migration.js', status: 'done', started: true },
+        { name: '4_some_other_migration.js', status: 'done', started: true },
+        { name: '5_yet_another_migration.js', status: 'skipped' },
+        { name: '6_some_more_migration.js', status: 'skipped' },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 2);
+    });
   });
 });
 
