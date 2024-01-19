@@ -72,6 +72,9 @@ const up: Action = async (args) => {
       color: {
         type: 'boolean',
       },
+      'no-execution': {
+        type: 'boolean',
+      },
       'no-color': {
         type: 'boolean',
       },
@@ -100,6 +103,8 @@ Options:
   --dry                   List the pending migrations that would be run without actually running them
   --color                 Force color output (this option is passed to the reporter)
   --no-color              Disable color output (this option is passed to the reporter)
+  --no-execution          Mark the migrations as executed and successful without actually running them,
+                          which is useful if you want to mark migrations as successful after running them manually
 
 Examples:
 
@@ -109,6 +114,7 @@ Examples:
   emigrate up -d ./migrations -s mysql --import dotenv/config
   emigrate up --limit 1
   emigrate up --to 20231122120529381_some_migration_file.js
+  emigrate up --to 20231122120529381_some_migration_file.js --no-execution
 `;
 
   if (values.help) {
@@ -127,6 +133,7 @@ Examples:
     to,
     limit: limitString,
     import: imports = [],
+    'no-execution': noExecution,
   } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
 
@@ -153,6 +160,7 @@ Examples:
       limit,
       from,
       to,
+      noExecution,
       color: useColors(values),
     });
   } catch (error) {
