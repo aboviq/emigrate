@@ -1,9 +1,6 @@
 {
   "name": "@emigrate/docs",
   "private": true,
-  "publishConfig": {
-    "access": "public"
-  },
   "type": "module",
   "version": "0.0.1",
   "scripts": {
