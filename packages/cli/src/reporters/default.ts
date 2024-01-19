@@ -1,4 +1,4 @@
-import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow } from 'ansis';
+import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow, yellowBright } from 'ansis';
 import logUpdate from 'log-update';
 import elegantSpinner from 'elegant-spinner';
 import figures from 'figures';
@@ -232,26 +232,43 @@ const getHeaderMessage = (
   }
 
   if (migrations.length === 0) {
-    return '  No pending migrations found';
+    return '  No migrations found';
   }
+
+  const statusText = command === 'list' ? 'migrations are pending' : 'pending migrations to run';
 
   if (migrations.length === lockedMigrations.length) {
-    return `  ${bold(migrations.length.toString())} ${dim('pending migrations to run')}`;
+    return `  ${bold(migrations.length.toString())} ${dim(statusText)}`;
   }
 
-  const nonLockedMigrations = migrations.filter(
-    (migration) => !lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name),
-  );
-  const failedMigrations = nonLockedMigrations.filter(
-    (migration) => 'status' in migration && migration.status === 'failed',
-  );
-  const unlockableCount = command === 'up' ? nonLockedMigrations.length - failedMigrations.length : 0;
+  let skippedCount = 0;
+  let failedCount = 0;
+  let unlockableCount = 0;
+
+  for (const migration of migrations) {
+    const isLocked = lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name);
+
+    if (isLocked) {
+      continue;
+    }
+
+    if ('status' in migration) {
+      if (migration.status === 'failed') {
+        failedCount += 1;
+      } else if (migration.status === 'skipped') {
+        skippedCount += 1;
+      } else {
+        unlockableCount += 1;
+      }
+    }
+  }
 
   const parts = [
     bold(`${lockedMigrations.length} of ${migrations.length}`),
-    dim`pending migrations to run`,
+    dim(statusText),
     unlockableCount > 0 ? yellow(`(${unlockableCount} locked)`) : '',
-    failedMigrations.length > 0 ? redBright(`(${failedMigrations.length} failed)`) : '',
+    skippedCount > 0 ? yellowBright(`(${skippedCount} skipped)`) : '',
+    failedCount > 0 ? redBright(`(${failedCount} failed)`) : '',
   ].filter(Boolean);
 
   return `  ${parts.join(' ')}`;
