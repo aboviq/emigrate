@@ -1,5 +1,18 @@
 # @emigrate/cli
 
+## 0.15.0
+
+### Minor Changes
+
+- f515c8a: Add support for the --no-execution option to the "up" command to be able to log migrations as successful without actually running them. Can for instance be used for baselining a database or logging manually run migrations as successful.
+- 9ef0fa2: Add --from and --to CLI options to control which migrations to include or skip when executing migrations.
+- 02c142e: Add --limit option to the "up" command, for limiting the number of migrations to run
+
+### Patch Changes
+
+- bf4d596: Clarify which cli options that needs parameters
+- 98adcda: Use better wording in the header in the console output from the default reporter
+
 ## 0.14.1
 
 ### Patch Changes
