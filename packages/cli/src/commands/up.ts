@@ -17,6 +17,7 @@ type ExtraFlags = {
   limit?: number;
   from?: string;
   to?: string;
+  noExecution?: boolean;
   getMigrations?: GetMigrationsFunction;
 };
 
@@ -31,6 +32,7 @@ export default async function upCommand({
   limit,
   from,
   to,
+  noExecution,
   dry = false,
   plugins = [],
   cwd,
@@ -96,6 +98,10 @@ export default async function upCommand({
       storage,
       migrations: await arrayFromAsync(collectedMigrations),
       async validate(migration) {
+        if (noExecution) {
+          return;
+        }
+
         const loader = getLoaderByExtension(migration.extension);
 
         if (!loader) {
@@ -106,6 +112,10 @@ export default async function upCommand({
         }
       },
       async execute(migration) {
+        if (noExecution) {
+          return;
+        }
+
         const loader = getLoaderByExtension(migration.extension)!;
         const [migrationFunction, loadError] = await exec(async () => loader.loadMigration(migration));
 
