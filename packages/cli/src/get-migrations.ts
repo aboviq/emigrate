@@ -1,17 +1,14 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { type Dirent } from 'node:fs';
 import { type MigrationMetadata } from '@emigrate/types';
 import { withLeadingPeriod } from './with-leading-period.js';
 import { BadOptionError } from './errors.js';
 
 export type GetMigrationsFunction = typeof getMigrations;
 
-const tryReadDirectory = async (directoryPath: string): Promise<Dirent[]> => {
+const tryReadDirectory = async (directoryPath: string): Promise<string[]> => {
   try {
-    return await fs.readdir(directoryPath, {
-      withFileTypes: true,
-    });
+    return await fs.readdir(directoryPath);
   } catch {
     throw BadOptionError.fromOption('directory', `Couldn't read directory: ${directoryPath}`);
   }
@@ -23,12 +20,9 @@ export const getMigrations = async (cwd: string, directory: string): Promise<Mig
   const allFilesInMigrationDirectory = await tryReadDirectory(directoryPath);
 
   const migrationFiles: MigrationMetadata[] = allFilesInMigrationDirectory
-    .filter(
-      (file) =>
-        file.isFile() && !file.name.startsWith('.') && !file.name.startsWith('_') && path.extname(file.name) !== '',
-    )
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map(({ name }) => {
+    .filter((name) => !name.startsWith('.') && !name.startsWith('_') && path.extname(name) !== '')
+    .sort()
+    .map((name) => {
       const filePath = path.join(directoryPath, name);
 
       return {
