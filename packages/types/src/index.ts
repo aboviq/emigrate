@@ -244,6 +244,14 @@ export type EmigrateReporter = Partial<{
    */
   onInit(parameters: ReporterInitParameters): Awaitable<void>;
   /**
+   * Called when the current command (in practice the "up" command) is aborted.
+   *
+   * This is called when the process is interrupted, e.g. by a SIGTERM or SIGINT signal, or an unhandled error occurs.
+   *
+   * @param reason The reason why the command was aborted.
+   */
+  onAbort(reason: Error): Awaitable<void>;
+  /**
    * Called when all pending migrations that should be executed have been collected.
    *
    * @param migrations The pending migrations that will be executed.
