@@ -1,5 +1,16 @@
 # @emigrate/reporter-pino
 
+## 0.5.0
+
+### Minor Changes
+
+- a4da353: Handle the new onAbort method
+
+### Patch Changes
+
+- Updated dependencies [ce15648]
+  - @emigrate/types@0.11.0
+
 ## 0.4.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @emigrate/types
 
+## 0.11.0
+
+### Minor Changes
+
+- ce15648: Add type for onAbort Reporter method
+
 ## 0.10.0
 
 ### Minor Changes

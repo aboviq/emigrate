@@ -1,5 +1,13 @@
 # @emigrate/mysql
 
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [ce15648]
+  - @emigrate/types@0.11.0
+  - @emigrate/plugin-tools@0.9.4
+
 ## 0.2.3
 
 ### Patch Changes
