@@ -1,5 +1,11 @@
 # @emigrate/cli
 
+## 0.16.1
+
+### Patch Changes
+
+- 121492b: Sort migration files lexicographically correctly by using the default Array.sort implementation
+
 ## 0.16.0
 
 ### Minor Changes
