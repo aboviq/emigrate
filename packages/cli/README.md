@@ -44,6 +44,7 @@ Options:
   --no-color              Disable color output (this option is passed to the reporter)
   --no-execution          Mark the migrations as executed and successful without actually running them,
                           which is useful if you want to mark migrations as successful after running them manually
+  --abort-respite <sec>   The number of seconds to wait before abandoning running migrations after the command has been aborted (default: 10)
 
 Examples:
 

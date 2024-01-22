@@ -157,3 +157,16 @@ export default {
 ```
 
 Will create new migration files with the `.ts` extension.
+
+### `abortRespite`
+
+**type:** `number`  
+**default:** `10`
+
+Customize the number of seconds to wait before abandoning a running migration when the process is about to shutdown, for instance when the user presses `Ctrl+C` or when the container is being stopped (if running inside a container).
+
+```js title="emigrate.config.js" {2}
+export default {
+  abortRespite: 10,
+};
+```

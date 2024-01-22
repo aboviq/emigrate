@@ -19,6 +19,8 @@ type ExtraFlags = {
   to?: string;
   noExecution?: boolean;
   getMigrations?: GetMigrationsFunction;
+  abortSignal?: AbortSignal;
+  abortRespite?: number;
 };
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
@@ -33,6 +35,8 @@ export default async function upCommand({
   from,
   to,
   noExecution,
+  abortSignal,
+  abortRespite,
   dry = false,
   plugins = [],
   cwd,
@@ -94,6 +98,8 @@ export default async function upCommand({
       limit,
       from,
       to,
+      abortSignal,
+      abortRespite,
       reporter,
       storage,
       migrations: await arrayFromAsync(collectedMigrations),

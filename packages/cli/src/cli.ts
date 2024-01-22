@@ -2,10 +2,11 @@
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 import importFromEsm from 'import-from-esm';
-import { ShowUsageError } from './errors.js';
+import { CommandAbortError, ShowUsageError } from './errors.js';
 import { getConfig } from './get-config.js';
+import { DEFAULT_RESPITE_SECONDS } from './defaults.js';
 
-type Action = (args: string[]) => Promise<void>;
+type Action = (args: string[], abortSignal: AbortSignal) => Promise<void>;
 
 const useColors = (values: { color?: boolean; 'no-color'?: boolean }) => {
   if (values['no-color']) {
@@ -21,7 +22,7 @@ const importAll = async (cwd: string, modules: string[]) => {
   }
 };
 
-const up: Action = async (args) => {
+const up: Action = async (args, abortSignal) => {
   const config = await getConfig('up');
   const { values } = parseArgs({
     args,
@@ -78,6 +79,9 @@ const up: Action = async (args) => {
       'no-color': {
         type: 'boolean',
       },
+      'abort-respite': {
+        type: 'string',
+      },
     },
     allowPositionals: false,
   });
@@ -105,6 +109,7 @@ Options:
   --no-color              Disable color output (this option is passed to the reporter)
   --no-execution          Mark the migrations as executed and successful without actually running them,
                           which is useful if you want to mark migrations as successful after running them manually
+  --abort-respite <sec>   The number of seconds to wait before abandoning running migrations after the command has been aborted (default: ${DEFAULT_RESPITE_SECONDS})
 
 Examples:
 
@@ -133,14 +138,26 @@ Examples:
     to,
     limit: limitString,
     import: imports = [],
+    'abort-respite': abortRespiteString,
     'no-execution': noExecution,
   } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
 
   const limit = limitString === undefined ? undefined : Number.parseInt(limitString, 10);
+  const abortRespite = abortRespiteString === undefined ? config.abortRespite : Number.parseInt(abortRespiteString, 10);
 
   if (Number.isNaN(limit)) {
     console.error('Invalid limit value, expected an integer but was:', limitString);
+    console.log(usage);
+    process.exitCode = 1;
+    return;
+  }
+
+  if (Number.isNaN(abortRespite)) {
+    console.error(
+      'Invalid abortRespite value, expected an integer but was:',
+      abortRespiteString ?? config.abortRespite,
+    );
     console.log(usage);
     process.exitCode = 1;
     return;
@@ -161,6 +178,8 @@ Examples:
       from,
       to,
       noExecution,
+      abortSignal,
+      abortRespite: (abortRespite ?? DEFAULT_RESPITE_SECONDS) * 1000,
       color: useColors(values),
     });
   } catch (error) {
@@ -479,7 +498,7 @@ const commands: Record<string, Action> = {
   new: newMigration,
 };
 
-const main: Action = async (args) => {
+const main: Action = async (args, abortSignal) => {
   const { values, positionals } = parseArgs({
     args,
     options: {
@@ -531,20 +550,43 @@ Commands:
     return;
   }
 
-  await action(process.argv.slice(3));
+  try {
+    await action(process.argv.slice(3), abortSignal);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      if (error.cause instanceof Error) {
+        console.error(error.cause);
+      }
+    } else {
+      console.error(error);
+    }
+
+    process.exitCode = 1;
+  }
 };
 
-try {
-  await main(process.argv.slice(2));
-} catch (error) {
-  if (error instanceof Error) {
-    console.error(error);
-    if (error.cause instanceof Error) {
-      console.error(error.cause);
-    }
-  } else {
-    console.error(error);
-  }
+const controller = new AbortController();
 
-  process.exitCode = 1;
-}
+process.on('SIGINT', () => {
+  controller.abort(CommandAbortError.fromSignal('SIGINT'));
+});
+
+process.on('SIGTERM', () => {
+  controller.abort(CommandAbortError.fromSignal('SIGTERM'));
+});
+
+process.on('uncaughtException', (error) => {
+  controller.abort(CommandAbortError.fromReason('Uncaught exception', error));
+});
+
+process.on('unhandledRejection', (error) => {
+  controller.abort(CommandAbortError.fromReason('Unhandled rejection', error));
+});
+
+await main(process.argv.slice(2), controller.signal);
+
+setTimeout(() => {
+  console.error('Process did not exit within 10 seconds, forcing exit');
+  process.exit(1);
+}, 10_000).unref();

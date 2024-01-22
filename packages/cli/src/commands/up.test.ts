@@ -12,9 +12,16 @@ import {
   type NonFailedMigrationHistoryEntry,
   type MigrationMetadataFinished,
 } from '@emigrate/types';
-import { deserializeError } from 'serialize-error';
+import { deserializeError, serializeError } from 'serialize-error';
 import { version } from '../get-package-info.js';
-import { BadOptionError, MigrationHistoryError, MigrationRunError, StorageInitError } from '../errors.js';
+import {
+  BadOptionError,
+  CommandAbortError,
+  ExecutionDesertedError,
+  MigrationHistoryError,
+  MigrationRunError,
+  StorageInitError,
+} from '../errors.js';
 import upCommand from './up.js';
 
 type Mocked<T> = {
@@ -481,6 +488,123 @@ describe('up', () => {
     ]);
     assert.strictEqual(migration.mock.calls.length, 0);
   });
+
+  describe("aborting the migration process before it's finished", () => {
+    it('returns 1 and finishes with a command abort error when the migration process is aborted prematurely', async () => {
+      const controller = new AbortController();
+      const migration = mock.fn(
+        async () => {
+          // Success on second call, and abort
+          controller.abort(CommandAbortError.fromSignal('SIGINT'));
+        },
+        async () => {
+          // Success on first call
+        },
+        { times: 1 },
+      );
+      const { reporter, run } = getUpCommand(
+        [
+          '1_some_already_run_migration.js',
+          '2_some_migration.js',
+          '3_another_migration.js',
+          '4_some_other_migration.js',
+          '5_yet_another_migration.js',
+          '6_some_more_migration.js',
+        ],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({
+        abortSignal: controller.signal,
+      });
+
+      assert.strictEqual(exitCode, 1, 'Exit code');
+      assertPreconditionsFulfilled(
+        { dry: false },
+        reporter,
+        [
+          { name: '2_some_migration.js', status: 'done', started: true },
+          { name: '3_another_migration.js', status: 'done', started: true },
+          { name: '4_some_other_migration.js', status: 'skipped' },
+          { name: '5_yet_another_migration.js', status: 'skipped' },
+          { name: '6_some_more_migration.js', status: 'skipped' },
+        ],
+        CommandAbortError.fromSignal('SIGINT'),
+      );
+      assert.strictEqual(reporter.onAbort.mock.calls.length, 1);
+      assert.strictEqual(migration.mock.calls.length, 2);
+    });
+  });
+
+  it('returns 1 and finishes with a deserted error with a command abort error as cause when the migration process is aborted prematurely and stops waiting on migrations taking longer than the respite period after the abort', async () => {
+    const controller = new AbortController();
+    const migration = mock.fn(
+      async () => {
+        // Success on second call, and abort
+        controller.abort(CommandAbortError.fromSignal('SIGINT'));
+        return new Promise((resolve) => {
+          setTimeout(resolve, 100); // Take longer than the respite period
+        });
+      },
+      async () => {
+        // Success on first call
+      },
+      { times: 1 },
+    );
+    const { reporter, run } = getUpCommand(
+      [
+        '1_some_already_run_migration.js',
+        '2_some_migration.js',
+        '3_another_migration.js',
+        '4_some_other_migration.js',
+        '5_yet_another_migration.js',
+        '6_some_more_migration.js',
+      ],
+      getStorage(['1_some_already_run_migration.js']),
+      [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return migration;
+          },
+        },
+      ],
+    );
+
+    const exitCode = await run({
+      abortSignal: controller.signal,
+      abortRespite: 10,
+    });
+
+    assert.strictEqual(exitCode, 1, 'Exit code');
+    assertPreconditionsFulfilled(
+      { dry: false },
+      reporter,
+      [
+        { name: '2_some_migration.js', status: 'done', started: true },
+        {
+          name: '3_another_migration.js',
+          status: 'failed',
+          started: true,
+          error: ExecutionDesertedError.fromReason('Deserted after 10ms', CommandAbortError.fromSignal('SIGINT')),
+        },
+        { name: '4_some_other_migration.js', status: 'skipped' },
+        { name: '5_yet_another_migration.js', status: 'skipped' },
+        { name: '6_some_more_migration.js', status: 'skipped' },
+      ],
+      ExecutionDesertedError.fromReason('Deserted after 10ms', CommandAbortError.fromSignal('SIGINT')),
+    );
+    assert.strictEqual(reporter.onAbort.mock.calls.length, 1);
+    assert.strictEqual(migration.mock.calls.length, 2);
+  });
 });
 
 function getErrorCause(error: Error | undefined): Error | SerializedError | undefined {
@@ -570,6 +694,7 @@ function getUpCommand(migrationFiles: string[], storage?: Mocked<Storage>, plugi
   const reporter: Mocked<Required<EmigrateReporter>> = {
     onFinished: mock.fn(noop),
     onInit: mock.fn(noop),
+    onAbort: mock.fn(noop),
     onCollectedMigrations: mock.fn(noop),
     onLockedMigrations: mock.fn(noop),
     onNewMigration: mock.fn(noop),
@@ -689,7 +814,17 @@ function assertPreconditionsFulfilled(
   assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, pending + skipped, 'Total pending and skipped');
   assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
   const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-  assert.deepStrictEqual(error, finishedError, 'Finished error');
+  if (finishedError instanceof DOMException || error instanceof DOMException) {
+    // The assert library doesn't support DOMException apparently, so ugly workaround here:
+    assert.deepStrictEqual(
+      deserializeError(serializeError(error)),
+      deserializeError(serializeError(finishedError)),
+      'Finished error',
+    );
+  } else {
+    assert.deepStrictEqual(error, finishedError, 'Finished error');
+  }
+
   const cause = getErrorCause(error);
   const expectedCause = finishedError?.cause;
   assert.deepStrictEqual(

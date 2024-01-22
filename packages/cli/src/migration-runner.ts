@@ -18,6 +18,8 @@ type MigrationRunnerParameters = {
   limit?: number;
   from?: string;
   to?: string;
+  abortSignal?: AbortSignal;
+  abortRespite?: number;
   reporter: EmigrateReporter;
   storage: Storage;
   migrations: Array<MigrationMetadata | MigrationMetadataFinished>;
@@ -30,6 +32,8 @@ export const migrationRunner = async ({
   limit,
   from,
   to,
+  abortSignal,
+  abortRespite,
   reporter,
   storage,
   migrations,
@@ -42,6 +46,22 @@ export const migrationRunner = async ({
   const migrationsToLock: MigrationMetadata[] = [];
 
   let skip = false;
+
+  abortSignal?.addEventListener(
+    'abort',
+    () => {
+      skip = true;
+      reporter.onAbort?.(toError(abortSignal.reason))?.then(
+        () => {
+          /* noop */
+        },
+        () => {
+          /* noop */
+        },
+      );
+    },
+    { once: true },
+  );
 
   for await (const migration of migrations) {
     if (isFinishedMigration(migration)) {
@@ -89,7 +109,7 @@ export const migrationRunner = async ({
 
   const [lockedMigrations, lockError] = dry
     ? [migrationsToLock]
-    : await exec(async () => storage.lock(migrationsToLock));
+    : await exec(async () => storage.lock(migrationsToLock), { abortSignal, abortRespite });
 
   if (lockError) {
     for (const migration of migrationsToLock) {
@@ -167,7 +187,7 @@ export const migrationRunner = async ({
 
     const start = hrtime();
 
-    const [, migrationError] = await exec(async () => execute(migration));
+    const [, migrationError] = await exec(async () => execute(migration), { abortSignal, abortRespite });
 
     const duration = getDuration(start);
 
@@ -194,7 +214,9 @@ export const migrationRunner = async ({
     }
   }
 
-  const [, unlockError] = dry ? [] : await exec(async () => storage.unlock(lockedMigrations ?? []));
+  const [, unlockError] = dry
+    ? []
+    : await exec(async () => storage.unlock(lockedMigrations ?? []), { abortSignal, abortRespite });
 
   // eslint-disable-next-line unicorn/no-array-callback-reference
   const firstFailed = finishedMigrations.find(isFailedMigration);
@@ -204,7 +226,8 @@ export const migrationRunner = async ({
       : firstFailed
         ? MigrationRunError.fromMetadata(firstFailed)
         : undefined;
-  const error = unlockError ?? firstError ?? lockError;
+  const error =
+    unlockError ?? firstError ?? lockError ?? (abortSignal?.aborted ? toError(abortSignal.reason) : undefined);
 
   await reporter.onFinished?.(finishedMigrations, error);
 
