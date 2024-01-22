@@ -165,6 +165,20 @@ const getError = (error?: ErrorLike, indent = '  ') => {
   return parts.join('\n');
 };
 
+const getAbortMessage = (reason?: Error) => {
+  if (!reason) {
+    return '';
+  }
+
+  const parts = [`  ${red.bold(reason.message)}`];
+
+  if (isErrorLike(reason.cause)) {
+    parts.push(getError(reason.cause, '    '));
+  }
+
+  return parts.join('\n');
+};
+
 const getSummary = (
   command: ReporterInitParameters['command'],
   migrations: Array<MigrationMetadata | MigrationMetadataFinished> = [],
@@ -281,11 +295,16 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
   #error: Error | undefined;
   #parameters!: ReporterInitParameters;
   #interval: NodeJS.Timeout | undefined;
+  #abortReason: Error | undefined;
 
   onInit(parameters: ReporterInitParameters): void | PromiseLike<void> {
     this.#parameters = parameters;
 
     this.#start();
+  }
+
+  onAbort(reason: Error): void | PromiseLike<void> {
+    this.#abortReason = reason;
   }
 
   onCollectedMigrations(migrations: MigrationMetadata[]): void | PromiseLike<void> {
@@ -358,6 +377,7 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
       getTitle(this.#parameters),
       getHeaderMessage(this.#parameters.command, this.#migrations, this.#lockedMigrations),
       this.#migrations?.map((migration) => getMigrationText(migration, this.#activeMigration)).join('\n') ?? '',
+      getAbortMessage(this.#abortReason),
       getSummary(this.#parameters.command, this.#migrations),
       getError(this.#error),
     ];
@@ -400,6 +420,12 @@ class DefaultReporter implements Required<EmigrateReporter> {
     this.#parameters = parameters;
     console.log('');
     console.log(getTitle(parameters));
+    console.log('');
+  }
+
+  onAbort(reason: Error): void | PromiseLike<void> {
+    console.log('');
+    console.error(getAbortMessage(reason));
     console.log('');
   }
 

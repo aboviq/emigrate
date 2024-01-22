@@ -146,6 +146,30 @@ export class StorageInitError extends EmigrateError {
   }
 }
 
+export class CommandAbortError extends EmigrateError {
+  static fromSignal(signal: NodeJS.Signals) {
+    return new CommandAbortError(`Command aborted due to signal: ${signal}`);
+  }
+
+  static fromReason(reason: string, cause?: unknown) {
+    return new CommandAbortError(`Command aborted: ${reason}`, { cause });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_COMMAND_ABORT');
+  }
+}
+
+export class ExecutionDesertedError extends EmigrateError {
+  static fromReason(reason: string, cause?: Error) {
+    return new ExecutionDesertedError(`Execution deserted: ${reason}`, { cause });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_EXECUTION_DESERTED');
+  }
+}
+
 errorConstructors.set('EmigrateError', EmigrateError as ErrorConstructor);
 errorConstructors.set('ShowUsageError', ShowUsageError as ErrorConstructor);
 errorConstructors.set('MissingOptionError', MissingOptionError as unknown as ErrorConstructor);
@@ -158,3 +182,5 @@ errorConstructors.set('MigrationLoadError', MigrationLoadError as unknown as Err
 errorConstructors.set('MigrationRunError', MigrationRunError as unknown as ErrorConstructor);
 errorConstructors.set('MigrationNotRunError', MigrationNotRunError as unknown as ErrorConstructor);
 errorConstructors.set('StorageInitError', StorageInitError as unknown as ErrorConstructor);
+errorConstructors.set('CommandAbortError', CommandAbortError as unknown as ErrorConstructor);
+errorConstructors.set('ExecutionDesertedError', ExecutionDesertedError as unknown as ErrorConstructor);

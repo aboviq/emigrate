@@ -57,6 +57,10 @@ class PinoReporter implements Required<EmigrateReporter> {
     this.#logger.info({ parameters }, `Emigrate "${command}" initialized${parameters.dry ? ' (dry-run)' : ''}`);
   }
 
+  onAbort(reason: Error): Awaitable<void> {
+    this.#logger.error({ reason }, `Emigrate "${this.#command}" shutting down`);
+  }
+
   onCollectedMigrations(migrations: MigrationMetadata[]): Awaitable<void> {
     this.#migrations = migrations;
   }

@@ -12,6 +12,7 @@ export type Config = {
   template?: string;
   extension?: string;
   color?: boolean;
+  abortRespite?: number;
 };
 
 export type EmigrateConfig = Config & {

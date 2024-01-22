@@ -66,6 +66,8 @@ List the pending migrations that would be run without actually running them
 
 ### `-l, --limit <count>`
 
+**type:** `number`
+
 Limit the number of migrations to run. Can be combined with `--dry` which will show "pending" for the migrations that would be run if not in dry-run mode,
 and "skipped" for the migrations that also haven't been run but won't because of the set limit.
 
@@ -155,3 +157,10 @@ which is useful if you want to mark migrations as successful after running them 
 :::tip
 See the <Link href="/guides/baseline/">Baseline guide</Link> for example usage of the `--no-execution` option
 :::
+
+### `--abort-respite`
+
+**type:** `number`  
+**default:** `10`
+
+Customize the number of seconds to wait before abandoning a running migration when the process is about to shutdown, for instance when the user presses `Ctrl+C` or when the container is being stopped (if running inside a container).
