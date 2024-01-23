@@ -1,4 +1,3 @@
-import { extname } from 'node:path';
 import { type MigrationHistoryEntry, type MigrationMetadata, type MigrationMetadataFinished } from '@emigrate/types';
 import { toMigrationMetadata } from './to-migration-metadata.js';
 import { getMigrations as getMigrationsOriginal } from './get-migrations.js';
@@ -12,18 +11,18 @@ export async function* collectMigrations(
   const allMigrations = await getMigrations(cwd, directory);
   const seen = new Set<string>();
 
-  for await (const entry_ of history) {
-    const entry = extname(entry_.name) === '' ? { ...entry_, name: `${entry_.name}.js` } : entry_;
+  for await (const entry of history) {
+    const migration = allMigrations.find((migrationFile) => {
+      return migrationFile.name === entry.name || migrationFile.name === `${entry.name}.js`;
+    });
 
-    const index = allMigrations.findIndex((migrationFile) => migrationFile.name === entry.name);
-
-    if (index === -1) {
+    if (!migration) {
       continue;
     }
 
-    yield toMigrationMetadata(entry, { cwd, directory });
+    yield toMigrationMetadata({ ...entry, name: migration.name }, { cwd, directory });
 
-    seen.add(entry.name);
+    seen.add(migration.name);
   }
 
   yield* allMigrations.filter((migration) => !seen.has(migration.name));

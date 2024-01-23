@@ -1,15 +1,11 @@
 import { describe, it, mock, type Mock } from 'node:test';
 import assert from 'node:assert';
-import path from 'node:path';
 import {
   type EmigrateReporter,
   type MigrationHistoryEntry,
-  type MigrationMetadata,
   type Storage,
   type Plugin,
   type SerializedError,
-  type FailedMigrationHistoryEntry,
-  type NonFailedMigrationHistoryEntry,
   type MigrationMetadataFinished,
 } from '@emigrate/types';
 import { deserializeError, serializeError } from 'serialize-error';
@@ -22,6 +18,7 @@ import {
   MigrationRunError,
   StorageInitError,
 } from '../errors.js';
+import { toEntries, toEntry, toMigrations } from '../test-utils.js';
 import upCommand from './up.js';
 
 type Mocked<T> = {
@@ -617,55 +614,6 @@ function getErrorCause(error: Error | undefined): Error | SerializedError | unde
   }
 
   return undefined;
-}
-
-function toMigration(cwd: string, directory: string, name: string): MigrationMetadata {
-  return {
-    name,
-    filePath: `${cwd}/${directory}/${name}`,
-    relativeFilePath: `${directory}/${name}`,
-    extension: path.extname(name),
-    directory,
-    cwd,
-  };
-}
-
-function toMigrations(cwd: string, directory: string, names: string[]): MigrationMetadata[] {
-  return names.map((name) => toMigration(cwd, directory, name));
-}
-
-function toEntry(name: MigrationHistoryEntry): MigrationHistoryEntry;
-function toEntry<S extends MigrationHistoryEntry['status']>(
-  name: string,
-  status?: S,
-): S extends 'failed' ? FailedMigrationHistoryEntry : NonFailedMigrationHistoryEntry;
-
-function toEntry(name: string | MigrationHistoryEntry, status?: 'done' | 'failed'): MigrationHistoryEntry {
-  if (typeof name !== 'string') {
-    return name.status === 'failed' ? name : name;
-  }
-
-  if (status === 'failed') {
-    return {
-      name,
-      status,
-      date: new Date(),
-      error: { name: 'Error', message: 'Failed' },
-    };
-  }
-
-  return {
-    name,
-    status: status ?? 'done',
-    date: new Date(),
-  };
-}
-
-function toEntries(
-  names: Array<string | MigrationHistoryEntry>,
-  status?: MigrationHistoryEntry['status'],
-): MigrationHistoryEntry[] {
-  return names.map((name) => (typeof name === 'string' ? toEntry(name, status) : name));
 }
 
 async function noop() {
