@@ -49,22 +49,35 @@ Run all pending migrations
 Options:
 
   -h, --help              Show this help message and exit
+
   -d, --directory <path>  The directory where the migration files are located (required)
+
   -i, --import <module>   Additional modules/packages to import before running the migrations (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables or when using TypeScript
+
   -s, --storage <name>    The storage to use for where to store the migration history (required)
+
   -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
+
   -r, --reporter <name>   The reporter to use for reporting the migration progress
+
   -l, --limit <count>     Limit the number of migrations to run
-  -f, --from <name>       Start running migrations from the given migration name, the given name doesn't need to exist
-                          and is compared in lexicographical order
-  -t, --to <name>         Skip migrations after the given migration name, the given name doesn't need to exist
-                          and is compared in lexicographical order
+
+  -f, --from <name/path>  Start running migrations from the given migration name or relative file path to a migration file,
+                          the given name or path needs to exist. The same migration and those after it lexicographically will be run
+
+  -t, --to <name/path>    Skip migrations after the given migration name or relative file path to a migration file,
+                          the given name or path needs to exist. The same migration and those before it lexicographically will be run
+
   --dry                   List the pending migrations that would be run without actually running them
+
   --color                 Force color output (this option is passed to the reporter)
+
   --no-color              Disable color output (this option is passed to the reporter)
+
   --no-execution          Mark the migrations as executed and successful without actually running them,
                           which is useful if you want to mark migrations as successful after running them manually
+
   --abort-respite <sec>   The number of seconds to wait before abandoning running migrations after the command has been aborted (default: 10)
 
 Examples:

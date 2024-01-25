@@ -3,7 +3,6 @@ import { BadOptionError, MissingOptionError, StorageInitError, toError } from '.
 import { type Config } from '../types.js';
 import { exec } from '../exec.js';
 import { migrationRunner } from '../migration-runner.js';
-import { arrayFromAsync } from '../array-from-async.js';
 import { collectMigrations } from '../collect-migrations.js';
 import { version } from '../get-package-info.js';
 
@@ -56,7 +55,7 @@ export default async function listCommand({
       dry: true,
       reporter,
       storage,
-      migrations: await arrayFromAsync(collectedMigrations),
+      migrations: collectedMigrations,
       async validate() {
         // No-op
       },

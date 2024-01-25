@@ -278,7 +278,100 @@ describe('up', () => {
       ]);
     });
 
-    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are run successfully, even when the "from" is not an existing migration', async () => {
+    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are run successfully', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        [
+          '1_some_already_run_migration.js',
+          '2_some_migration.js',
+          '3_existing_migration.js',
+          '4_some_other_migration.js',
+        ],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ from: '3_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0, 'Exit code');
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'skipped' },
+        { name: '3_existing_migration.js', status: 'done', started: true },
+        { name: '4_some_other_migration.js', status: 'done', started: true },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 2);
+    });
+
+    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are run successfully, when the "from" parameter is a relative path', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        [
+          '1_some_already_run_migration.js',
+          '2_some_migration.js',
+          '3_existing_migration.js',
+          '4_some_other_migration.js',
+        ],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ from: 'migrations/3_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0, 'Exit code');
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'skipped' },
+        { name: '3_existing_migration.js', status: 'done', started: true },
+        { name: '4_some_other_migration.js', status: 'done', started: true },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 2);
+    });
+
+    it('returns 0 and runs all pending migrations, if "from" is an already executed migration', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ from: '1_some_already_run_migration.js' });
+
+      assert.strictEqual(exitCode, 0, 'Exit code');
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'done', started: true },
+        { name: '4_some_other_migration.js', status: 'done', started: true },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 2);
+    });
+
+    it('returns 1 and finishes with an error when the given "from" migration name does not exist', async () => {
       const migration = mock.fn(async () => {
         // Success
       });
@@ -297,30 +390,71 @@ describe('up', () => {
 
       const exitCode = await run({ from: '3_non_existing_migration.js' });
 
-      assert.strictEqual(exitCode, 0, 'Exit code');
-      assertPreconditionsFulfilled({ dry: false }, reporter, [
-        { name: '2_some_migration.js', status: 'skipped' },
-        { name: '4_some_other_migration.js', status: 'done', started: true },
-      ]);
-      assert.strictEqual(migration.mock.calls.length, 1);
+      assert.strictEqual(exitCode, 1, 'Exit code');
+      assertPreconditionsFulfilled(
+        { dry: false },
+        reporter,
+        [
+          { name: '2_some_migration.js', status: 'skipped' },
+          { name: '4_some_other_migration.js', status: 'skipped' },
+        ],
+        BadOptionError.fromOption(
+          'from',
+          'The "from" migration: "migrations/3_non_existing_migration.js" was not found',
+        ),
+      );
+      assert.strictEqual(migration.mock.calls.length, 0);
     });
 
-    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are validated and listed successfully in dry-mode, even when the "from" is not an existing migration', async () => {
+    it('returns 0 and finishes without an error when pending migrations after given "from" parameter are validated and listed successfully in dry-mode', async () => {
       const { reporter, run } = getUpCommand(
-        ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
+        ['1_some_already_run_migration.js', '2_some_migration.js', '3_some_other_migration.js'],
         getStorage(['1_some_already_run_migration.js']),
       );
 
-      const exitCode = await run({ dry: true, from: '3_non_existing_migration.js' });
+      const exitCode = await run({ dry: true, from: '3_some_other_migration.js' });
 
       assert.strictEqual(exitCode, 0, 'Exit code');
       assertPreconditionsFulfilled({ dry: true }, reporter, [
         { name: '2_some_migration.js', status: 'skipped' },
-        { name: '4_some_other_migration.js', status: 'pending' },
+        { name: '3_some_other_migration.js', status: 'pending' },
       ]);
     });
 
-    it('returns 0 and finishes without an error when pending migrations before given "to" parameter are run successfully, even when the "to" is not an existing migration', async () => {
+    it('returns 0 and finishes without an error when pending migrations before given "to" parameter are run successfully', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
+      const { reporter, run } = getUpCommand(
+        [
+          '1_some_already_run_migration.js',
+          '2_some_migration.js',
+          '3_existing_migration.js',
+          '4_some_other_migration.js',
+        ],
+        getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
+      );
+
+      const exitCode = await run({ to: '3_existing_migration.js' });
+
+      assert.strictEqual(exitCode, 0, 'Exit code');
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'done', started: true },
+        { name: '3_existing_migration.js', status: 'done', started: true },
+        { name: '4_some_other_migration.js', status: 'skipped' },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 2);
+    });
+
+    it('returns 1 and finishes with an error when the given "to" migration name does not exist', async () => {
       const migration = mock.fn(async () => {
         // Success
       });
@@ -339,25 +473,63 @@ describe('up', () => {
 
       const exitCode = await run({ to: '3_non_existing_migration.js' });
 
-      assert.strictEqual(exitCode, 0, 'Exit code');
-      assertPreconditionsFulfilled({ dry: false }, reporter, [
-        { name: '2_some_migration.js', status: 'done', started: true },
-        { name: '4_some_other_migration.js', status: 'skipped' },
-      ]);
-      assert.strictEqual(migration.mock.calls.length, 1);
+      assert.strictEqual(exitCode, 1, 'Exit code');
+      assertPreconditionsFulfilled(
+        { dry: false },
+        reporter,
+        [
+          { name: '2_some_migration.js', status: 'skipped' },
+          { name: '4_some_other_migration.js', status: 'skipped' },
+        ],
+        BadOptionError.fromOption('to', 'The "to" migration: "migrations/3_non_existing_migration.js" was not found'),
+      );
+      assert.strictEqual(migration.mock.calls.length, 0);
     });
 
-    it('returns 0 and finishes without an error when pending migrations after given "to" parameter are validated and listed successfully in dry-mode, even when the "to" is not an existing migration', async () => {
+    it('returns 0 and runs no migrations, if "to" is an already executed migration', async () => {
+      const migration = mock.fn(async () => {
+        // Success
+      });
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
         getStorage(['1_some_already_run_migration.js']),
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return migration;
+            },
+          },
+        ],
       );
 
-      const exitCode = await run({ dry: true, to: '3_non_existing_migration.js' });
+      const exitCode = await run({ to: '1_some_already_run_migration.js' });
+
+      assert.strictEqual(exitCode, 0, 'Exit code');
+      assertPreconditionsFulfilled({ dry: false }, reporter, [
+        { name: '2_some_migration.js', status: 'skipped' },
+        { name: '4_some_other_migration.js', status: 'skipped' },
+      ]);
+      assert.strictEqual(migration.mock.calls.length, 0);
+    });
+
+    it('returns 0 and finishes without an error when pending migrations after given "to" parameter are validated and listed successfully in dry-mode', async () => {
+      const { reporter, run } = getUpCommand(
+        [
+          '1_some_already_run_migration.js',
+          '2_some_migration.js',
+          '3_existing_migration.js',
+          '4_some_other_migration.js',
+        ],
+        getStorage(['1_some_already_run_migration.js']),
+      );
+
+      const exitCode = await run({ dry: true, to: '3_existing_migration.js' });
 
       assert.strictEqual(exitCode, 0, 'Exit code');
       assertPreconditionsFulfilled({ dry: true }, reporter, [
         { name: '2_some_migration.js', status: 'pending' },
+        { name: '3_existing_migration.js', status: 'pending' },
         { name: '4_some_other_migration.js', status: 'skipped' },
       ]);
     });
