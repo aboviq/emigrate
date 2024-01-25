@@ -9,7 +9,7 @@ import {
   type FailedMigrationMetadata,
   type SuccessfulMigrationMetadata,
 } from '@emigrate/types';
-import { toError, EmigrateError, MigrationRunError, toSerializedError } from './errors.js';
+import { toError, EmigrateError, MigrationRunError, toSerializedError, BadOptionError } from './errors.js';
 import { exec } from './exec.js';
 import { getDuration } from './get-duration.js';
 
@@ -22,7 +22,8 @@ type MigrationRunnerParameters = {
   abortRespite?: number;
   reporter: EmigrateReporter;
   storage: Storage;
-  migrations: Array<MigrationMetadata | MigrationMetadataFinished>;
+  migrations: AsyncIterable<MigrationMetadata | MigrationMetadataFinished>;
+  migrationFilter?: (migration: MigrationMetadata | MigrationMetadataFinished) => boolean;
   validate: (migration: MigrationMetadata) => Promise<void>;
   execute: (migration: MigrationMetadata) => Promise<void>;
 };
@@ -39,9 +40,9 @@ export const migrationRunner = async ({
   migrations,
   validate,
   execute,
+  migrationFilter = () => true,
 }: MigrationRunnerParameters): Promise<Error | undefined> => {
-  await reporter.onCollectedMigrations?.(migrations);
-
+  const collectedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
   const validatedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
   const migrationsToLock: MigrationMetadata[] = [];
 
@@ -63,15 +64,32 @@ export const migrationRunner = async ({
     { once: true },
   );
 
+  let fromFound = false;
+  let toFound = false;
+
   for await (const migration of migrations) {
+    if (from && migration.relativeFilePath === from) {
+      fromFound = true;
+    }
+
+    if (to && migration.relativeFilePath === to) {
+      toFound = true;
+    }
+
+    if (!migrationFilter(migration)) {
+      continue;
+    }
+
+    collectedMigrations.push(migration);
+
     if (isFinishedMigration(migration)) {
       skip ||= migration.status === 'failed' || migration.status === 'skipped';
 
       validatedMigrations.push(migration);
     } else if (
       skip ||
-      Boolean(from && migration.name < from) ||
-      Boolean(to && migration.name > to) ||
+      Boolean(from && migration.relativeFilePath < from) ||
+      Boolean(to && migration.relativeFilePath > to) ||
       (limit && migrationsToLock.length >= limit)
     ) {
       validatedMigrations.push({
@@ -105,6 +123,32 @@ export const migrationRunner = async ({
         skip = true;
       }
     }
+  }
+
+  await reporter.onCollectedMigrations?.(collectedMigrations);
+
+  let optionError: Error | undefined;
+
+  if (from && !fromFound) {
+    optionError = BadOptionError.fromOption('from', `The "from" migration: "${from}" was not found`);
+  } else if (to && !toFound) {
+    optionError = BadOptionError.fromOption('to', `The "to" migration: "${to}" was not found`);
+  }
+
+  if (optionError) {
+    dry = true;
+    skip = true;
+
+    for (const migration of migrationsToLock) {
+      const validatedIndex = validatedMigrations.indexOf(migration);
+
+      validatedMigrations[validatedIndex] = {
+        ...migration,
+        status: 'skipped',
+      };
+    }
+
+    migrationsToLock.length = 0;
   }
 
   const [lockedMigrations, lockError] = dry
@@ -227,7 +271,11 @@ export const migrationRunner = async ({
         ? MigrationRunError.fromMetadata(firstFailed)
         : undefined;
   const error =
-    unlockError ?? firstError ?? lockError ?? (abortSignal?.aborted ? toError(abortSignal.reason) : undefined);
+    optionError ??
+    unlockError ??
+    firstError ??
+    lockError ??
+    (abortSignal?.aborted ? toError(abortSignal.reason) : undefined);
 
   await reporter.onFinished?.(finishedMigrations, error);
 

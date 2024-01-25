@@ -75,20 +75,34 @@ and "skipped" for the migrations that also haven't been run but won't because of
 
 The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
 
-### `-f`, `--from <name>`
+### `-f`, `--from <name/path>`
 
 The name of the migration to start from. This can be used to run only a subset of the pending migrations.
 
-The given migration name does not need to exist and is compared in lexicographical order with the migration names, so it can be a prefix of a migration name or similar.
+The given migration need to exist and is compared in lexicographical order with all migrations, the migration with the same name and those lexicographically after it will be migrated.
+It's okay to use an already executed migration as the "from" migration, it won't be executed again.
+
+The reason for why the given migration name must exist and cannot be just a prefix is to avoid accidentally running migrations that you didn't intend to run.
+
+The given name can also be a relative path to a migration file, which makes it easier to use with terminals that support tab completion
+or when copying the output from Emigrate and using it directly as the value of the `--from` option.
+Relative paths are resolved relative to the current working directory.
 
 Can be combined with `--dry` which will show "pending" for the migrations that would be run if not in dry-run mode,
 and "skipped" for the migrations that also haven't been run but won't because of the set "from".
 
-### `-t`, `--to <name>`
+### `-t`, `--to <name/path>`
 
 The name of the migration to end at. This can be used to run only a subset of the pending migrations.
 
-The given migration name does not need to exist and is compared in lexicographical order with the migration names, so it can be a prefix of a migration name or similar.
+The given migration name need to exist and is compared in lexicographical order with all migrations, the migration with the same name and those lexicographically before it will be migrated.
+It's okay to use an already executed migration as the "to" migration, it won't be executed again.
+
+The reason for why the given migration name must exist and cannot be just a prefix is to avoid accidentally running migrations that you didn't intend to run.
+
+The given name can also be a relative path to a migration file, which makes it easier to use with terminals that support tab completion
+or when copying the output from Emigrate and using it directly as the value of the `--to` option.  
+Relative paths are resolved relative to the current working directory.
 
 Can be combined with `--dry` which will show "pending" for the migrations that would be run if not in dry-run mode,
 and "skipped" for the migrations that also haven't been run but won't because of the set "to".

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { isFinishedMigration, type LoaderPlugin } from '@emigrate/types';
 import { BadOptionError, MigrationLoadError, MissingOptionError, StorageInitError, toError } from '../errors.js';
@@ -6,9 +7,7 @@ import { withLeadingPeriod } from '../with-leading-period.js';
 import { type GetMigrationsFunction } from '../get-migrations.js';
 import { exec } from '../exec.js';
 import { migrationRunner } from '../migration-runner.js';
-import { filterAsync } from '../filter-async.js';
 import { collectMigrations } from '../collect-migrations.js';
-import { arrayFromAsync } from '../array-from-async.js';
 import { version } from '../get-package-info.js';
 
 type ExtraFlags = {
@@ -72,10 +71,7 @@ export default async function upCommand({
   }
 
   try {
-    const collectedMigrations = filterAsync(
-      collectMigrations(cwd, directory, storage.getHistory(), getMigrations),
-      (migration) => !isFinishedMigration(migration) || migration.status === 'failed',
-    );
+    const collectedMigrations = collectMigrations(cwd, directory, storage.getHistory(), getMigrations);
 
     const loaderPlugins = await getOrLoadPlugins('loader', [lazyPluginLoaderJs, ...plugins]);
 
@@ -93,6 +89,14 @@ export default async function upCommand({
       return loaderByExtension.get(extension);
     };
 
+    if (from && !from.includes(path.sep)) {
+      from = path.join(directory, from);
+    }
+
+    if (to && !to.includes(path.sep)) {
+      to = path.join(directory, to);
+    }
+
     const error = await migrationRunner({
       dry,
       limit,
@@ -102,7 +106,10 @@ export default async function upCommand({
       abortRespite,
       reporter,
       storage,
-      migrations: await arrayFromAsync(collectedMigrations),
+      migrations: collectedMigrations,
+      migrationFilter(migration) {
+        return !isFinishedMigration(migration) || migration.status === 'failed';
+      },
       async validate(migration) {
         if (noExecution) {
           return;
