@@ -21,6 +21,24 @@ bun add @emigrate/cli
 ## Usage
 
 ```text
+Usage: emigrate <options>/<command>
+
+Options:
+
+  -h, --help     Show this help message and exit
+  -v, --version  Print version number and exit
+
+Commands:
+
+  up      Run all pending migrations (or do a dry run)
+  new     Create a new migration file
+  list    List all migrations and their status
+  remove  Remove entries from the migration history
+```
+
+### `emigrate up`
+
+```text
 Usage: emigrate up [options]
 
 Run all pending migrations

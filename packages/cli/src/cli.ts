@@ -440,14 +440,14 @@ const remove: Action = async (args) => {
     allowPositionals: true,
   });
 
-  const usage = `Usage: emigrate remove [options] <name>
+  const usage = `Usage: emigrate remove [options] <name/path>
 
 Remove entries from the migration history.
 This is useful if you want to retry a migration that has failed.
 
 Arguments:
 
-  name   The name of the migration file to remove from the history (required)
+  name/path               The name of or relative path to the migration file to remove from the history (required)
 
 Options:
 
@@ -466,6 +466,7 @@ Examples:
   emigrate remove -d migrations -s fs 20231122120529381_some_migration_file.js
   emigrate remove --directory ./migrations --storage postgres 20231122120529381_some_migration_file.sql
   emigrate remove -i dotenv/config -d ./migrations -s postgres 20231122120529381_some_migration_file.sql
+  emigrate remove -i dotenv/config -d ./migrations -s postgres migrations/20231122120529381_some_migration_file.sql
 `;
 
   if (values.help) {

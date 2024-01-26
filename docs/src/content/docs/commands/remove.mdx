@@ -13,22 +13,22 @@ The `remove` command is used to remove a migration from the history. This is use
 <Tabs>
   <TabItem label="npm">
     ```bash
-    npx emigrate remove [options] <name>
+    npx emigrate remove [options] <name/path>
     ```
   </TabItem>
   <TabItem label="pnpm">
     ```bash
-    pnpm emigrate remove [options] <name>
+    pnpm emigrate remove [options] <name/path>
     ```
   </TabItem>
   <TabItem label="yarn">
     ```bash
-    yarn emigrate remove [options] <name>
+    yarn emigrate remove [options] <name/path>
     ```
   </TabItem>
   <TabItem label="bun">
     ```bash
-    bunx --bun emigrate remove [options] <name>
+    bunx --bun emigrate remove [options] <name/path>
     ```
   </TabItem>
   <TabItem label="deno">
@@ -44,16 +44,18 @@ The `remove` command is used to remove a migration from the history. This is use
     ```
 
     ```bash
-    deno task emigrate remove [options] <name>
+    deno task emigrate remove [options] <name/path>
     ```
   </TabItem>
 </Tabs>
 
 ## Arguments
 
-### `<name>`
+### `<name/path>`
 
-The name of the migration file to remove, including the extension, e.g. `20200101000000_some_migration.js`.
+The name of the migration file to remove, including the extension, e.g. `20200101000000_some_migration.js`, or a relative file path to a migration file to remove, e.g: `migrations/20200101000000_some_migration.js`.
+
+Using relative file paths is useful in terminals that support autocomplete, and also when you copy and use the relative migration file path from the output of the <Link href="/commands/list/">`list`</Link> command.
 
 ## Options
 
