@@ -21,7 +21,7 @@ const spinner = interactive ? elegantSpinner() : () => figures.pointerSmall;
 const formatDuration = (duration: number): string => {
   const pretty = prettyMs(duration);
 
-  return yellow(pretty.replaceAll(/([^\s\d]+)/g, dim('$1')));
+  return yellow(pretty.replaceAll(/([^\s\d.]+)/g, dim('$1')));
 };
 
 const getTitle = ({ command, version, dry, cwd }: ReporterInitParameters) => {
