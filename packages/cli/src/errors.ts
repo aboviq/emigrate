@@ -137,6 +137,16 @@ export class MigrationNotRunError extends EmigrateError {
   }
 }
 
+export class MigrationRemovalError extends EmigrateError {
+  static fromMetadata(metadata: MigrationMetadata, cause?: Error) {
+    return new MigrationRemovalError(`Failed to remove migration: ${metadata.relativeFilePath}`, { cause });
+  }
+
+  constructor(message: string | undefined, options?: ErrorOptions) {
+    super(message, options, 'ERR_MIGRATION_REMOVE');
+  }
+}
+
 export class StorageInitError extends EmigrateError {
   static fromError(error: Error) {
     return new StorageInitError('Could not initialize storage', { cause: error });
@@ -182,6 +192,7 @@ errorConstructors.set('MigrationHistoryError', MigrationHistoryError as unknown 
 errorConstructors.set('MigrationLoadError', MigrationLoadError as unknown as ErrorConstructor);
 errorConstructors.set('MigrationRunError', MigrationRunError as unknown as ErrorConstructor);
 errorConstructors.set('MigrationNotRunError', MigrationNotRunError as unknown as ErrorConstructor);
+errorConstructors.set('MigrationRemovalError', MigrationRemovalError as unknown as ErrorConstructor);
 errorConstructors.set('StorageInitError', StorageInitError as unknown as ErrorConstructor);
 errorConstructors.set('CommandAbortError', CommandAbortError as unknown as ErrorConstructor);
 errorConstructors.set('ExecutionDesertedError', ExecutionDesertedError as unknown as ErrorConstructor);

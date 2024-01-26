@@ -457,8 +457,7 @@ Options:
                           For example if you want to use Dotenv to load environment variables
   -r, --reporter <name>   The reporter to use for reporting the removal process
   -s, --storage <name>    The storage to use to get the migration history (required)
-  -f, --force             Force removal of the migration history entry even if the migration file does not exist
-                          or it's in a non-failed state
+  -f, --force             Force removal of the migration history entry even if the migration is not in a failed state
   --color                 Force color output (this option is passed to the reporter)
   --no-color              Disable color output (this option is passed to the reporter)
 

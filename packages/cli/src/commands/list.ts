@@ -62,6 +62,12 @@ export default async function listCommand({
       async execute() {
         throw new Error('Unexpected execute call');
       },
+      async onSuccess() {
+        throw new Error('Unexpected onSuccess call');
+      },
+      async onError() {
+        throw new Error('Unexpected onError call');
+      },
     });
 
     return error ? 1 : 0;

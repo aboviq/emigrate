@@ -1,8 +1,7 @@
-import { describe, it, mock, type Mock } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import assert from 'node:assert';
 import {
   type EmigrateReporter,
-  type MigrationHistoryEntry,
   type Storage,
   type Plugin,
   type SerializedError,
@@ -19,13 +18,15 @@ import {
   StorageInitError,
   toSerializedError,
 } from '../errors.js';
-import { toEntries, toEntry, toMigrations } from '../test-utils.js';
+import {
+  type Mocked,
+  toEntry,
+  toMigrations,
+  getMockedReporter,
+  getMockedStorage,
+  getErrorCause,
+} from '../test-utils.js';
 import upCommand from './up.js';
-
-type Mocked<T> = {
-  // @ts-expect-error - This is a mock
-  [K in keyof T]: Mock<T[K]>;
-};
 
 describe('up', () => {
   it("returns 1 and finishes with an error when the storage couldn't be initialized", async () => {
@@ -38,7 +39,7 @@ describe('up', () => {
   });
 
   it('returns 0 and finishes without an error when there are no migrations to run', async () => {
-    const storage = getStorage([]);
+    const storage = getMockedStorage([]);
     const { reporter, run } = getUpCommand([], storage);
 
     const exitCode = await run();
@@ -48,7 +49,7 @@ describe('up', () => {
   });
 
   it('returns 0 and finishes without an error when all migrations have already been run', async () => {
-    const storage = getStorage(['my_migration.js']);
+    const storage = getMockedStorage(['my_migration.js']);
     const { reporter, run } = getUpCommand(['my_migration.js'], storage);
 
     const exitCode = await run();
@@ -58,7 +59,7 @@ describe('up', () => {
   });
 
   it('returns 0 and finishes without an error when all migrations have already been run even when the history responds without file extensions', async () => {
-    const storage = getStorage(['my_migration']);
+    const storage = getMockedStorage(['my_migration']);
     const { reporter, run } = getUpCommand(['my_migration.js'], storage);
 
     const exitCode = await run();
@@ -71,7 +72,7 @@ describe('up', () => {
     const migration = mock.fn(async () => {
       // Success
     });
-    const storage = getStorage(['some_already_run_migration.js']);
+    const storage = getMockedStorage(['some_already_run_migration.js']);
     const { reporter, run } = getUpCommand(
       ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
       storage,
@@ -96,7 +97,7 @@ describe('up', () => {
   });
 
   it('returns 1 and finishes with an error when a pending migration throw when run', async () => {
-    const storage = getStorage(['some_already_run_migration.js']);
+    const storage = getMockedStorage(['some_already_run_migration.js']);
     const { reporter, run } = getUpCommand(
       ['some_already_run_migration.js', 'some_migration.js', 'fail.js', 'some_other_migration.js'],
       storage,
@@ -132,7 +133,7 @@ describe('up', () => {
 
   describe('each migration file extension needs a corresponding loader plugin', () => {
     it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
-      const storage = getStorage([]);
+      const storage = getMockedStorage([]);
       const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], storage);
 
       const exitCode = await run();
@@ -155,7 +156,7 @@ describe('up', () => {
     });
 
     it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
-      const storage = getStorage([]);
+      const storage = getMockedStorage([]);
       const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], storage);
 
       const exitCode = await run({ dry: true });
@@ -181,7 +182,7 @@ describe('up', () => {
   describe('failed migrations in the history are blocking', () => {
     it('returns 1 and finishes with an error when there are failed migrations in the history', async () => {
       const failedEntry = toEntry('some_failed_migration.js', 'failed');
-      const storage = getStorage([failedEntry]);
+      const storage = getMockedStorage([failedEntry]);
       const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], storage);
 
       const exitCode = await run();
@@ -211,7 +212,7 @@ describe('up', () => {
 
     it('returns 1 and finishes with an error when there are failed migrations in the history in dry-run mode as well', async () => {
       const failedEntry = toEntry('some_failed_migration.js', 'failed');
-      const storage = getStorage([failedEntry]);
+      const storage = getMockedStorage([failedEntry]);
       const { reporter, run } = getUpCommand([failedEntry.name, 'some_file.js'], storage);
 
       const exitCode = await run({ dry: true });
@@ -241,7 +242,7 @@ describe('up', () => {
 
     it('returns 0 and finishes without an error when the failed migrations in the history are not part of the current set of migrations', async () => {
       const failedEntry = toEntry('some_failed_migration.js', 'failed');
-      const storage = getStorage([failedEntry]);
+      const storage = getMockedStorage([failedEntry]);
       const { reporter, run } = getUpCommand([], storage);
 
       const exitCode = await run();
@@ -255,7 +256,7 @@ describe('up', () => {
     const migration = mock.fn(async () => {
       // Success
     });
-    const storage = getStorage(['some_already_run_migration.js']);
+    const storage = getMockedStorage(['some_already_run_migration.js']);
     const { reporter, run } = getUpCommand(
       ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
       storage,
@@ -281,7 +282,7 @@ describe('up', () => {
 
   describe('limiting which pending migrations to run', () => {
     it('returns 0 and finishes without an error with the given number of pending migrations are validated and listed successfully in dry-mode', async () => {
-      const storage = getStorage(['some_already_run_migration.js']);
+      const storage = getMockedStorage(['some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
         storage,
@@ -300,7 +301,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -334,7 +335,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -368,7 +369,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
         storage,
@@ -396,7 +397,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
         storage,
@@ -430,7 +431,7 @@ describe('up', () => {
     });
 
     it('returns 0 and finishes without an error when pending migrations after given "from" parameter are validated and listed successfully in dry-mode', async () => {
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '3_some_other_migration.js'],
         storage,
@@ -449,7 +450,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -483,7 +484,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
         storage,
@@ -517,7 +518,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '4_some_other_migration.js'],
         storage,
@@ -542,7 +543,7 @@ describe('up', () => {
     });
 
     it('returns 0 and finishes without an error when pending migrations after given "to" parameter are validated and listed successfully in dry-mode', async () => {
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -567,7 +568,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -607,7 +608,7 @@ describe('up', () => {
       const migration = mock.fn(async () => {
         // Success
       });
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -651,7 +652,7 @@ describe('up', () => {
     const migration = mock.fn(async () => {
       // Success
     });
-    const storage = getStorage(['1_some_already_run_migration.js']);
+    const storage = getMockedStorage(['1_some_already_run_migration.js']);
     const { reporter, run } = getUpCommand(
       [
         '1_some_already_run_migration.js',
@@ -703,7 +704,7 @@ describe('up', () => {
         },
         { times: 1 },
       );
-      const storage = getStorage(['1_some_already_run_migration.js']);
+      const storage = getMockedStorage(['1_some_already_run_migration.js']);
       const { reporter, run } = getUpCommand(
         [
           '1_some_already_run_migration.js',
@@ -762,7 +763,7 @@ describe('up', () => {
       },
       { times: 1 },
     );
-    const storage = getStorage(['1_some_already_run_migration.js']);
+    const storage = getMockedStorage(['1_some_already_run_migration.js']);
     const { reporter, run } = getUpCommand(
       [
         '1_some_already_run_migration.js',
@@ -812,56 +813,8 @@ describe('up', () => {
   });
 });
 
-function getErrorCause(error: Error | undefined): Error | SerializedError | undefined {
-  if (error?.cause instanceof Error) {
-    return error.cause;
-  }
-
-  if (typeof error?.cause === 'object' && error.cause !== null) {
-    return error.cause as unknown as SerializedError;
-  }
-
-  return undefined;
-}
-
-async function noop() {
-  // noop
-}
-
-function getStorage(historyEntries: Array<string | MigrationHistoryEntry>) {
-  const storage: Mocked<Storage> = {
-    lock: mock.fn(async (migrations) => migrations),
-    unlock: mock.fn(async () => {
-      // void
-    }),
-    getHistory: mock.fn(async function* () {
-      yield* toEntries(historyEntries);
-    }),
-    remove: mock.fn(),
-    onSuccess: mock.fn(),
-    onError: mock.fn(),
-    end: mock.fn(),
-  };
-
-  return storage;
-}
-
 function getUpCommand(migrationFiles: string[], storage?: Mocked<Storage>, plugins?: Plugin[]) {
-  const reporter: Mocked<Required<EmigrateReporter>> = {
-    onFinished: mock.fn(noop),
-    onInit: mock.fn(noop),
-    onAbort: mock.fn(noop),
-    onCollectedMigrations: mock.fn(noop),
-    onLockedMigrations: mock.fn(noop),
-    onNewMigration: mock.fn(noop),
-    onMigrationRemoveStart: mock.fn(noop),
-    onMigrationRemoveSuccess: mock.fn(noop),
-    onMigrationRemoveError: mock.fn(noop),
-    onMigrationStart: mock.fn(noop),
-    onMigrationSuccess: mock.fn(noop),
-    onMigrationError: mock.fn(noop),
-    onMigrationSkip: mock.fn(noop),
-  };
+  const reporter = getMockedReporter();
 
   const run = async (
     options?: Omit<

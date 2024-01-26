@@ -1,7 +1,14 @@
 import path from 'node:path';
 import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { isFinishedMigration, type LoaderPlugin } from '@emigrate/types';
-import { BadOptionError, MigrationLoadError, MissingOptionError, StorageInitError, toError } from '../errors.js';
+import {
+  BadOptionError,
+  MigrationLoadError,
+  MissingOptionError,
+  StorageInitError,
+  toError,
+  toSerializedError,
+} from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { type GetMigrationsFunction } from '../get-migrations.js';
@@ -137,6 +144,12 @@ export default async function upCommand({
         }
 
         await migrationFunction();
+      },
+      async onSuccess(migration) {
+        await storage.onSuccess(migration);
+      },
+      async onError(migration, error) {
+        await storage.onError(migration, toSerializedError(error));
       },
     });
 
