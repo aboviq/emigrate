@@ -3,21 +3,27 @@ import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import assert from 'node:assert';
 import { getMigrations } from './get-migrations.js';
 
-const originalReaddir = fs.readdir;
-const readdirMock = mock.fn(originalReaddir);
+const originalOpendir = fs.opendir;
+const opendirMock = mock.fn(originalOpendir);
 
 describe('get-migrations', () => {
   beforeEach(() => {
-    fs.readdir = readdirMock;
+    fs.opendir = opendirMock;
   });
 
   afterEach(() => {
-    readdirMock.mock.restore();
-    fs.readdir = originalReaddir;
+    opendirMock.mock.restore();
+    fs.opendir = originalOpendir;
   });
 
   it('should skip files with leading periods', async () => {
-    readdirMock.mock.mockImplementation(async () => ['.foo.js', 'bar.js', 'baz.js']);
+    opendirMock.mock.mockImplementation(async function* () {
+      yield* [
+        { name: '.foo.js', isFile: () => true },
+        { name: 'bar.js', isFile: () => true },
+        { name: 'baz.js', isFile: () => true },
+      ];
+    });
 
     const migrations = await getMigrations('/cwd/', 'directory');
 
@@ -42,7 +48,13 @@ describe('get-migrations', () => {
   });
 
   it('should skip files with leading underscores', async () => {
-    readdirMock.mock.mockImplementation(async () => ['_foo.js', 'bar.js', 'baz.js']);
+    opendirMock.mock.mockImplementation(async function* () {
+      yield* [
+        { name: '_foo.js', isFile: () => true },
+        { name: 'bar.js', isFile: () => true },
+        { name: 'baz.js', isFile: () => true },
+      ];
+    });
 
     const migrations = await getMigrations('/cwd/', 'directory');
 
@@ -67,7 +79,44 @@ describe('get-migrations', () => {
   });
 
   it('should skip files without file extensions', async () => {
-    readdirMock.mock.mockImplementation(async () => ['foo', 'bar.js', 'baz.js']);
+    opendirMock.mock.mockImplementation(async function* () {
+      yield* [
+        { name: 'foo', isFile: () => true },
+        { name: 'bar.js', isFile: () => true },
+        { name: 'baz.js', isFile: () => true },
+      ];
+    });
+
+    const migrations = await getMigrations('/cwd/', 'directory');
+
+    assert.deepStrictEqual(migrations, [
+      {
+        name: 'bar.js',
+        filePath: '/cwd/directory/bar.js',
+        relativeFilePath: 'directory/bar.js',
+        extension: '.js',
+        directory: 'directory',
+        cwd: '/cwd/',
+      },
+      {
+        name: 'baz.js',
+        filePath: '/cwd/directory/baz.js',
+        relativeFilePath: 'directory/baz.js',
+        extension: '.js',
+        directory: 'directory',
+        cwd: '/cwd/',
+      },
+    ]);
+  });
+
+  it('should skip non-files', async () => {
+    opendirMock.mock.mockImplementation(async function* () {
+      yield* [
+        { name: 'foo.js', isFile: () => false },
+        { name: 'bar.js', isFile: () => true },
+        { name: 'baz.js', isFile: () => true },
+      ];
+    });
 
     const migrations = await getMigrations('/cwd/', 'directory');
 
@@ -92,7 +141,14 @@ describe('get-migrations', () => {
   });
 
   it('should sort them in lexicographical order', async () => {
-    readdirMock.mock.mockImplementation(async () => ['foo.js', 'bar_data.js', 'bar.js', 'baz.js']);
+    opendirMock.mock.mockImplementation(async function* () {
+      yield* [
+        { name: 'foo.js', isFile: () => true },
+        { name: 'bar_data.js', isFile: () => true },
+        { name: 'bar.js', isFile: () => true },
+        { name: 'baz.js', isFile: () => true },
+      ];
+    });
 
     const migrations = await getMigrations('/cwd/', 'directory');
 
