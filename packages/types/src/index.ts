@@ -273,35 +273,19 @@ export type EmigrateReporter = Partial<{
    */
   onNewMigration(migration: MigrationMetadata, content: string): Awaitable<void>;
   /**
-   * Called when a migration is about to be removed from the migration history.
-   *
-   * This is only called when the command is 'remove'.
-   */
-  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void>;
-  /**
-   * Called when a migration is successfully removed from the migration history.
-   *
-   * This is only called when the command is 'remove'.
-   */
-  onMigrationRemoveSuccess(migration: SuccessfulMigrationMetadata): Awaitable<void>;
-  /**
-   * Called when a migration couldn't be removed from the migration history.
-   *
-   * This is only called when the command is 'remove'.
-   */
-  onMigrationRemoveError(migration: FailedMigrationMetadata, error: Error): Awaitable<void>;
-  /**
    * Called when a migration is about to be executed.
    *
-   * Will only be called for each migration when the command is "up".
+   * Will be called for each migration when the command is "up",
+   * or before removing each migration from the history when the command is "remove".
    *
-   * @param migration Information about the migration that is about to be executed.
+   * @param migration Information about the migration that is about to be executed/removed.
    */
   onMigrationStart(migration: MigrationMetadata): Awaitable<void>;
   /**
    * Called when a migration has been successfully executed.
    *
-   * Will be called after a successful migration when the command is "up"
+   * Will be called after a successful migration when the command is "up",
+   * or after a successful removal of a migration from the history when the command is "remove",
    * or for each successful migration from the history when the command is "list".
    *
    * @param migration Information about the migration that was executed.
@@ -310,7 +294,8 @@ export type EmigrateReporter = Partial<{
   /**
    * Called when a migration has failed.
    *
-   * Will be called after a failed migration when the command is "up"
+   * Will be called after a failed migration when the command is "up",
+   * or after a failed removal of a migration from the history when the command is "remove",
    * or for each failed migration from the history when the command is "list" (will be at most one in this case).
    *
    * @param migration Information about the migration that failed.
