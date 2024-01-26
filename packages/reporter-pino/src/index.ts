@@ -104,27 +104,14 @@ class PinoReporter implements Required<EmigrateReporter> {
     );
   }
 
-  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void> {
-    this.#logger.debug({ migration: migration.relativeFilePath }, `Removing migration: ${migration.name}`);
-  }
-
-  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    this.#logger.info({ migration: migration.relativeFilePath }, `Successfully removed migration: ${migration.name}`);
-  }
-
-  onMigrationRemoveError(migration: MigrationMetadataFinished, error: Error): Awaitable<void> {
-    this.#logger.error(
-      { migration: migration.relativeFilePath, [this.errorKey]: error },
-      `Failed to remove migration: ${migration.name}`,
-    );
-  }
-
   onMigrationStart(migration: MigrationMetadata): Awaitable<void> {
-    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (running)`);
+    const status = this.#command === 'up' ? 'running' : 'removing';
+    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${status})`);
   }
 
   onMigrationSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${migration.status})`);
+    const status = this.#command === 'up' ? 'done' : 'removed';
+    this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${status})`);
   }
 
   onMigrationError(migration: MigrationMetadataFinished, error: Error): Awaitable<void> {
@@ -174,16 +161,15 @@ class PinoReporter implements Required<EmigrateReporter> {
       }
     }
 
+    const result =
+      this.#command === 'remove'
+        ? { removed: done, failed, skipped, pending, total }
+        : { done, failed, skipped, pending, total };
+
     if (error) {
-      this.#logger.error(
-        { result: { failed, done, skipped, pending, total }, [this.errorKey]: error },
-        `Emigrate "${this.#command}" failed`,
-      );
+      this.#logger.error({ result, [this.errorKey]: error }, `Emigrate "${this.#command}" failed`);
     } else {
-      this.#logger.info(
-        { result: { failed, done, skipped, pending, total } },
-        `Emigrate "${this.#command}" finished successfully`,
-      );
+      this.#logger.info({ result }, `Emigrate "${this.#command}" finished successfully`);
     }
   }
 }
