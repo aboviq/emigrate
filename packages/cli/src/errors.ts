@@ -23,6 +23,7 @@ export class EmigrateError extends Error {
     public code?: string,
   ) {
     super(message, options);
+    this.name = this.constructor.name;
   }
 }
 
