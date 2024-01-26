@@ -13,6 +13,7 @@ import {
 } from '@emigrate/types';
 
 type Status = ReturnType<typeof getMigrationStatus>;
+type Command = ReporterInitParameters['command'];
 
 const interactive = isInteractive();
 const spinner = interactive ? elegantSpinner() : () => figures.pointerSmall;
@@ -30,11 +31,16 @@ const getTitle = ({ command, version, dry, cwd }: ReporterInitParameters) => {
 };
 
 const getMigrationStatus = (
+  command: Command,
   migration: MigrationMetadata | MigrationMetadataFinished,
   activeMigration?: MigrationMetadata,
 ) => {
   if ('status' in migration) {
-    return migration.status;
+    return command === 'remove' && migration.status === 'done' ? 'removed' : migration.status;
+  }
+
+  if (command === 'remove' && migration.name === activeMigration?.name) {
+    return 'removing';
   }
 
   return migration.name === activeMigration?.name ? 'running' : 'pending';
@@ -42,12 +48,20 @@ const getMigrationStatus = (
 
 const getIcon = (status: Status) => {
   switch (status) {
+    case 'removing': {
+      return cyan(spinner());
+    }
+
     case 'running': {
       return cyan(spinner());
     }
 
     case 'pending': {
       return gray(figures.pointerSmall);
+    }
+
+    case 'removed': {
+      return green(figures.tick);
     }
 
     case 'done': {
@@ -89,20 +103,19 @@ const getName = (name: string, status?: Status) => {
 };
 
 const getMigrationText = (
+  command: Command,
   migration: MigrationMetadata | MigrationMetadataFinished,
   activeMigration?: MigrationMetadata,
 ) => {
   const pathWithoutName = migration.relativeFilePath.slice(0, -migration.name.length);
   const nameWithoutExtension = migration.name.slice(0, -migration.extension.length);
-  const status = getMigrationStatus(migration, activeMigration);
+  const status = getMigrationStatus(command, migration, activeMigration);
   const parts = [' ', getIcon(status)];
 
   parts.push(`${dim(pathWithoutName)}${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
 
-  if ('status' in migration) {
-    parts.push(gray`(${migration.status})`);
-  } else if (migration.name === activeMigration?.name) {
-    parts.push(gray`(running)`);
+  if ('status' in migration || migration.name === activeMigration?.name) {
+    parts.push(gray`(${status})`);
   }
 
   if ('duration' in migration && migration.duration) {
@@ -319,19 +332,6 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
     this.#migrations = [migration];
   }
 
-  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void> {
-    this.#migrations = [migration];
-    this.#activeMigration = migration;
-  }
-
-  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    this.#finishMigration(migration);
-  }
-
-  onMigrationRemoveError(migration: MigrationMetadataFinished, _error: Error): Awaitable<void> {
-    this.#finishMigration(migration);
-  }
-
   onMigrationStart(migration: MigrationMetadata): void | PromiseLike<void> {
     this.#activeMigration = migration;
   }
@@ -376,7 +376,9 @@ class DefaultFancyReporter implements Required<EmigrateReporter> {
     const parts = [
       getTitle(this.#parameters),
       getHeaderMessage(this.#parameters.command, this.#migrations, this.#lockedMigrations),
-      this.#migrations?.map((migration) => getMigrationText(migration, this.#activeMigration)).join('\n') ?? '',
+      this.#migrations
+        ?.map((migration) => getMigrationText(this.#parameters.command, migration, this.#activeMigration))
+        .join('\n') ?? '',
       getAbortMessage(this.#abortReason),
       getSummary(this.#parameters.command, this.#migrations),
       getError(this.#error),
@@ -441,35 +443,23 @@ class DefaultReporter implements Required<EmigrateReporter> {
   }
 
   onNewMigration(migration: MigrationMetadata, _content: string): Awaitable<void> {
-    console.log(getMigrationText(migration));
-  }
-
-  onMigrationRemoveStart(migration: MigrationMetadata): Awaitable<void> {
-    console.log(getMigrationText(migration));
-  }
-
-  onMigrationRemoveSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    console.log(getMigrationText(migration));
-  }
-
-  onMigrationRemoveError(migration: MigrationMetadataFinished, _error: Error): Awaitable<void> {
-    console.error(getMigrationText(migration));
+    console.log(getMigrationText(this.#parameters.command, migration));
   }
 
   onMigrationStart(migration: MigrationMetadata): void | PromiseLike<void> {
-    console.log(getMigrationText(migration, migration));
+    console.log(getMigrationText(this.#parameters.command, migration, migration));
   }
 
   onMigrationSuccess(migration: MigrationMetadataFinished): void | PromiseLike<void> {
-    console.log(getMigrationText(migration));
+    console.log(getMigrationText(this.#parameters.command, migration));
   }
 
   onMigrationError(migration: MigrationMetadataFinished, _error: Error): void | PromiseLike<void> {
-    console.error(getMigrationText(migration));
+    console.error(getMigrationText(this.#parameters.command, migration));
   }
 
   onMigrationSkip(migration: MigrationMetadataFinished): void | PromiseLike<void> {
-    console.log(getMigrationText(migration));
+    console.log(getMigrationText(this.#parameters.command, migration));
   }
 
   onFinished(migrations: MigrationMetadataFinished[], error?: Error | undefined): void | PromiseLike<void> {

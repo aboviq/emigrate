@@ -1,29 +1,44 @@
-import process from 'node:process';
+import path from 'node:path';
 import { getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
-import { type MigrationHistoryEntry, type MigrationMetadataFinished } from '@emigrate/types';
+import { type MigrationMetadata, isFinishedMigration } from '@emigrate/types';
 import {
   BadOptionError,
   MigrationNotRunError,
+  MigrationRemovalError,
   MissingArgumentsError,
   MissingOptionError,
   OptionNeededError,
   StorageInitError,
+  toError,
 } from '../errors.js';
 import { type Config } from '../types.js';
-import { getMigration } from '../get-migration.js';
-import { getDuration } from '../get-duration.js';
 import { exec } from '../exec.js';
 import { version } from '../get-package-info.js';
+import { collectMigrations } from '../collect-migrations.js';
+import { migrationRunner } from '../migration-runner.js';
+import { arrayMapAsync } from '../array-map-async.js';
+import { type GetMigrationsFunction } from '../get-migrations.js';
 
 type ExtraFlags = {
   cwd: string;
   force?: boolean;
+  getMigrations?: GetMigrationsFunction;
 };
+
+type RemovableMigrationMetadata = MigrationMetadata & { originalStatus?: 'done' | 'failed' };
 
 const lazyDefaultReporter = async () => import('../reporters/default.js');
 
 export default async function removeCommand(
-  { directory, reporter: reporterConfig, storage: storageConfig, color, cwd, force = false }: Config & ExtraFlags,
+  {
+    directory,
+    reporter: reporterConfig,
+    storage: storageConfig,
+    color,
+    cwd,
+    force = false,
+    getMigrations,
+  }: Config & ExtraFlags,
   name: string,
 ) {
   if (!directory) {
@@ -59,71 +74,79 @@ export default async function removeCommand(
     return 1;
   }
 
-  const [migrationFile, fileError] = await exec(async () => getMigration(cwd, directory, name, !force));
+  try {
+    const collectedMigrations = arrayMapAsync(
+      collectMigrations(cwd, directory, storage.getHistory(), getMigrations),
+      (migration) => {
+        if (isFinishedMigration(migration)) {
+          if (migration.status === 'failed') {
+            const { status, duration, error, ...pendingMigration } = migration;
+            const removableMigration: RemovableMigrationMetadata = { ...pendingMigration, originalStatus: status };
 
-  if (fileError) {
-    await reporter.onFinished?.([], fileError);
+            return removableMigration;
+          }
 
-    await storage.end();
+          if (migration.status === 'done') {
+            const { status, duration, ...pendingMigration } = migration;
+            const removableMigration: RemovableMigrationMetadata = { ...pendingMigration, originalStatus: status };
+
+            return removableMigration;
+          }
+
+          throw new Error(`Unexpected migration status: ${migration.status}`);
+        }
+
+        return migration as RemovableMigrationMetadata;
+      },
+    );
+
+    if (!name.includes(path.sep)) {
+      name = path.join(directory, name);
+    }
+
+    const error = await migrationRunner({
+      dry: false,
+      lock: false,
+      name,
+      reporter,
+      storage,
+      migrations: collectedMigrations,
+      migrationFilter(migration) {
+        return migration.relativeFilePath === name;
+      },
+      async validate(migration) {
+        if (migration.originalStatus === 'done' && !force) {
+          throw OptionNeededError.fromOption(
+            'force',
+            `The migration "${migration.name}" is not in a failed state. Use the "force" option to force its removal`,
+          );
+        }
+
+        if (!migration.originalStatus) {
+          throw MigrationNotRunError.fromMetadata(migration);
+        }
+      },
+      async execute(migration) {
+        try {
+          await storage.remove(migration);
+        } catch (error) {
+          throw MigrationRemovalError.fromMetadata(migration, toError(error));
+        }
+      },
+      async onSuccess() {
+        // No-op
+      },
+      async onError() {
+        // No-op
+      },
+    });
+
+    return error ? 1 : 0;
+  } catch (error) {
+    await reporter.onFinished?.([], toError(error));
 
     return 1;
+  } finally {
+    await storage.end();
   }
-
-  const finishedMigrations: MigrationMetadataFinished[] = [];
-  let historyEntry: MigrationHistoryEntry | undefined;
-  let removalError: Error | undefined;
-
-  for await (const migrationHistoryEntry of storage.getHistory()) {
-    if (migrationHistoryEntry.name !== migrationFile.name) {
-      continue;
-    }
-
-    if (migrationHistoryEntry.status === 'done' && !force) {
-      removalError = OptionNeededError.fromOption(
-        'force',
-        `The migration "${migrationFile.name}" is not in a failed state. Use the "force" option to force its removal`,
-      );
-    } else {
-      historyEntry = migrationHistoryEntry;
-    }
-  }
-
-  await reporter.onMigrationRemoveStart?.(migrationFile);
-
-  const start = process.hrtime();
-
-  if (historyEntry) {
-    try {
-      await storage.remove(migrationFile);
-
-      const duration = getDuration(start);
-      const finishedMigration: MigrationMetadataFinished = { ...migrationFile, status: 'done', duration };
-
-      await reporter.onMigrationRemoveSuccess?.(finishedMigration);
-
-      finishedMigrations.push(finishedMigration);
-    } catch (error) {
-      removalError = error instanceof Error ? error : new Error(String(error));
-    }
-  } else if (!removalError) {
-    removalError = MigrationNotRunError.fromMetadata(migrationFile);
-  }
-
-  if (removalError) {
-    const duration = getDuration(start);
-    const finishedMigration: MigrationMetadataFinished = {
-      ...migrationFile,
-      status: 'failed',
-      error: removalError,
-      duration,
-    };
-    await reporter.onMigrationRemoveError?.(finishedMigration, removalError);
-    finishedMigrations.push(finishedMigration);
-  }
-
-  await reporter.onFinished?.(finishedMigrations, removalError);
-
-  await storage.end();
-
-  return removalError ? 1 : 0;
 }

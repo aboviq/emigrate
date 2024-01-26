@@ -1,10 +1,68 @@
+import { mock, type Mock } from 'node:test';
 import path from 'node:path';
 import {
+  type SerializedError,
+  type EmigrateReporter,
   type FailedMigrationHistoryEntry,
   type MigrationHistoryEntry,
   type MigrationMetadata,
   type NonFailedMigrationHistoryEntry,
+  type Storage,
 } from '@emigrate/types';
+
+export type Mocked<T> = {
+  // @ts-expect-error - This is a mock
+  [K in keyof T]: Mock<T[K]>;
+};
+
+export async function noop() {
+  // noop
+}
+
+export function getErrorCause(error: Error | undefined): Error | SerializedError | undefined {
+  if (error?.cause instanceof Error) {
+    return error.cause;
+  }
+
+  if (typeof error?.cause === 'object' && error.cause !== null) {
+    return error.cause as unknown as SerializedError;
+  }
+
+  return undefined;
+}
+
+export function getMockedStorage(historyEntries: Array<string | MigrationHistoryEntry>) {
+  const storage: Mocked<Storage> = {
+    lock: mock.fn(async (migrations) => migrations),
+    unlock: mock.fn(async () => {
+      // void
+    }),
+    getHistory: mock.fn(async function* () {
+      yield* toEntries(historyEntries);
+    }),
+    remove: mock.fn(),
+    onSuccess: mock.fn(),
+    onError: mock.fn(),
+    end: mock.fn(),
+  };
+
+  return storage;
+}
+
+export function getMockedReporter(): Mocked<Required<EmigrateReporter>> {
+  return {
+    onFinished: mock.fn(noop),
+    onInit: mock.fn(noop),
+    onAbort: mock.fn(noop),
+    onCollectedMigrations: mock.fn(noop),
+    onLockedMigrations: mock.fn(noop),
+    onNewMigration: mock.fn(noop),
+    onMigrationStart: mock.fn(noop),
+    onMigrationSuccess: mock.fn(noop),
+    onMigrationError: mock.fn(noop),
+    onMigrationSkip: mock.fn(noop),
+  };
+}
 
 export function toMigration(cwd: string, directory: string, name: string): MigrationMetadata {
   return {

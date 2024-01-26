@@ -9,28 +9,34 @@ import {
   type FailedMigrationMetadata,
   type SuccessfulMigrationMetadata,
 } from '@emigrate/types';
-import { toError, EmigrateError, MigrationRunError, toSerializedError, BadOptionError } from './errors.js';
+import { toError, EmigrateError, MigrationRunError, BadOptionError } from './errors.js';
 import { exec } from './exec.js';
 import { getDuration } from './get-duration.js';
 
-type MigrationRunnerParameters = {
+type MigrationRunnerParameters<T extends MigrationMetadata | MigrationMetadataFinished> = {
   dry: boolean;
+  lock?: boolean;
   limit?: number;
+  name?: string;
   from?: string;
   to?: string;
   abortSignal?: AbortSignal;
   abortRespite?: number;
   reporter: EmigrateReporter;
   storage: Storage;
-  migrations: AsyncIterable<MigrationMetadata | MigrationMetadataFinished>;
-  migrationFilter?: (migration: MigrationMetadata | MigrationMetadataFinished) => boolean;
-  validate: (migration: MigrationMetadata) => Promise<void>;
-  execute: (migration: MigrationMetadata) => Promise<void>;
+  migrations: AsyncIterable<T>;
+  migrationFilter?: (migration: T) => boolean;
+  validate: (migration: T) => Promise<void>;
+  execute: (migration: T) => Promise<void>;
+  onSuccess: (migration: SuccessfulMigrationMetadata) => Promise<void>;
+  onError: (migration: FailedMigrationMetadata, error: Error) => Promise<void>;
 };
 
-export const migrationRunner = async ({
+export const migrationRunner = async <T extends MigrationMetadata | MigrationMetadataFinished>({
   dry,
+  lock = true,
   limit,
+  name,
   from,
   to,
   abortSignal,
@@ -40,8 +46,10 @@ export const migrationRunner = async ({
   migrations,
   validate,
   execute,
+  onSuccess,
+  onError,
   migrationFilter = () => true,
-}: MigrationRunnerParameters): Promise<Error | undefined> => {
+}: MigrationRunnerParameters<T>): Promise<Error | undefined> => {
   const collectedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
   const validatedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
   const migrationsToLock: MigrationMetadata[] = [];
@@ -64,10 +72,15 @@ export const migrationRunner = async ({
     { once: true },
   );
 
+  let nameFound = false;
   let fromFound = false;
   let toFound = false;
 
   for await (const migration of migrations) {
+    if (name && migration.relativeFilePath === name) {
+      nameFound = true;
+    }
+
     if (from && migration.relativeFilePath === from) {
       fromFound = true;
     }
@@ -129,7 +142,9 @@ export const migrationRunner = async ({
 
   let optionError: Error | undefined;
 
-  if (from && !fromFound) {
+  if (name && !nameFound) {
+    optionError = BadOptionError.fromOption('name', `The migration: "${name}" was not found`);
+  } else if (from && !fromFound) {
     optionError = BadOptionError.fromOption('from', `The "from" migration: "${from}" was not found`);
   } else if (to && !toFound) {
     optionError = BadOptionError.fromOption('to', `The "to" migration: "${to}" was not found`);
@@ -151,9 +166,10 @@ export const migrationRunner = async ({
     migrationsToLock.length = 0;
   }
 
-  const [lockedMigrations, lockError] = dry
-    ? [migrationsToLock]
-    : await exec(async () => storage.lock(migrationsToLock), { abortSignal, abortRespite });
+  const [lockedMigrations, lockError] =
+    dry || !lock
+      ? [migrationsToLock]
+      : await exec(async () => storage.lock(migrationsToLock), { abortSignal, abortRespite });
 
   if (lockError) {
     for (const migration of migrationsToLock) {
@@ -168,7 +184,7 @@ export const migrationRunner = async ({
     migrationsToLock.length = 0;
 
     skip = true;
-  } else {
+  } else if (lock) {
     for (const migration of migrationsToLock) {
       const isLocked = lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name);
 
@@ -231,7 +247,7 @@ export const migrationRunner = async ({
 
     const start = hrtime();
 
-    const [, migrationError] = await exec(async () => execute(migration), { abortSignal, abortRespite });
+    const [, migrationError] = await exec(async () => execute(migration as T), { abortSignal, abortRespite });
 
     const duration = getDuration(start);
 
@@ -242,7 +258,7 @@ export const migrationRunner = async ({
         duration,
         error: migrationError,
       };
-      await storage.onError(finishedMigration, toSerializedError(migrationError));
+      await onError(finishedMigration, migrationError);
       await reporter.onMigrationError?.(finishedMigration, migrationError);
       finishedMigrations.push(finishedMigration);
       skip = true;
@@ -252,15 +268,14 @@ export const migrationRunner = async ({
         status: 'done',
         duration,
       };
-      await storage.onSuccess(finishedMigration);
+      await onSuccess(finishedMigration);
       await reporter.onMigrationSuccess?.(finishedMigration);
       finishedMigrations.push(finishedMigration);
     }
   }
 
-  const [, unlockError] = dry
-    ? []
-    : await exec(async () => storage.unlock(lockedMigrations ?? []), { abortSignal, abortRespite });
+  const [, unlockError] =
+    dry || !lock ? [] : await exec(async () => storage.unlock(lockedMigrations ?? []), { abortSignal, abortRespite });
 
   // eslint-disable-next-line unicorn/no-array-callback-reference
   const firstFailed = finishedMigrations.find(isFailedMigration);
