@@ -63,7 +63,8 @@
       {
         "files": "packages/**/*.test.ts",
         "rules": {
-          "@typescript-eslint/no-floating-promises": 0
+          "@typescript-eslint/no-floating-promises": 0,
+          "max-params": 0
         }
       }
     ]
