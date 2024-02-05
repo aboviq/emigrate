@@ -1,5 +1,11 @@
 # @emigrate/cli
 
+## 0.17.2
+
+### Patch Changes
+
+- 61cbcbd: Force exiting after 10 seconds should not change the exit code, i.e. if all migrations have run successfully the exit code should be 0
+
 ## 0.17.1
 
 ### Patch Changes
