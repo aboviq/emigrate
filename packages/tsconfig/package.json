@@ -2,7 +2,8 @@
   "name": "@emigrate/tsconfig",
   "version": "1.0.1",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "files": [
     "base.json",

@@ -2,7 +2,8 @@
   "name": "@emigrate/storage-fs",
   "version": "0.4.5",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "description": "A storage plugin for Emigrate for storing the migration history in a file",
   "main": "dist/index.js",
