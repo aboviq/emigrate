@@ -1,5 +1,12 @@
 # @emigrate/docs
 
+## 0.3.0
+
+### Minor Changes
+
+- f6761fe: Document the changes to the "remove" command, specifically that it also accepts relative file paths now
+- 9109238: Document the changes to the "up" command's `--from` and `--to` options, specifically that they can take relative file paths and that the given migration must exist.
+
 ## 0.2.0
 
 ### Minor Changes
