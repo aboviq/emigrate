@@ -1,3 +1,4 @@
+import { setInterval } from 'node:timers';
 import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow, yellowBright } from 'ansis';
 import logUpdate from 'log-update';
 import elegantSpinner from 'elegant-spinner';

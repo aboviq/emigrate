@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers';
 import prettyMs from 'pretty-ms';
 import { ExecutionDesertedError, toError } from './errors.js';
 import { DEFAULT_RESPITE_SECONDS } from './defaults.js';
