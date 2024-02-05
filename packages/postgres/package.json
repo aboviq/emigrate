@@ -2,7 +2,8 @@
   "name": "@emigrate/postgres",
   "version": "0.2.5",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "description": "A PostgreSQL plugin for Emigrate. Uses a PostgreSQL database for storing migration history. Can load and generate .sql migration files.",
   "main": "dist/index.js",

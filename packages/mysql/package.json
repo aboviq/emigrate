@@ -2,7 +2,8 @@
   "name": "@emigrate/mysql",
   "version": "0.2.5",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "description": "A MySQL plugin for Emigrate. Uses a MySQL database for storing migration history. Can load and generate .sql migration files.",
   "main": "dist/index.js",

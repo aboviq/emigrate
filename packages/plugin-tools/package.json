@@ -2,7 +2,8 @@
   "name": "@emigrate/plugin-tools",
   "version": "0.9.5",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "description": "",
   "main": "dist/index.js",
