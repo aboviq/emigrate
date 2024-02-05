@@ -1,5 +1,15 @@
 # @emigrate/cli
 
+## 0.17.1
+
+### Patch Changes
+
+- 543b7f6: Use setTimeout/setInterval from "node:timers" so that .unref() correctly works with Bun
+- db656c2: Enable NPM provenance
+- Updated dependencies [db656c2]
+  - @emigrate/plugin-tools@0.9.6
+  - @emigrate/types@0.12.1
+
 ## 0.17.0
 
 ### Minor Changes

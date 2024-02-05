@@ -1,5 +1,11 @@
 # @emigrate/types
 
+## 0.12.1
+
+### Patch Changes
+
+- db656c2: Enable NPM provenance
+
 ## 0.12.0
 
 ### Minor Changes

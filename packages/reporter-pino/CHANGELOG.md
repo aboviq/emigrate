@@ -1,5 +1,13 @@
 # @emigrate/reporter-pino
 
+## 0.6.1
+
+### Patch Changes
+
+- db656c2: Enable NPM provenance
+- Updated dependencies [db656c2]
+  - @emigrate/types@0.12.1
+
 ## 0.6.0
 
 ### Minor Changes
