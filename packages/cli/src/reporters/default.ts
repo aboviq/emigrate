@@ -270,7 +270,6 @@ const getHeaderMessage = (
 
   let skippedCount = 0;
   let failedCount = 0;
-  let unlockableCount = 0;
 
   for (const migration of migrations) {
     const isLocked = lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name);
@@ -284,8 +283,6 @@ const getHeaderMessage = (
         failedCount += 1;
       } else if (migration.status === 'skipped') {
         skippedCount += 1;
-      } else {
-        unlockableCount += 1;
       }
     }
   }
@@ -293,7 +290,6 @@ const getHeaderMessage = (
   const parts = [
     bold(`${lockedMigrations.length} of ${migrations.length}`),
     dim(statusText),
-    unlockableCount > 0 ? yellow(`(${unlockableCount} locked)`) : '',
     skippedCount > 0 ? yellowBright(`(${skippedCount} skipped)`) : '',
     failedCount > 0 ? redBright(`(${failedCount} failed)`) : '',
   ].filter(Boolean);

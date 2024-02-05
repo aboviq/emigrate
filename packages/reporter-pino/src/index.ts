@@ -69,29 +69,40 @@ class PinoReporter implements Required<EmigrateReporter> {
     const migrations = this.#migrations ?? [];
 
     if (migrations.length === 0) {
-      this.#logger.info('No pending migrations found');
+      this.#logger.info('No migrations found');
       return;
     }
+
+    const statusText = this.#command === 'list' ? 'migrations are pending' : 'pending migrations to run';
 
     if (migrations.length === lockedMigrations.length) {
-      this.#logger.info(
-        { migrationCount: lockedMigrations.length },
-        `${lockedMigrations.length} pending migrations to run`,
-      );
+      this.#logger.info({ migrationCount: lockedMigrations.length }, `${lockedMigrations.length} ${statusText}`);
       return;
     }
 
-    const nonLockedMigrations = migrations.filter(
-      (migration) => !lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name),
-    );
-    const failedMigrations = nonLockedMigrations.filter(
-      (migration) => 'status' in migration && migration.status === 'failed',
-    );
-    const unlockableCount = this.#command === 'up' ? nonLockedMigrations.length - failedMigrations.length : 0;
+    let skippedCount = 0;
+    let failedCount = 0;
+
+    for (const migration of migrations) {
+      const isLocked = lockedMigrations.some((lockedMigration) => lockedMigration.name === migration.name);
+
+      if (isLocked) {
+        continue;
+      }
+
+      if ('status' in migration) {
+        if (migration.status === 'failed') {
+          failedCount += 1;
+        } else if (migration.status === 'skipped') {
+          skippedCount += 1;
+        }
+      }
+    }
+
     const parts = [
-      `${lockedMigrations.length} of ${migrations.length} pending migrations to run`,
-      unlockableCount > 0 ? `(${unlockableCount} locked)` : '',
-      failedMigrations.length > 0 ? `(${failedMigrations.length} failed)` : '',
+      `${lockedMigrations.length} of ${migrations.length} ${statusText}`,
+      skippedCount > 0 ? `(${skippedCount} skipped)` : '',
+      failedCount > 0 ? `(${failedCount} failed)` : '',
     ].filter(Boolean);
 
     this.#logger.info({ migrationCount: lockedMigrations.length }, parts.join(' '));
