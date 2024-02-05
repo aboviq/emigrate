@@ -1,5 +1,13 @@
 # @emigrate/plugin-generate-js
 
+## 0.3.6
+
+### Patch Changes
+
+- Updated dependencies [db656c2]
+  - @emigrate/plugin-tools@0.9.6
+  - @emigrate/types@0.12.1
+
 ## 0.3.5
 
 ### Patch Changes

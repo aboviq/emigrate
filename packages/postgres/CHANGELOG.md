@@ -1,5 +1,14 @@
 # @emigrate/postgres
 
+## 0.2.6
+
+### Patch Changes
+
+- db656c2: Enable NPM provenance
+- Updated dependencies [db656c2]
+  - @emigrate/plugin-tools@0.9.6
+  - @emigrate/types@0.12.1
+
 ## 0.2.5
 
 ### Patch Changes

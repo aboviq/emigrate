@@ -1,5 +1,13 @@
 # @emigrate/storage-fs
 
+## 0.4.6
+
+### Patch Changes
+
+- db656c2: Enable NPM provenance
+- Updated dependencies [db656c2]
+  - @emigrate/types@0.12.1
+
 ## 0.4.5
 
 ### Patch Changes

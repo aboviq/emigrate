@@ -1,5 +1,11 @@
 # @emigrate/tsconfig
 
+## 1.0.2
+
+### Patch Changes
+
+- db656c2: Enable NPM provenance
+
 ## 1.0.1
 
 ### Patch Changes
