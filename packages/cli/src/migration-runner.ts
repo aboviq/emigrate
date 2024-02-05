@@ -50,7 +50,6 @@ export const migrationRunner = async <T extends MigrationMetadata | MigrationMet
   onError,
   migrationFilter = () => true,
 }: MigrationRunnerParameters<T>): Promise<Error | undefined> => {
-  const collectedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
   const validatedMigrations: Array<MigrationMetadata | MigrationMetadataFinished> = [];
   const migrationsToLock: MigrationMetadata[] = [];
 
@@ -92,8 +91,6 @@ export const migrationRunner = async <T extends MigrationMetadata | MigrationMet
     if (!migrationFilter(migration)) {
       continue;
     }
-
-    collectedMigrations.push(migration);
 
     if (isFinishedMigration(migration)) {
       skip ||= migration.status === 'failed' || migration.status === 'skipped';
@@ -138,7 +135,7 @@ export const migrationRunner = async <T extends MigrationMetadata | MigrationMet
     }
   }
 
-  await reporter.onCollectedMigrations?.(collectedMigrations);
+  await reporter.onCollectedMigrations?.(validatedMigrations);
 
   let optionError: Error | undefined;
 
