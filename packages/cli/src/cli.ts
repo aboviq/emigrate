@@ -602,5 +602,5 @@ await main(process.argv.slice(2), controller.signal);
 
 setTimeout(() => {
   console.error('Process did not exit within 10 seconds, forcing exit');
-  process.exit(1);
+  process.exit(process.exitCode);
 }, 10_000).unref();
