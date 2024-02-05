@@ -171,6 +171,8 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
     async initializeStorage() {
       const pool = getPool(connection);
 
+      await pool.query('SELECT 1');
+
       try {
         await initializeTable(pool, table);
       } catch (error) {

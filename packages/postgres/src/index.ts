@@ -32,12 +32,12 @@ export type PostgresLoaderOptions = {
   connection: ConnectionOptions | string;
 };
 
-const getPool = (connection: ConnectionOptions | string) => {
-  if (typeof connection === 'string') {
-    return postgres(connection);
-  }
+const getPool = async (connection: ConnectionOptions | string): Promise<Sql> => {
+  const sql = typeof connection === 'string' ? postgres(connection) : postgres(connection);
 
-  return postgres(connection);
+  await sql`SELECT 1`;
+
+  return sql;
 };
 
 const lockMigration = async (sql: Sql, table: string, migration: MigrationMetadata) => {
@@ -122,7 +122,7 @@ export const createPostgresStorage = ({
 }: PostgresStorageOptions): EmigrateStorage => {
   return {
     async initializeStorage() {
-      const sql = getPool(connection);
+      const sql = await getPool(connection);
 
       try {
         await initializeTable(sql, table);
@@ -211,7 +211,7 @@ export const createPostgresLoader = ({ connection }: PostgresLoaderOptions): Loa
     loadableExtensions: ['.sql'],
     async loadMigration(migration) {
       return async () => {
-        const sql = getPool(connection);
+        const sql = await getPool(connection);
 
         try {
           // @ts-expect-error The "simple" option is not documented, but it exists
