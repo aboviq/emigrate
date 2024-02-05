@@ -1,5 +1,24 @@
 # @emigrate/cli
 
+## 0.17.0
+
+### Minor Changes
+
+- 0faebbe: Add support for passing the relative path to a migration file to remove from the history using the "remove" command
+- 9109238: When the `--from` or `--to` CLI options are used the given migration name (or path to migration file) must exist. This is a BREAKING CHANGE from before. The reasoning is that by forcing the migrations to exist you avoid accidentally running migrations you don't intend to, because a simple typo could have the effect that many unwanted migrations is executed so it's better to show an error if that's the case.
+- 1f139fd: Completely rework how the "remove" command is run, this is to make it more similar to the "up" and "list" command as now it will also use the `onMigrationStart`, `onMigrationSuccess` and `onMigrationError` reporter methods when reporting the command progress. It's also in preparation for adding `--from` and `--to` CLI options for the "remove" command, similar to how the same options work for the "up" command.
+- 9109238: Add support for passing relative paths to migration files as the `--from` and `--to` CLI options. This is very useful from terminals that support autocomplete for file paths. It also makes it possible to copy the path to a migration file from Emigrate's output and use that as either `--from` and `--to` directly.
+
+### Patch Changes
+
+- f1b9098: Only include files when collecting migrations, i.e. it should be possible to have folders inside your migrations folder.
+- 2f6b4d2: Don't dim decimal points in durations in the default reporter
+- f2d4bb3: Set Emigrate error instance names from their respective constructor's name for consistency and correct error deserialization.
+- ef45be9: Show number of skipped migrations correctly in the command output
+- Updated dependencies [94ad9fe]
+  - @emigrate/types@0.12.0
+  - @emigrate/plugin-tools@0.9.5
+
 ## 0.16.2
 
 ### Patch Changes

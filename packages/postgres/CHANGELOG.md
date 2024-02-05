@@ -1,5 +1,14 @@
 # @emigrate/postgres
 
+## 0.2.5
+
+### Patch Changes
+
+- f8a5cc7: Make sure the storage initialization crashes when a database connection can't be established
+- Updated dependencies [94ad9fe]
+  - @emigrate/types@0.12.0
+  - @emigrate/plugin-tools@0.9.5
+
 ## 0.2.4
 
 ### Patch Changes

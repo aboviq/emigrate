@@ -1,5 +1,13 @@
 # @emigrate/plugin-generate-js
 
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [94ad9fe]
+  - @emigrate/types@0.12.0
+  - @emigrate/plugin-tools@0.9.5
+
 ## 0.3.4
 
 ### Patch Changes

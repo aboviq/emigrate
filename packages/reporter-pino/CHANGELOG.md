@@ -1,5 +1,17 @@
 # @emigrate/reporter-pino
 
+## 0.6.0
+
+### Minor Changes
+
+- 86e0d52: Adapt to the new Reporter interface, i.e. the removal of the "remove" command related methods
+
+### Patch Changes
+
+- ef45be9: Show number of skipped migrations correctly in the command output
+- Updated dependencies [94ad9fe]
+  - @emigrate/types@0.12.0
+
 ## 0.5.0
 
 ### Minor Changes
