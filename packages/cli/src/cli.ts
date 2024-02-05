@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import process from 'node:process';
 import { parseArgs } from 'node:util';
+import { setTimeout } from 'node:timers';
 import importFromEsm from 'import-from-esm';
 import { CommandAbortError, ShowUsageError } from './errors.js';
 import { getConfig } from './get-config.js';
