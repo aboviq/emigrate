@@ -15,8 +15,7 @@ import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { version } from '../get-package-info.js';
 import { getDuration } from '../get-duration.js';
-
-const lazyDefaultReporter = async () => import('../reporters/default.js');
+import { getStandardReporter } from '../reporters/get.js';
 
 type ExtraFlags = {
   cwd: string;
@@ -38,7 +37,7 @@ export default async function newCommand(
     throw MissingOptionError.fromOption(['extension', 'template', 'plugin']);
   }
 
-  const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
+  const reporter = getStandardReporter(reporterConfig) ?? (await getOrLoadReporter([reporterConfig]));
 
   if (!reporter) {
     throw BadOptionError.fromOption(

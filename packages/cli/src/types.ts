@@ -1,4 +1,7 @@
 import { type EmigrateStorage, type Awaitable, type Plugin, type EmigrateReporter } from '@emigrate/types';
+import type * as reporters from './reporters/index.js';
+
+export type StandardReporter = keyof typeof reporters;
 
 export type EmigratePlugin = Plugin;
 
@@ -6,7 +9,7 @@ type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Awaitable<{ 
 
 export type Config = {
   storage?: StringOrModule<EmigrateStorage>;
-  reporter?: StringOrModule<EmigrateReporter>;
+  reporter?: StandardReporter | StringOrModule<EmigrateReporter>;
   plugins?: Array<StringOrModule<EmigratePlugin>>;
   directory?: string;
   template?: string;
