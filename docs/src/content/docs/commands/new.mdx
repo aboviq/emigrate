@@ -101,6 +101,9 @@ In case you have both a `emigrate-plugin-someplugin` and a `someplugin` package 
 
 ### `-r`, `--reporter <name>`
 
+**type:** `"pretty" | "json" | string`  
+**default:** `"pretty"`
+
 The <Link href="/plugins/reporters/">reporter</Link> to use for listing the migrations.
 
 The name can be either a path to a module or a package name. For package names Emigrate will automatically prefix the given name with these prefixes in order:

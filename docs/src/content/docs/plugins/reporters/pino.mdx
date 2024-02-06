@@ -91,11 +91,27 @@ See for instance the <Link href="/commands/up/#-r---reporter-name">Reporter Opti
 
 ### Via configuration file
 
-```js title="emigrate.config.js" {2}
-export default {
-  reporter: 'pino',
-};
-```
+<Tabs>
+  <TabItem label="JavaScript">
+    ```js title="emigrate.config.js"
+    /** @type {import('@emigrate/cli').EmigrateConfig} */
+    export default {
+      reporter: 'pino',
+    };
+    ```
+  </TabItem>
+  <TabItem label="TypeScript">
+    ```ts title="emigrate.config.ts"
+    import { type EmigrateConfig } from '@emigrate/cli';
+
+    const config: EmigrateConfig = {
+      reporter: 'pino',
+    };
+
+    export default config;
+    ```
+  </TabItem>
+</Tabs>
 
 See <Link href="/reference/configuration/#reporter">Reporter Configuration</Link> for more information.
 

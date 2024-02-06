@@ -1,0 +1,102 @@
+---
+title: JSON Reporter
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+An Emigrate reporter that outputs a JSON object.
+
+The reporter is included by default and does not need to be installed separately.
+
+## Usage
+
+### Via CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate <command> --reporter json
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate <command> --reporter json
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate <command> --reporter json
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate <command> --reporter json
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate <command> --reporter json
+    ```
+  </TabItem>
+</Tabs>
+
+See for instance the <Link href="/commands/up/#-r---reporter-name">Reporter Option</Link> for the `up` command for more information.
+
+### Via configuration file
+
+<Tabs>
+  <TabItem label="JavaScript">
+    ```js title="emigrate.config.js"
+    /** @type {import('@emigrate/cli').EmigrateConfig} */
+    export default {
+      reporter: 'json',
+    };
+    ```
+  </TabItem>
+  <TabItem label="TypeScript">
+    ```ts title="emigrate.config.ts"
+    import { type EmigrateConfig } from '@emigrate/cli';
+
+    const config: EmigrateConfig = {
+      reporter: 'json',
+    };
+
+    export default config;
+    ```
+  </TabItem>
+</Tabs>
+
+See <Link href="/reference/configuration/#reporter">Reporter Configuration</Link> for more information.
+
+## Example output
+
+```json
+{
+  "command": "up",
+  "version": "0.17.2",
+  "numberTotalMigrations": 1,
+  "numberDoneMigrations": 0,
+  "numberSkippedMigrations": 0,
+  "numberFailedMigrations": 0,
+  "numberPendingMigrations": 1,
+  "success": true,
+  "startTime": 1707206599968,
+  "endTime": 1707206600005,
+  "migrations": [
+    {
+      "name": "/your/project/migrations/20240206075446123_some_other_table.sql",
+      "status": "pending",
+      "duration": 0
+    }
+  ]
+}
+```
