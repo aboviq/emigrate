@@ -5,8 +5,7 @@ import { exec } from '../exec.js';
 import { migrationRunner } from '../migration-runner.js';
 import { collectMigrations } from '../collect-migrations.js';
 import { version } from '../get-package-info.js';
-
-const lazyDefaultReporter = async () => import('../reporters/default.js');
+import { getStandardReporter } from '../reporters/get.js';
 
 type ExtraFlags = {
   cwd: string;
@@ -29,7 +28,7 @@ export default async function listCommand({
     throw BadOptionError.fromOption('storage', 'No storage found, please specify a storage using the storage option');
   }
 
-  const reporter = await getOrLoadReporter([reporterConfig ?? lazyDefaultReporter]);
+  const reporter = getStandardReporter(reporterConfig) ?? (await getOrLoadReporter([reporterConfig]));
 
   if (!reporter) {
     throw BadOptionError.fromOption(

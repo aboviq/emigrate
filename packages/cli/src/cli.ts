@@ -104,7 +104,7 @@ Options:
 
   -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
 
-  -r, --reporter <name>   The reporter to use for reporting the migration progress
+  -r, --reporter <name>   The reporter to use for reporting the migration progress (default: pretty)
 
   -l, --limit <count>     Limit the number of migrations to run
 
@@ -261,7 +261,7 @@ Options:
 
   -h, --help              Show this help message and exit
   -d, --directory <path>  The directory where the migration files are located (required)
-  -r, --reporter <name>   The reporter to use for reporting the migration file creation progress
+  -r, --reporter <name>   The reporter to use for reporting the migration file creation progress (default: pretty)
   -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
   -t, --template <path>   A template file to use as contents for the new migration file
                           (if the extension option is not provided the template file's extension will be used)
@@ -358,7 +358,7 @@ Options:
   -d, --directory <path>  The directory where the migration files are located (required)
   -i, --import <module>   Additional modules/packages to import before listing the migrations (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables
-  -r, --reporter <name>   The reporter to use for reporting the migrations
+  -r, --reporter <name>   The reporter to use for reporting the migrations (default: pretty)
   -s, --storage <name>    The storage to use to get the migration history (required)
   --color                 Force color output (this option is passed to the reporter)
   --no-color              Disable color output (this option is passed to the reporter)
@@ -456,7 +456,7 @@ Options:
   -d, --directory <path>  The directory where the migration files are located (required)
   -i, --import <module>   Additional modules/packages to import before removing the migration (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables
-  -r, --reporter <name>   The reporter to use for reporting the removal process
+  -r, --reporter <name>   The reporter to use for reporting the removal process (default: pretty)
   -s, --storage <name>    The storage to use to get the migration history (required)
   -f, --force             Force removal of the migration history entry even if the migration is not in a failed state
   --color                 Force color output (this option is passed to the reporter)
