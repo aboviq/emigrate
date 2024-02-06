@@ -171,8 +171,12 @@ export default defineConfig({
                   link: '/plugins/reporters/',
                 },
                 {
-                  label: 'Default Reporter',
-                  link: '/plugins/reporters/default/',
+                  label: 'Pretty Reporter (default)',
+                  link: '/plugins/reporters/pretty/',
+                },
+                {
+                  label: 'JSON Reporter',
+                  link: '/plugins/reporters/json/',
                 },
                 {
                   label: 'Pino Reporter',

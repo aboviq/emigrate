@@ -45,9 +45,9 @@ Set the directory where your migrations are located, relative to the project roo
 
 ### `reporter`
 
-**type:** `string | EmigrateReporter | Promise<EmigrateReporter> | (() => Promise<EmigrateReporter>)`
+**type:** `"pretty" | "json" | string | EmigrateReporter | Promise<EmigrateReporter> | (() => Promise<EmigrateReporter>)`
 
-**default:** `"default"` - the default reporter
+**default:** `"pretty"` - the default reporter
 
 Set the reporter to use for the different commands. Specifying a <Link href="/plugins/reporters/">reporter</Link> is most useful in a CI or production environment where you either ship logs or want to have a machine-readable format.
 
@@ -63,6 +63,9 @@ If you want to use different reporters for different commands, you can use an ob
 export default {
   up: {
     reporter: 'json',
+  },
+  new: {
+    reporter: 'pretty', // Not really necessary, as it's the default
   },
 };
 ```
