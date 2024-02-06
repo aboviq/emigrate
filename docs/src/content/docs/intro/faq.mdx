@@ -3,11 +3,13 @@ title: "FAQ"
 description: "Frequently asked questions about Emigrate."
 ---
 
+import Link from '@components/Link.astro';
+
 ## Why no `down` migrations?
 
 > Always forward never backwards.
 
-Many other migration tools support `down` migrations, but in all the years we have been
+Many other migration tools support `down` (or undo) migrations, but in all the years we have been
 doing migrations we have never needed to rollback a migration in production,
 in that case we would just write a new migration to fix the problem.
 
@@ -17,3 +19,7 @@ and in such case you just revert the migration manually and fix the `up` migrati
 The benefit of this is that you don't have to worry about writing `down` migrations, and you can focus on writing the `up` migrations.
 This way you will only ever have to write `down` migrations when they are really necessary instead of for every migration
 (which makes it the exception rather than the rule, which is closer to the truth).
+
+## Can I use Emigrate with my existing database?
+
+Yes, you can use Emigrate with an existing database. See the <Link href="/guides/baseline/">Baseline guide</Link> for more information.
