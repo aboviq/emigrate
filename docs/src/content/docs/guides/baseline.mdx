@@ -113,8 +113,8 @@ CREATE TABLE public.posts (
 
 ### Log the baseline migration
 
-For new environments this baseline migration will automatically be run when you run <Link href="/commands/up/">`emigrate up`</Link>.
-For any existing environments you will need to run `emigrate up` with the <Link href="/commands/up/#--no-execution">`--no-execution`</Link> flag to prevent the migration from being executed and only log the migration:
+For new environments this baseline migration will automatically be run when you run <Link href="/cli/up/">`emigrate up`</Link>.
+For any existing environments you will need to run `emigrate up` with the <Link href="/cli/up/#--no-execution">`--no-execution`</Link> flag to prevent the migration from being executed and only log the migration:
 
 <Tabs>
   <TabItem label="npm">
@@ -155,7 +155,7 @@ For any existing environments you will need to run `emigrate up` with the <Link 
   </TabItem>
 </Tabs>
 
-In case you have already added more migration files to your migration directory you can limit the "up" command to just log the baseline migration by specifying the <Link href="/commands/up/#-t---to-name">`--to`</Link> option:
+In case you have already added more migration files to your migration directory you can limit the "up" command to just log the baseline migration by specifying the <Link href="/cli/up/#-t---to-name">`--to`</Link> option:
 
 <Tabs>
   <TabItem label="npm">
@@ -198,7 +198,7 @@ In case you have already added more migration files to your migration directory 
 
 ### Verify the baseline migration status
 
-You can verify the status of the baseline migration by running the <Link href="/commands/list/">`emigrate list`</Link> command:
+You can verify the status of the baseline migration by running the <Link href="/cli/list/">`emigrate list`</Link> command:
 
 <Tabs>
   <TabItem label="npm">
@@ -251,5 +251,5 @@ Emigrate list v0.14.1 /your/project/path
 
 ### Happy migrating!
 
-You can now start adding new migrations to your migration directory and run <Link href="/commands/up/">`emigrate up`</Link> to apply them to your database.
+You can now start adding new migrations to your migration directory and run <Link href="/cli/up/">`emigrate up`</Link> to apply them to your database.
 Which should be part of your CD pipeline to ensure that your database schema is always up to date in each environment.

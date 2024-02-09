@@ -82,26 +82,26 @@ export default defineConfig({
           items: [
             {
               label: 'Introduction',
-              link: '/commands/',
+              link: '/cli/',
             },
             {
               label: 'Commands',
               items: [
                 {
                   label: 'emigrate up',
-                  link: '/commands/up/',
+                  link: '/cli/up/',
                 },
                 {
                   label: 'emigrate list',
-                  link: '/commands/list/',
+                  link: '/cli/list/',
                 },
                 {
                   label: 'emigrate new',
-                  link: '/commands/new/',
+                  link: '/cli/new/',
                 },
                 {
                   label: 'emigrate remove',
-                  link: '/commands/remove/',
+                  link: '/cli/remove/',
                 },
               ],
             },
