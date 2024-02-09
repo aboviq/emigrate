@@ -1,11 +1,16 @@
-import { cosmiconfig } from 'cosmiconfig';
+import process from 'node:process';
+import { cosmiconfig, defaultLoaders } from 'cosmiconfig';
 import { type Config, type EmigrateConfig } from './types.js';
 
 const commands = ['up', 'list', 'new', 'remove'] as const;
 type Command = (typeof commands)[number];
+const canImportTypeScriptAsIs = Boolean(process.isBun) || typeof Deno !== 'undefined';
 
-export const getConfig = async (command: Command): Promise<Config> => {
-  const explorer = cosmiconfig('emigrate');
+export const getConfig = async (command: Command, forceImportTypeScriptAsIs = false): Promise<Config> => {
+  const explorer = cosmiconfig('emigrate', {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    loaders: forceImportTypeScriptAsIs || canImportTypeScriptAsIs ? { '.ts': defaultLoaders['.js'] } : undefined,
+  });
 
   const result = await explorer.search();
 

@@ -7,14 +7,14 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 import Link from '@components/Link.astro';
 
 :::tip[Using Bun or Deno?]
-If you are using [Bun](https://bun.sh) or [Deno](https://deno.land) you are already good to go as they both support TypeScript out of the box.
+If you are using [Bun](https://bun.sh) or [Deno](https://deno.land) you are already good to go as they both support TypeScript out of the box!
 :::
 
-You have at least the two following options to support running TypeScript migration files in NodeJS.
+If you're using NodeJS you have at least the two following options to support running TypeScript migration files in NodeJS.
 
 ## Using `tsx`
 
-If you want to be able to write and run migration files written in TypeScript the easiest way is to install the [`tsx`](https://github.com/privatenumber/tsx) package.
+If you want to be able to write and run migration files written in TypeScript an easy way is to install the [`tsx`](https://github.com/privatenumber/tsx) package.
 
 ### Installing `tsx`
 
@@ -67,9 +67,13 @@ Using the <Link href="/commands/up/#-i---import-module">`--import`</Link> flag y
   </TabItem>
 </Tabs>
 
+:::note
+This method is necessary if you want to write your configuration file in TypeScript without having `typescript` installed in your production environment, as `tsx` must be loaded before the configuration file is loaded.
+:::
+
 #### Via configuration file
 
-You can also directly import `tsx` in your configuration file.
+You can also directly import `tsx` in your configuration file (will only work if you're not using TypeScript for your configuration file).
 
 ```js title="emigrate.config.js" {1}
 import 'tsx';

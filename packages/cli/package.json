@@ -36,7 +36,9 @@
     "immigration"
   ],
   "devDependencies": {
-    "@emigrate/tsconfig": "workspace:*"
+    "@emigrate/tsconfig": "workspace:*",
+    "@types/bun": "1.0.5",
+    "bun-types": "1.0.26"
   },
   "author": "Aboviq AB <dev@aboviq.com> (https://www.aboviq.com)",
   "homepage": "https://github.com/aboviq/emigrate/tree/main/packages/cli#readme",
