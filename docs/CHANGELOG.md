@@ -1,5 +1,17 @@
 # @emigrate/docs
 
+## 0.4.0
+
+### Minor Changes
+
+- b62c692: Add documentation for the built-in "json" reporter
+- b62c692: The "default" reporter is now named "pretty"
+- e7ec75d: Add note in FAQ on using Emigrate for existing databases
+
+### Patch Changes
+
+- c838ffb: Add note on how to write Emigrate's config using TypeScript in a production environment without having `typescript` installed.
+
 ## 0.3.0
 
 ### Minor Changes

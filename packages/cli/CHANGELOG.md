@@ -1,5 +1,17 @@
 # @emigrate/cli
 
+## 0.18.0
+
+### Minor Changes
+
+- c838ffb: Make it possible to write the Emigrate configuration file in TypeScript and load it using `tsx` in a NodeJS environment by importing packages provided using the `--import` CLI option before loading the configuration file. This makes it possible to run Emigrate in production with a configuration file written in TypeScript without having the `typescript` package installed.
+- 18382ce: Add a built-in "json" reporter for outputting a single JSON object
+- 18382ce: Rename the "default" reporter to "pretty" and make it possible to specify it using the `--reporter` CLI option or in the configuration file
+
+### Patch Changes
+
+- c838ffb: Don't use the `typescript` package for loading an Emigrate configuration file written in TypeScript in a Bun or Deno environment
+
 ## 0.17.2
 
 ### Patch Changes
