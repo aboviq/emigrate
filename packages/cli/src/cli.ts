@@ -24,7 +24,6 @@ const importAll = async (cwd: string, modules: string[]) => {
 };
 
 const up: Action = async (args, abortSignal) => {
-  const config = await getConfig('up');
   const { values } = parseArgs({
     args,
     options: {
@@ -143,6 +142,14 @@ Examples:
   }
 
   const cwd = process.cwd();
+
+  if (values.import) {
+    await importAll(cwd, values.import);
+  }
+
+  const forceImportTypeScriptAsIs = values.import?.some((module) => module === 'tsx' || module.startsWith('tsx/'));
+
+  const config = await getConfig('up', forceImportTypeScriptAsIs);
   const {
     directory = config.directory,
     storage = config.storage,
@@ -151,7 +158,6 @@ Examples:
     from,
     to,
     limit: limitString,
-    import: imports = [],
     'abort-respite': abortRespiteString,
     'no-execution': noExecution,
   } = values;
@@ -176,8 +182,6 @@ Examples:
     process.exitCode = 1;
     return;
   }
-
-  await importAll(cwd, imports);
 
   try {
     const { default: upCommand } = await import('./commands/up.js');
@@ -209,7 +213,6 @@ Examples:
 };
 
 const newMigration: Action = async (args) => {
-  const config = await getConfig('new');
   const { values, positionals } = parseArgs({
     args,
     options: {
@@ -239,6 +242,12 @@ const newMigration: Action = async (args) => {
         multiple: true,
         default: [],
       },
+      import: {
+        type: 'string',
+        short: 'i',
+        multiple: true,
+        default: [],
+      },
       color: {
         type: 'boolean',
       },
@@ -260,14 +269,24 @@ Arguments:
 Options:
 
   -h, --help              Show this help message and exit
+
   -d, --directory <path>  The directory where the migration files are located (required)
+
+  -i, --import <module>   Additional modules/packages to import before creating the migration (can be specified multiple times)
+                          For example if you want to use Dotenv to load environment variables or when using TypeScript
+
   -r, --reporter <name>   The reporter to use for reporting the migration file creation progress (default: pretty)
+
   -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
+
   -t, --template <path>   A template file to use as contents for the new migration file
                           (if the extension option is not provided the template file's extension will be used)
+
   -x, --extension <ext>   The extension to use for the new migration file
                           (if no template or plugin is provided an empty migration file will be created with the given extension)
+
   --color                 Force color output (this option is passed to the reporter)
+
   --no-color              Disable color output (this option is passed to the reporter)
 
   One of the --template, --extension or the --plugin options must be specified
@@ -287,6 +306,14 @@ Examples:
   }
 
   const cwd = process.cwd();
+
+  if (values.import) {
+    await importAll(cwd, values.import);
+  }
+
+  const forceImportTypeScriptAsIs = values.import?.some((module) => module === 'tsx' || module.startsWith('tsx/'));
+
+  const config = await getConfig('new', forceImportTypeScriptAsIs);
   const {
     directory = config.directory,
     template = config.template,
@@ -312,7 +339,6 @@ Examples:
 };
 
 const list: Action = async (args) => {
-  const config = await getConfig('list');
   const { values } = parseArgs({
     args,
     options: {
@@ -355,12 +381,18 @@ List all migrations and their status. This command does not run any migrations.
 Options:
 
   -h, --help              Show this help message and exit
+
   -d, --directory <path>  The directory where the migration files are located (required)
+
   -i, --import <module>   Additional modules/packages to import before listing the migrations (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables
+
   -r, --reporter <name>   The reporter to use for reporting the migrations (default: pretty)
+
   -s, --storage <name>    The storage to use to get the migration history (required)
+
   --color                 Force color output (this option is passed to the reporter)
+
   --no-color              Disable color output (this option is passed to the reporter)
 
 Examples:
@@ -376,14 +408,15 @@ Examples:
   }
 
   const cwd = process.cwd();
-  const {
-    directory = config.directory,
-    storage = config.storage,
-    reporter = config.reporter,
-    import: imports = [],
-  } = values;
 
-  await importAll(cwd, imports);
+  if (values.import) {
+    await importAll(cwd, values.import);
+  }
+
+  const forceImportTypeScriptAsIs = values.import?.some((module) => module === 'tsx' || module.startsWith('tsx/'));
+
+  const config = await getConfig('list', forceImportTypeScriptAsIs);
+  const { directory = config.directory, storage = config.storage, reporter = config.reporter } = values;
 
   try {
     const { default: listCommand } = await import('./commands/list.js');
@@ -401,7 +434,6 @@ Examples:
 };
 
 const remove: Action = async (args) => {
-  const config = await getConfig('remove');
   const { values, positionals } = parseArgs({
     args,
     options: {
@@ -453,13 +485,20 @@ Arguments:
 Options:
 
   -h, --help              Show this help message and exit
+
   -d, --directory <path>  The directory where the migration files are located (required)
+
   -i, --import <module>   Additional modules/packages to import before removing the migration (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables
+
   -r, --reporter <name>   The reporter to use for reporting the removal process (default: pretty)
+
   -s, --storage <name>    The storage to use to get the migration history (required)
+
   -f, --force             Force removal of the migration history entry even if the migration is not in a failed state
+
   --color                 Force color output (this option is passed to the reporter)
+
   --no-color              Disable color output (this option is passed to the reporter)
 
 Examples:
@@ -477,15 +516,15 @@ Examples:
   }
 
   const cwd = process.cwd();
-  const {
-    directory = config.directory,
-    storage = config.storage,
-    reporter = config.reporter,
-    force,
-    import: imports = [],
-  } = values;
 
-  await importAll(cwd, imports);
+  if (values.import) {
+    await importAll(cwd, values.import);
+  }
+
+  const forceImportTypeScriptAsIs = values.import?.some((module) => module === 'tsx' || module.startsWith('tsx/'));
+
+  const config = await getConfig('remove', forceImportTypeScriptAsIs);
+  const { directory = config.directory, storage = config.storage, reporter = config.reporter, force } = values;
 
   try {
     const { default: removeCommand } = await import('./commands/remove.js');
