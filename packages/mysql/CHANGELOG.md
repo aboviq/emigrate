@@ -1,5 +1,11 @@
 # @emigrate/mysql
 
+## 0.2.7
+
+### Patch Changes
+
+- 198aa54: Unreference all connections automatically so that they don't hinder the process from exiting. This is especially needed in Bun environments as it seems to handle sockets differently regarding this matter than NodeJS.
+
 ## 0.2.6
 
 ### Patch Changes
