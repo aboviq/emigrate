@@ -78,23 +78,32 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Commands',
+          label: 'Command Line Interface',
           items: [
             {
-              label: 'emigrate up',
-              link: '/commands/up/',
+              label: 'Introduction',
+              link: '/commands/',
             },
             {
-              label: 'emigrate list',
-              link: '/commands/list/',
-            },
-            {
-              label: 'emigrate new',
-              link: '/commands/new/',
-            },
-            {
-              label: 'emigrate remove',
-              link: '/commands/remove/',
+              label: 'Commands',
+              items: [
+                {
+                  label: 'emigrate up',
+                  link: '/commands/up/',
+                },
+                {
+                  label: 'emigrate list',
+                  link: '/commands/list/',
+                },
+                {
+                  label: 'emigrate new',
+                  link: '/commands/new/',
+                },
+                {
+                  label: 'emigrate remove',
+                  link: '/commands/remove/',
+                },
+              ],
             },
           ],
         },
@@ -106,7 +115,7 @@ export default defineConfig({
               link: '/guides/typescript/',
             },
             {
-              label: 'Baseline',
+              label: 'Baseline existing database',
               link: '/guides/baseline/',
             },
           ],

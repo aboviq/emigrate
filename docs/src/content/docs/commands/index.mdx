@@ -1,0 +1,73 @@
+---
+title: "CLI Introduction"
+description: "Some basic information about the Emigrate CLI."
+---
+
+import { Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+Emigrate comes with a CLI that you can use to manage your migrations. The CLI is a powerful tool that allows you to create, run, and manage migrations.
+
+### Installing the Emigrate CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @emigrate/cli
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @emigrate/cli
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @emigrate/cli
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bun add @emigrate/cli
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3,6}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      },
+      "dependencies": {
+        "@emigrate/cli": "*"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### Existing commands
+
+
+<LinkCard
+  href="up/"
+  title="emigrate up"
+  description="The command for executing migrations, or showing pending migrations in dry run mode."
+  />
+
+<LinkCard
+  href="list/"
+  title="emigrate list"
+  description="The command for listing all migrations and their status."
+  />
+
+<LinkCard
+  href="new/"
+  title="emigrate new"
+  description="The command for creating new migration files."
+  />
+
+<LinkCard
+  href="remove/"
+  title="emigrate remove"
+  description="The command for removing migrations from the migration history."
+  />
