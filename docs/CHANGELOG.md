@@ -1,5 +1,15 @@
 # @emigrate/docs
 
+## 1.0.0
+
+### Major Changes
+
+- 1d33d65: Rename the URL path "/commands/" to "/cli/" to make it more clear that those pages are the documentation for the CLI. This change is a BREAKING CHANGE because it changes the URL path of the pages.
+
+### Minor Changes
+
+- 0c597fd: Add a separate page for the Emigrate CLI itself, with all the commands as sub pages
+
 ## 0.4.0
 
 ### Minor Changes
