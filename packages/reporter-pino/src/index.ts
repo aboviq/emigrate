@@ -116,12 +116,26 @@ class PinoReporter implements Required<EmigrateReporter> {
   }
 
   onMigrationStart(migration: MigrationMetadata): Awaitable<void> {
-    const status = this.#command === 'up' ? 'running' : 'removing';
+    let status = 'running';
+
+    if (this.#command === 'remove') {
+      status = 'removing';
+    } else if (this.#command === 'new') {
+      status = 'creating';
+    }
+
     this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${status})`);
   }
 
   onMigrationSuccess(migration: MigrationMetadataFinished): Awaitable<void> {
-    const status = this.#command === 'up' ? 'done' : 'removed';
+    let status = 'done';
+
+    if (this.#command === 'remove') {
+      status = 'removed';
+    } else if (this.#command === 'new') {
+      status = 'created';
+    }
+
     this.#logger.info({ migration: migration.relativeFilePath }, `${migration.name} (${status})`);
   }
 
