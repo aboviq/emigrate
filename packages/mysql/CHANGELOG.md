@@ -1,5 +1,11 @@
 # @emigrate/mysql
 
+## 0.2.8
+
+### Patch Changes
+
+- 17feb2d: Only unreference connections in a Bun environment as it crashes Node for some reason, without even throwing an error that is
+
 ## 0.2.7
 
 ### Patch Changes

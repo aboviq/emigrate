@@ -1,5 +1,11 @@
 # @emigrate/reporter-pino
 
+## 0.6.2
+
+### Patch Changes
+
+- 1065322: Show correct status for migrations for the "list" and "new" commands
+
 ## 0.6.1
 
 ### Patch Changes
