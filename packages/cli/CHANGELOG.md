@@ -1,5 +1,11 @@
 # @emigrate/cli
 
+## 0.18.1
+
+### Patch Changes
+
+- 57a0991: Cleanup AbortSignal listeners when they are not needed to avoid MaxListenersExceededWarning when migrating many migrations at once
+
 ## 0.18.0
 
 ### Minor Changes
