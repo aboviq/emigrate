@@ -171,11 +171,13 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
     async initializeStorage() {
       const pool = getPool(connection);
 
-      pool.on('connection', (connection) => {
-        // @ts-expect-error stream is not in the types but it's there
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        connection.stream.unref();
-      });
+      if (process.isBun) {
+        pool.on('connection', (connection) => {
+          // @ts-expect-error stream is not in the types but it's there
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          connection.stream.unref();
+        });
+      }
 
       await pool.query('SELECT 1');
 
@@ -274,9 +276,11 @@ export const createMysqlLoader = ({ connection }: MysqlLoaderOptions): LoaderPlu
         const contents = await fs.readFile(migration.filePath, 'utf8');
         const conn = await getConnection(connection);
 
-        // @ts-expect-error the connection is not in the types but it's there
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        conn.connection.stream.unref();
+        if (process.isBun) {
+          // @ts-expect-error the connection is not in the types but it's there
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          conn.connection.stream.unref();
+        }
 
         try {
           await conn.query(contents);
