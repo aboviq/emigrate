@@ -28,6 +28,8 @@ export const exec = async <Return extends Promise<any>>(
     const aborter = options.abortSignal ? getAborter(options.abortSignal, options.abortRespite) : undefined;
     const result = await Promise.race(aborter ? [aborter, fn()] : [fn()]);
 
+    aborter?.cancel();
+
     return [result, undefined];
   } catch (error) {
     return [undefined, toError(error)];
@@ -40,27 +42,44 @@ export const exec = async <Return extends Promise<any>>(
  * @param signal The abort signal to listen to
  * @param respite The time in milliseconds to wait before rejecting
  */
-const getAborter = async (signal: AbortSignal, respite = DEFAULT_RESPITE_SECONDS * 1000): Promise<never> => {
-  return new Promise((_, reject) => {
-    if (signal.aborted) {
-      setTimeout(
+const getAborter = (
+  signal: AbortSignal,
+  respite = DEFAULT_RESPITE_SECONDS * 1000,
+): PromiseLike<never> & { cancel: () => void } => {
+  const cleanups: Array<() => void> = [];
+
+  const aborter = new Promise<never>((_, reject) => {
+    const abortListener = () => {
+      const timer = setTimeout(
         reject,
         respite,
         ExecutionDesertedError.fromReason(`Deserted after ${prettyMs(respite)}`, toError(signal.reason)),
-      ).unref();
+      );
+      timer.unref();
+      cleanups.push(() => {
+        clearTimeout(timer);
+      });
+    };
+
+    if (signal.aborted) {
+      abortListener();
       return;
     }
 
-    signal.addEventListener(
-      'abort',
-      () => {
-        setTimeout(
-          reject,
-          respite,
-          ExecutionDesertedError.fromReason(`Deserted after ${prettyMs(respite)}`, toError(signal.reason)),
-        ).unref();
-      },
-      { once: true },
-    );
+    signal.addEventListener('abort', abortListener, { once: true });
+
+    cleanups.push(() => {
+      signal.removeEventListener('abort', abortListener);
+    });
   });
+
+  const cancel = () => {
+    for (const cleanup of cleanups) {
+      cleanup();
+    }
+
+    cleanups.length = 0;
+  };
+
+  return Object.assign(aborter, { cancel });
 };
