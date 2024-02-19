@@ -1,5 +1,11 @@
 # @emigrate/cli
 
+## 0.18.2
+
+### Patch Changes
+
+- 4152209: Handle the case where the config is returned as an object with a nested `default` property
+
 ## 0.18.1
 
 ### Patch Changes
