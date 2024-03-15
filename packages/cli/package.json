@@ -55,7 +55,7 @@
     "import-from-esm": "1.3.3",
     "is-interactive": "2.0.0",
     "log-update": "6.0.0",
-    "pretty-ms": "8.0.0",
+    "pretty-ms": "9.0.0",
     "serialize-error": "11.0.3"
   },
   "volta": {
