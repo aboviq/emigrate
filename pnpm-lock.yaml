@@ -191,6 +191,12 @@ importers:
       '@emigrate/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/bun':
+        specifier: 1.0.5
+        version: 1.0.5
+      bun-types:
+        specifier: 1.0.26
+        version: 1.0.26
 
   packages/storage-fs:
     dependencies:

@@ -52,6 +52,7 @@ class PinoReporter implements Required<EmigrateReporter> {
         scope: command,
         version,
       },
+      transport: process.isBun ? { target: 'pino/file', options: { destination: 1 } } : undefined,
     });
 
     this.#logger.info({ parameters }, `Emigrate "${command}" initialized${parameters.dry ? ' (dry-run)' : ''}`);

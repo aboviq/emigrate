@@ -40,7 +40,9 @@
     "pino": "8.16.2"
   },
   "devDependencies": {
-    "@emigrate/tsconfig": "workspace:*"
+    "@emigrate/tsconfig": "workspace:*",
+    "@types/bun": "1.0.5",
+    "bun-types": "1.0.26"
   },
   "volta": {
     "extends": "../../package.json"
