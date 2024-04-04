@@ -1,5 +1,11 @@
 # @emigrate/reporter-pino
 
+## 0.6.3
+
+### Patch Changes
+
+- 081ab34: Make sure Pino outputs logs in Bun environments
+
 ## 0.6.2
 
 ### Patch Changes
