@@ -9,6 +9,7 @@ import {
   type Pool,
   type ResultSetHeader,
   type RowDataPacket,
+  type Connection,
 } from 'mysql2/promise';
 import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
 import {
@@ -155,6 +156,66 @@ const deleteMigration = async (pool: Pool, table: string, migration: MigrationMe
   return result.affectedRows === 1;
 };
 
+const getDatabaseName = (config: ConnectionOptions | string) => {
+  if (typeof config === 'string') {
+    const uri = new URL(config);
+
+    return uri.pathname.replace(/^\//u, '');
+  }
+
+  return config.database ?? '';
+};
+
+const setDatabaseName = <T extends ConnectionOptions | string>(config: T, databaseName: string): T => {
+  if (typeof config === 'string') {
+    const uri = new URL(config);
+
+    uri.pathname = `/${databaseName}`;
+
+    return uri.toString() as T;
+  }
+
+  if (typeof config === 'object') {
+    return {
+      ...config,
+      database: databaseName,
+    };
+  }
+
+  throw new Error('Invalid connection config');
+};
+
+const initializeDatabase = async (config: ConnectionOptions | string) => {
+  let connection: Connection | undefined;
+
+  try {
+    connection = await getConnection(config);
+    await connection.query('SELECT 1');
+    await connection.end();
+  } catch (error) {
+    await connection?.end();
+
+    // The ER_BAD_DB_ERROR error code is thrown when the database does not exist but the user might have the permissions to create it
+    // Otherwise the error code is ER_DBACCESS_DENIED_ERROR
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ER_BAD_DB_ERROR') {
+      const databaseName = getDatabaseName(config);
+
+      const informationSchemaConfig = setDatabaseName(config, 'information_schema');
+
+      const informationSchemaConnection = await getConnection(informationSchemaConfig);
+      try {
+        await informationSchemaConnection.query(`CREATE DATABASE ${escapeId(databaseName)}`);
+        // Any database creation error here will be propagated
+      } finally {
+        await informationSchemaConnection.end();
+      }
+    } else {
+      // In this case we don't know how to handle the error, so we rethrow it
+      throw error;
+    }
+  }
+};
+
 const initializeTable = async (pool: Pool, table: string) => {
   const [result] = await pool.execute<RowDataPacket[]>({
     sql: `
@@ -186,6 +247,8 @@ const initializeTable = async (pool: Pool, table: string) => {
 export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlStorageOptions): EmigrateStorage => {
   return {
     async initializeStorage() {
+      await initializeDatabase(connection);
+
       const pool = getPool(connection);
 
       if (process.isBun) {
@@ -195,8 +258,6 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
           connection.stream.unref();
         });
       }
-
-      await pool.query('SELECT 1');
 
       try {
         await initializeTable(pool, table);

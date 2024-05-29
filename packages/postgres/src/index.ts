@@ -92,6 +92,64 @@ const deleteMigration = async (sql: Sql, table: string, migration: MigrationMeta
   return result.count === 1;
 };
 
+const getDatabaseName = (config: ConnectionOptions | string) => {
+  if (typeof config === 'string') {
+    const uri = new URL(config);
+
+    return uri.pathname.replace(/^\//u, '');
+  }
+
+  return config.database ?? '';
+};
+
+const setDatabaseName = <T extends ConnectionOptions | string>(config: T, databaseName: string): T => {
+  if (typeof config === 'string') {
+    const uri = new URL(config);
+
+    uri.pathname = `/${databaseName}`;
+
+    return uri.toString() as T;
+  }
+
+  if (typeof config === 'object') {
+    return {
+      ...config,
+      database: databaseName,
+    };
+  }
+
+  throw new Error('Invalid connection config');
+};
+
+const initializeDatabase = async (config: ConnectionOptions | string) => {
+  let sql: Sql | undefined;
+
+  try {
+    sql = await getPool(config);
+    await sql.end();
+  } catch (error) {
+    await sql?.end();
+
+    // The error code 3D000 means that the database does not exist, but the user might have the permissions to create it
+    if (error && typeof error === 'object' && 'code' in error && error.code === '3D000') {
+      const databaseName = getDatabaseName(config);
+
+      const postgresConfig = setDatabaseName(config, 'postgres');
+
+      const postgresSql = await getPool(postgresConfig);
+      try {
+        await postgresSql`CREATE DATABASE ${postgresSql(databaseName)}`;
+        // Any database creation error here will be propagated
+      } finally {
+        await postgresSql.end();
+      }
+    } else {
+      // In this case we don't know how to handle the error, so we rethrow it
+      throw error;
+    }
+  }
+};
+
 const initializeTable = async (sql: Sql, table: string) => {
   const [row] = await sql<Array<{ exists: 1 }>>`
     SELECT 1 as exists
@@ -122,6 +180,8 @@ export const createPostgresStorage = ({
 }: PostgresStorageOptions): EmigrateStorage => {
   return {
     async initializeStorage() {
+      await initializeDatabase(connection);
+
       const sql = await getPool(connection);
 
       try {
