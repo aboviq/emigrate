@@ -156,9 +156,26 @@ const deleteMigration = async (pool: Pool, table: string, migration: MigrationMe
 };
 
 const initializeTable = async (pool: Pool, table: string) => {
+  const [result] = await pool.execute<RowDataPacket[]>({
+    sql: `
+      SELECT
+        1 as table_exists
+      FROM
+        information_schema.tables
+      WHERE
+        table_schema = DATABASE()
+        AND table_name = ?
+    `,
+    values: [table],
+  });
+
+  if (result[0]?.['table_exists']) {
+    return;
+  }
+
   // This table definition is compatible with the one used by the immigration-mysql package
   await pool.execute(`
-    CREATE TABLE IF NOT EXISTS ${escapeId(table)} (
+    CREATE TABLE ${escapeId(table)} (
       name varchar(255) not null primary key,
       status varchar(32),
       date datetime not null
