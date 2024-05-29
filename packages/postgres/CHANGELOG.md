@@ -1,5 +1,11 @@
 # @emigrate/postgres
 
+## 0.3.0
+
+### Minor Changes
+
+- 4442604: Automatically create the database if it doesn't exist, and the user have the permissions to do so
+
 ## 0.2.6
 
 ### Patch Changes
