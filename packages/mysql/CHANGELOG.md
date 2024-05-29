@@ -1,5 +1,15 @@
 # @emigrate/mysql
 
+## 0.3.0
+
+### Minor Changes
+
+- 4442604: Automatically create the database if it doesn't exist, and the user have the permissions to do so
+
+### Patch Changes
+
+- aef2d7c: Avoid "CREATE TABLE IF NOT EXISTS" as it's too locking in a clustered database when running it concurrently
+
 ## 0.2.8
 
 ### Patch Changes
