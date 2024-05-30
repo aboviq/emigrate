@@ -1,5 +1,14 @@
 # @emigrate/postgres
 
+## 0.3.1
+
+### Patch Changes
+
+- ca154fa: Minimize package size by excluding \*.tsbuildinfo files
+- Updated dependencies [ca154fa]
+  - @emigrate/plugin-tools@0.9.7
+  - @emigrate/types@0.12.2
+
 ## 0.3.0
 
 ### Minor Changes

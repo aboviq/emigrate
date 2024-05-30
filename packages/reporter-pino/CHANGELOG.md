@@ -1,5 +1,13 @@
 # @emigrate/reporter-pino
 
+## 0.6.4
+
+### Patch Changes
+
+- ca154fa: Minimize package size by excluding \*.tsbuildinfo files
+- Updated dependencies [ca154fa]
+  - @emigrate/types@0.12.2
+
 ## 0.6.3
 
 ### Patch Changes
