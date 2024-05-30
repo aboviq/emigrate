@@ -1,5 +1,11 @@
 # @emigrate/types
 
+## 0.12.2
+
+### Patch Changes
+
+- ca154fa: Minimize package size by excluding \*.tsbuildinfo files
+
 ## 0.12.1
 
 ### Patch Changes
