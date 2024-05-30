@@ -19,7 +19,8 @@
     "emigrate": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "tsc --pretty",
