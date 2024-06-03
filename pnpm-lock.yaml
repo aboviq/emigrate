@@ -33,8 +33,8 @@ importers:
         specifier: 4.1.5
         version: 4.1.5
       prettier:
-        specifier: 3.1.1
-        version: 3.1.1
+        specifier: 3.3.0
+        version: 3.3.0
       tsx:
         specifier: 4.7.0
         version: 4.7.0
@@ -3796,7 +3796,7 @@ packages:
       is-proto-prop: 2.0.0
     dev: false
 
-  /eslint-plugin-prettier@5.0.1(eslint-config-prettier@8.10.0)(eslint@8.53.0)(prettier@3.1.1):
+  /eslint-plugin-prettier@5.0.1(eslint-config-prettier@8.10.0)(eslint@8.53.0)(prettier@3.3.0):
     resolution: {integrity: sha512-m3u5RnR56asrwV/lDC4GHorlW75DsFfmUcjfCYylTUs85dBRnB7VM6xG8eCMJdeDRnppzmxZVf1GEPJvl1JmNg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -3812,7 +3812,7 @@ packages:
     dependencies:
       eslint: 8.53.0
       eslint-config-prettier: 8.10.0(eslint@8.53.0)
-      prettier: 3.1.1
+      prettier: 3.3.0
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.5
     dev: false
@@ -7178,8 +7178,8 @@ packages:
     hasBin: true
     dev: false
 
-  /prettier@3.1.1:
-    resolution: {integrity: sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==}
+  /prettier@3.3.0:
+    resolution: {integrity: sha512-J9odKxERhCQ10OC2yb93583f6UnYutOeiV5i0zEDS7UGTdUt0u+y8erxl3lBKvwo/JHyyoEdXjwp4dke9oyZ/g==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false
@@ -9164,7 +9164,7 @@ packages:
       eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0)(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
       eslint-plugin-n: 16.3.0(eslint@8.53.0)
       eslint-plugin-no-use-extend-native: 0.5.0
-      eslint-plugin-prettier: 5.0.1(eslint-config-prettier@8.10.0)(eslint@8.53.0)(prettier@3.1.1)
+      eslint-plugin-prettier: 5.0.1(eslint-config-prettier@8.10.0)(eslint@8.53.0)(prettier@3.3.0)
       eslint-plugin-unicorn: 48.0.1(eslint@8.53.0)
       esm-utils: 4.2.1
       find-cache-dir: 4.0.0
@@ -9178,7 +9178,7 @@ packages:
       meow: 12.1.1
       micromatch: 4.0.5
       open-editor: 4.1.1
-      prettier: 3.1.1
+      prettier: 3.3.0
       semver: 7.5.4
       slash: 5.1.0
       to-absolute-glob: 3.0.0
