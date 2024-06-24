@@ -131,11 +131,11 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
       '@types/bun':
-        specifier: 1.0.5
-        version: 1.0.5
+        specifier: 1.1.2
+        version: 1.1.2
       bun-types:
-        specifier: 1.0.26
-        version: 1.0.26
+        specifier: 1.1.8
+        version: 1.1.8
 
   packages/plugin-generate-js:
     dependencies:
@@ -1791,6 +1791,12 @@ packages:
       bun-types: 1.0.26
     dev: true
 
+  /@types/bun@1.1.2:
+    resolution: {integrity: sha512-pRBDD3EDqPf83qe95i3EpYu5G2J8bbb78a3736vnCm2K8YWtEE5cvJUq2jkKvJhW07YTfQtbImywIwRhWL8z3Q==}
+    dependencies:
+      bun-types: 1.1.8
+    dev: true
+
   /@types/debug@4.1.12:
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
     dependencies:
@@ -1887,6 +1893,12 @@ packages:
 
   /@types/node@20.11.17:
     resolution: {integrity: sha512-QmgQZGWu1Yw9TDyAP9ZzpFJKynYNeOvwMJmaxABfieQoVoiVOS6MN1WSpqpRcbeA5+RW82kraAVxCCJg+780Qw==}
+    dependencies:
+      undici-types: 5.26.5
+    dev: true
+
+  /@types/node@20.12.14:
+    resolution: {integrity: sha512-scnD59RpYD91xngrQQLGkE+6UrHUPzeKZWhhjBSa3HSkwjbQc38+q3RoIVEwxQGRw3M+j5hpNAM+lgV3cVormg==}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -2704,6 +2716,13 @@ packages:
     resolution: {integrity: sha512-VcSj+SCaWIcMb0uSGIAtr8P92zq9q+unavcQmx27fk6HulCthXHBVrdGuXxAZbFtv7bHVjizRzR2mk9r/U8Nkg==}
     dependencies:
       '@types/node': 20.11.17
+      '@types/ws': 8.5.10
+    dev: true
+
+  /bun-types@1.1.8:
+    resolution: {integrity: sha512-dwhfuUKSGK8hm5Llcvb5+ejRh+4mIt8ibObJVKhZBsi0ScpXmt+AlaS1eDW6uRXCHj084Qt0kIqAJ08/7ZGC9Q==}
+    dependencies:
+      '@types/node': 20.12.14
       '@types/ws': 8.5.10
     dev: true
 
