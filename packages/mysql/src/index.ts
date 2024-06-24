@@ -41,9 +41,11 @@ export type MysqlLoaderOptions = {
   connection: ConnectionOptions | string;
 };
 
-const getConnection = async (connection: ConnectionOptions | string) => {
-  if (typeof connection === 'string') {
-    const uri = new URL(connection);
+const getConnection = async (options: ConnectionOptions | string) => {
+  let connection: Connection;
+
+  if (typeof options === 'string') {
+    const uri = new URL(options);
 
     // client side connectTimeout is unstable in mysql2 library
     // it throws an error you can't catch and crashes node
@@ -51,17 +53,25 @@ const getConnection = async (connection: ConnectionOptions | string) => {
     uri.searchParams.set('connectTimeout', '0');
     uri.searchParams.set('multipleStatements', 'true');
 
-    return createConnection(uri.toString());
+    connection = await createConnection(uri.toString());
+  } else {
+    connection = await createConnection({
+      ...options,
+      // client side connectTimeout is unstable in mysql2 library
+      // it throws an error you can't catch and crashes node
+      // best to leave this at 0 (disabled)
+      connectTimeout: 0,
+      multipleStatements: true,
+    });
   }
 
-  return createConnection({
-    ...connection,
-    // client side connectTimeout is unstable in mysql2 library
-    // it throws an error you can't catch and crashes node
-    // best to leave this at 0 (disabled)
-    connectTimeout: 0,
-    multipleStatements: true,
-  });
+  if (process.isBun) {
+    // @ts-expect-error the connection is not in the types but it's there
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    connection.connection.stream.unref();
+  }
+
+  return connection;
 };
 
 const getPool = (connection: PoolOptions | string) => {
@@ -353,12 +363,6 @@ export const createMysqlLoader = ({ connection }: MysqlLoaderOptions): LoaderPlu
       return async () => {
         const contents = await fs.readFile(migration.filePath, 'utf8');
         const conn = await getConnection(connection);
-
-        if (process.isBun) {
-          // @ts-expect-error the connection is not in the types but it's there
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          conn.connection.stream.unref();
-        }
 
         try {
           await conn.query(contents);
