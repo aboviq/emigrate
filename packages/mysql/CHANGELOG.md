@@ -1,5 +1,11 @@
 # @emigrate/mysql
 
+## 0.3.2
+
+### Patch Changes
+
+- 57498db: Unreference all connections when run using Bun, to not keep the process open unnecessarily long
+
 ## 0.3.1
 
 ### Patch Changes
