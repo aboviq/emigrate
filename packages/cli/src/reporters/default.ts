@@ -471,6 +471,6 @@ class DefaultReporter implements Required<EmigrateReporter> {
   }
 }
 
-const reporterDefault = interactive ? new DefaultFancyReporter() : new DefaultReporter();
+const reporterDefault: EmigrateReporter = interactive ? new DefaultFancyReporter() : new DefaultReporter();
 
 export default reporterDefault;

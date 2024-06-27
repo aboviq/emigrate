@@ -55,6 +55,6 @@ class JsonReporter implements EmigrateReporter {
   }
 }
 
-const jsonReporter = new JsonReporter() as EmigrateReporter;
+const jsonReporter: EmigrateReporter = new JsonReporter();
 
 export default jsonReporter;

@@ -3,6 +3,7 @@
   "display": "Build",
   "extends": "./base.json",
   "compilerOptions": {
-    "noEmit": false
+    "noEmit": false,
+    "outDir": "${configDir}/dist"
   }
 }

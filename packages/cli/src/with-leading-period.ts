@@ -1,1 +1,1 @@
-export const withLeadingPeriod = (string: string) => (string.startsWith('.') ? string : `.${string}`);
+export const withLeadingPeriod = (string: string): string => (string.startsWith('.') ? string : `.${string}`);

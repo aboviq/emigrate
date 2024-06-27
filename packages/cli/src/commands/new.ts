@@ -24,7 +24,7 @@ type ExtraFlags = {
 export default async function newCommand(
   { directory, template, reporter: reporterConfig, plugins = [], cwd, extension, color }: Config & ExtraFlags,
   name: string,
-) {
+): Promise<void> {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }

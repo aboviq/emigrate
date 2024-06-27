@@ -13,7 +13,9 @@ import {
 } from 'mysql2/promise';
 import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
 import {
+  type Awaitable,
   type MigrationMetadata,
+  type MigrationFunction,
   type EmigrateStorage,
   type LoaderPlugin,
   type Storage,
@@ -345,17 +347,6 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
   };
 };
 
-export const { initializeStorage } = createMysqlStorage({
-  table: process.env['MYSQL_TABLE'],
-  connection: process.env['MYSQL_URL'] ?? {
-    host: process.env['MYSQL_HOST'],
-    port: process.env['MYSQL_PORT'] ? Number.parseInt(process.env['MYSQL_PORT'], 10) : undefined,
-    user: process.env['MYSQL_USER'],
-    password: process.env['MYSQL_PASSWORD'],
-    database: process.env['MYSQL_DATABASE'],
-  },
-});
-
 export const createMysqlLoader = ({ connection }: MysqlLoaderOptions): LoaderPlugin => {
   return {
     loadableExtensions: ['.sql'],
@@ -374,7 +365,16 @@ export const createMysqlLoader = ({ connection }: MysqlLoaderOptions): LoaderPlu
   };
 };
 
-export const { loadableExtensions, loadMigration } = createMysqlLoader({
+export const generateMigration: GenerateMigrationFunction = async (name) => {
+  return {
+    filename: `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.sql`,
+    content: `-- Migration: ${name}
+`,
+  };
+};
+
+const storage = createMysqlStorage({
+  table: process.env['MYSQL_TABLE'],
   connection: process.env['MYSQL_URL'] ?? {
     host: process.env['MYSQL_HOST'],
     port: process.env['MYSQL_PORT'] ? Number.parseInt(process.env['MYSQL_PORT'], 10) : undefined,
@@ -384,13 +384,22 @@ export const { loadableExtensions, loadMigration } = createMysqlLoader({
   },
 });
 
-export const generateMigration: GenerateMigrationFunction = async (name) => {
-  return {
-    filename: `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.sql`,
-    content: `-- Migration: ${name}
-`,
-  };
-};
+const loader = createMysqlLoader({
+  connection: process.env['MYSQL_URL'] ?? {
+    host: process.env['MYSQL_HOST'],
+    port: process.env['MYSQL_PORT'] ? Number.parseInt(process.env['MYSQL_PORT'], 10) : undefined,
+    user: process.env['MYSQL_USER'],
+    password: process.env['MYSQL_PASSWORD'],
+    database: process.env['MYSQL_DATABASE'],
+  },
+});
+
+// eslint-disable-next-line prefer-destructuring
+export const initializeStorage: () => Promise<Storage> = storage.initializeStorage;
+// eslint-disable-next-line prefer-destructuring
+export const loadableExtensions: string[] = loader.loadableExtensions;
+// eslint-disable-next-line prefer-destructuring
+export const loadMigration: (migration: MigrationMetadata) => Awaitable<MigrationFunction> = loader.loadMigration;
 
 const defaultExport: EmigrateStorage & LoaderPlugin & GeneratorPlugin = {
   initializeStorage,

@@ -204,6 +204,8 @@ export const createPinoReporter = (options: PinoReporterOptions = {}): EmigrateR
   return new PinoReporter(options);
 };
 
-export default createPinoReporter({
+const defaultExport: EmigrateReporter = createPinoReporter({
   level: process.env['LOG_LEVEL'],
 });
+
+export default defaultExport;

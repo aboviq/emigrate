@@ -11,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
+    "isolatedDeclarations": true,
     "incremental": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -31,5 +32,7 @@
     "strict": true,
     "target": "ES2022",
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
-  }
+  },
+  "include": ["${configDir}/src"],
+  "exclude": ["${configDir}/dist"]
 }

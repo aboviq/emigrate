@@ -39,7 +39,7 @@ export default async function removeCommand(
     getMigrations,
   }: Config & ExtraFlags,
   name: string,
-) {
+): Promise<number> {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }

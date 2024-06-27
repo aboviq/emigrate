@@ -28,4 +28,7 @@ const getPackageInfo = async () => {
   throw new UnexpectedError(`Could not read package info from: ${packageInfoPath}`);
 };
 
-export const { version } = await getPackageInfo();
+const packageInfo = await getPackageInfo();
+
+// eslint-disable-next-line prefer-destructuring
+export const version: string = packageInfo.version;
