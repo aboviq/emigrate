@@ -10,6 +10,7 @@ on:
 
 # Allow this job to clone the repo and create a page deployment
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -29,7 +30,7 @@ jobs:
           echo $ASTRO_SITE
           echo $ASTRO_BASE
       - name: Install, build, and upload your site output
-        uses: withastro/action@v1
+        uses: withastro/action@v2
         with:
           path: ./docs # The root location of your Astro project inside the repository. (optional)
           node-version: 20 # The specific version of Node that should be used to build your site. Defaults to 18. (optional)
@@ -44,4 +45,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
