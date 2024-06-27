@@ -33,8 +33,8 @@ importers:
         specifier: 4.1.5
         version: 4.1.5
       prettier:
-        specifier: 3.1.1
-        version: 3.1.1
+        specifier: 3.3.2
+        version: 3.3.2
       tsx:
         specifier: 4.15.7
         version: 4.15.7
@@ -52,7 +52,7 @@ importers:
     dependencies:
       '@astrojs/check':
         specifier: ^0.7.0
-        version: 0.7.0(prettier@3.1.1)(typescript@5.5.2)
+        version: 0.7.0(prettier@3.3.2)(typescript@5.5.2)
       '@astrojs/starlight':
         specifier: ^0.15.0
         version: 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
@@ -3854,8 +3854,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.1.1:
-    resolution: {integrity: sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==}
+  prettier@3.3.2:
+    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -5045,9 +5045,9 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.20
 
-  '@astrojs/check@0.7.0(prettier@3.1.1)(typescript@5.5.2)':
+  '@astrojs/check@0.7.0(prettier@3.3.2)(typescript@5.5.2)':
     dependencies:
-      '@astrojs/language-server': 2.10.0(prettier@3.1.1)(typescript@5.5.2)
+      '@astrojs/language-server': 2.10.0(prettier@3.3.2)(typescript@5.5.2)
       chokidar: 3.5.3
       fast-glob: 3.3.2
       kleur: 4.1.5
@@ -5063,7 +5063,7 @@ snapshots:
 
   '@astrojs/internal-helpers@0.2.1': {}
 
-  '@astrojs/language-server@2.10.0(prettier@3.1.1)(typescript@5.5.2)':
+  '@astrojs/language-server@2.10.0(prettier@3.3.2)(typescript@5.5.2)':
     dependencies:
       '@astrojs/compiler': 2.8.1
       '@jridgewell/sourcemap-codec': 1.4.15
@@ -5076,13 +5076,13 @@ snapshots:
       volar-service-css: 0.0.45(@volar/language-service@2.2.5)
       volar-service-emmet: 0.0.45(@volar/language-service@2.2.5)
       volar-service-html: 0.0.45(@volar/language-service@2.2.5)
-      volar-service-prettier: 0.0.45(@volar/language-service@2.2.5)(prettier@3.1.1)
+      volar-service-prettier: 0.0.45(@volar/language-service@2.2.5)(prettier@3.3.2)
       volar-service-typescript: 0.0.45(@volar/language-service@2.2.5)
       volar-service-typescript-twoslash-queries: 0.0.45(@volar/language-service@2.2.5)
       vscode-html-languageservice: 5.3.0
       vscode-uri: 3.0.8
     optionalDependencies:
-      prettier: 3.1.1
+      prettier: 3.3.2
     transitivePeerDependencies:
       - typescript
 
@@ -7243,12 +7243,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1):
+  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1):
     dependencies:
       array.prototype.find: 2.2.2
       debug: 3.2.7
       enhanced-resolve: 0.9.1
-      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
+      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       find-root: 1.1.0
       hasown: 2.0.1
       interpret: 1.4.0
@@ -7261,14 +7261,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7296,7 +7296,7 @@ snapshots:
       eslint: 8.53.0
       ignore: 5.2.4
 
-  eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0):
+  eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       array-includes: 3.1.7
       array.prototype.flat: 1.3.2
@@ -7305,7 +7305,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       has: 1.0.4
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -7341,10 +7341,10 @@ snapshots:
       is-obj-prop: 1.0.0
       is-proto-prop: 2.0.0
 
-  eslint-plugin-prettier@5.0.1(@types/eslint@8.56.10)(eslint-config-prettier@8.10.0(eslint@8.53.0))(eslint@8.53.0)(prettier@3.1.1):
+  eslint-plugin-prettier@5.0.1(@types/eslint@8.56.10)(eslint-config-prettier@8.10.0(eslint@8.53.0))(eslint@8.53.0)(prettier@3.3.2):
     dependencies:
       eslint: 8.53.0
-      prettier: 3.1.1
+      prettier: 3.3.2
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.5
     optionalDependencies:
@@ -9499,7 +9499,7 @@ snapshots:
 
   prettier@2.8.8: {}
 
-  prettier@3.1.1: {}
+  prettier@3.3.2: {}
 
   pretty-ms@8.0.0:
     dependencies:
@@ -10612,12 +10612,12 @@ snapshots:
     optionalDependencies:
       '@volar/language-service': 2.2.5
 
-  volar-service-prettier@0.0.45(@volar/language-service@2.2.5)(prettier@3.1.1):
+  volar-service-prettier@0.0.45(@volar/language-service@2.2.5)(prettier@3.3.2):
     dependencies:
       vscode-uri: 3.0.8
     optionalDependencies:
       '@volar/language-service': 2.2.5
-      prettier: 3.1.1
+      prettier: 3.3.2
 
   volar-service-typescript-twoslash-queries@0.0.45(@volar/language-service@2.2.5):
     optionalDependencies:
@@ -10797,13 +10797,13 @@ snapshots:
       eslint-config-xo: 0.43.1(eslint@8.53.0)
       eslint-config-xo-typescript: 1.0.1(@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2))(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2)
       eslint-formatter-pretty: 5.0.0
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
       eslint-plugin-ava: 14.0.0(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
-      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
+      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       eslint-plugin-n: 16.3.0(eslint@8.53.0)
       eslint-plugin-no-use-extend-native: 0.5.0
-      eslint-plugin-prettier: 5.0.1(@types/eslint@8.56.10)(eslint-config-prettier@8.10.0(eslint@8.53.0))(eslint@8.53.0)(prettier@3.1.1)
+      eslint-plugin-prettier: 5.0.1(@types/eslint@8.56.10)(eslint-config-prettier@8.10.0(eslint@8.53.0))(eslint@8.53.0)(prettier@3.3.2)
       eslint-plugin-unicorn: 48.0.1(eslint@8.53.0)
       esm-utils: 4.2.1
       find-cache-dir: 4.0.0
@@ -10817,7 +10817,7 @@ snapshots:
       meow: 12.1.1
       micromatch: 4.0.5
       open-editor: 4.1.1
-      prettier: 3.1.1
+      prettier: 3.3.2
       semver: 7.5.4
       slash: 5.1.0
       to-absolute-glob: 3.0.0
