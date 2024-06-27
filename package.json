@@ -38,8 +38,9 @@
   "license": "MIT",
   "volta": {
     "node": "20.9.0",
-    "pnpm": "8.10.2"
+    "pnpm": "9.4.0"
   },
+  "packageManager": "pnpm@9.4.0",
   "engines": {
     "node": ">=18"
   },
