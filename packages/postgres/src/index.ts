@@ -11,6 +11,8 @@ import {
   type GeneratorPlugin,
   type SerializedError,
   type MigrationHistoryEntry,
+  type Awaitable,
+  type MigrationFunction,
 } from '@emigrate/types';
 
 const defaultTable = 'migrations';
@@ -255,17 +257,6 @@ export const createPostgresStorage = ({
   };
 };
 
-export const { initializeStorage } = createPostgresStorage({
-  table: process.env['POSTGRES_TABLE'],
-  connection: process.env['POSTGRES_URL'] ?? {
-    host: process.env['POSTGRES_HOST'],
-    port: process.env['POSTGRES_PORT'] ? Number.parseInt(process.env['POSTGRES_PORT'], 10) : undefined,
-    user: process.env['POSTGRES_USER'],
-    password: process.env['POSTGRES_PASSWORD'],
-    database: process.env['POSTGRES_DB'],
-  },
-});
-
 export const createPostgresLoader = ({ connection }: PostgresLoaderOptions): LoaderPlugin => {
   return {
     loadableExtensions: ['.sql'],
@@ -284,7 +275,16 @@ export const createPostgresLoader = ({ connection }: PostgresLoaderOptions): Loa
   };
 };
 
-export const { loadableExtensions, loadMigration } = createPostgresLoader({
+export const generateMigration: GenerateMigrationFunction = async (name) => {
+  return {
+    filename: `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.sql`,
+    content: `-- Migration: ${name}
+`,
+  };
+};
+
+const storage = createPostgresStorage({
+  table: process.env['POSTGRES_TABLE'],
   connection: process.env['POSTGRES_URL'] ?? {
     host: process.env['POSTGRES_HOST'],
     port: process.env['POSTGRES_PORT'] ? Number.parseInt(process.env['POSTGRES_PORT'], 10) : undefined,
@@ -294,13 +294,22 @@ export const { loadableExtensions, loadMigration } = createPostgresLoader({
   },
 });
 
-export const generateMigration: GenerateMigrationFunction = async (name) => {
-  return {
-    filename: `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.sql`,
-    content: `-- Migration: ${name}
-`,
-  };
-};
+const loader = createPostgresLoader({
+  connection: process.env['POSTGRES_URL'] ?? {
+    host: process.env['POSTGRES_HOST'],
+    port: process.env['POSTGRES_PORT'] ? Number.parseInt(process.env['POSTGRES_PORT'], 10) : undefined,
+    user: process.env['POSTGRES_USER'],
+    password: process.env['POSTGRES_PASSWORD'],
+    database: process.env['POSTGRES_DB'],
+  },
+});
+
+// eslint-disable-next-line prefer-destructuring
+export const initializeStorage: () => Promise<Storage> = storage.initializeStorage;
+// eslint-disable-next-line prefer-destructuring
+export const loadableExtensions: string[] = loader.loadableExtensions;
+// eslint-disable-next-line prefer-destructuring
+export const loadMigration: (migration: MigrationMetadata) => Awaitable<MigrationFunction> = loader.loadMigration;
 
 const defaultExport: EmigrateStorage & LoaderPlugin & GeneratorPlugin = {
   initializeStorage,

@@ -8,7 +8,7 @@ import { serializeError, errorConstructors, deserializeError } from 'serialize-e
 
 const formatter = new Intl.ListFormat('en', { style: 'long', type: 'disjunction' });
 
-export const toError = (error: unknown) => (error instanceof Error ? error : new Error(String(error)));
+export const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)));
 
 export const toSerializedError = (error: unknown) => {
   const errorInstance = toError(error);
@@ -30,7 +30,7 @@ export class EmigrateError extends Error {
 export class ShowUsageError extends EmigrateError {}
 
 export class MissingOptionError extends ShowUsageError {
-  static fromOption(option: string | string[]) {
+  static fromOption(option: string | string[]): MissingOptionError {
     return new MissingOptionError(
       `Missing required option: ${Array.isArray(option) ? formatter.format(option) : option}`,
       undefined,
@@ -48,7 +48,7 @@ export class MissingOptionError extends ShowUsageError {
 }
 
 export class MissingArgumentsError extends ShowUsageError {
-  static fromArgument(argument: string) {
+  static fromArgument(argument: string): MissingArgumentsError {
     return new MissingArgumentsError(`Missing required argument: ${argument}`, undefined, argument);
   }
 
@@ -62,7 +62,7 @@ export class MissingArgumentsError extends ShowUsageError {
 }
 
 export class OptionNeededError extends ShowUsageError {
-  static fromOption(option: string, message: string) {
+  static fromOption(option: string, message: string): OptionNeededError {
     return new OptionNeededError(message, undefined, option);
   }
 
@@ -76,7 +76,7 @@ export class OptionNeededError extends ShowUsageError {
 }
 
 export class BadOptionError extends ShowUsageError {
-  static fromOption(option: string, message: string) {
+  static fromOption(option: string, message: string): BadOptionError {
     return new BadOptionError(message, undefined, option);
   }
 
@@ -96,7 +96,7 @@ export class UnexpectedError extends EmigrateError {
 }
 
 export class MigrationHistoryError extends EmigrateError {
-  static fromHistoryEntry(entry: FailedMigrationHistoryEntry) {
+  static fromHistoryEntry(entry: FailedMigrationHistoryEntry): MigrationHistoryError {
     return new MigrationHistoryError(`Migration ${entry.name} is in a failed state, it should be fixed and removed`, {
       cause: deserializeError(entry.error),
     });
@@ -108,7 +108,7 @@ export class MigrationHistoryError extends EmigrateError {
 }
 
 export class MigrationLoadError extends EmigrateError {
-  static fromMetadata(metadata: MigrationMetadata, cause?: Error) {
+  static fromMetadata(metadata: MigrationMetadata, cause?: Error): MigrationLoadError {
     return new MigrationLoadError(`Failed to load migration file: ${metadata.relativeFilePath}`, { cause });
   }
 
@@ -118,7 +118,7 @@ export class MigrationLoadError extends EmigrateError {
 }
 
 export class MigrationRunError extends EmigrateError {
-  static fromMetadata(metadata: FailedMigrationMetadata) {
+  static fromMetadata(metadata: FailedMigrationMetadata): MigrationRunError {
     return new MigrationRunError(`Failed to run migration: ${metadata.relativeFilePath}`, { cause: metadata.error });
   }
 
@@ -128,7 +128,7 @@ export class MigrationRunError extends EmigrateError {
 }
 
 export class MigrationNotRunError extends EmigrateError {
-  static fromMetadata(metadata: MigrationMetadata, cause?: Error) {
+  static fromMetadata(metadata: MigrationMetadata, cause?: Error): MigrationNotRunError {
     return new MigrationNotRunError(`Migration "${metadata.name}" is not in the migration history`, { cause });
   }
 
@@ -138,7 +138,7 @@ export class MigrationNotRunError extends EmigrateError {
 }
 
 export class MigrationRemovalError extends EmigrateError {
-  static fromMetadata(metadata: MigrationMetadata, cause?: Error) {
+  static fromMetadata(metadata: MigrationMetadata, cause?: Error): MigrationRemovalError {
     return new MigrationRemovalError(`Failed to remove migration: ${metadata.relativeFilePath}`, { cause });
   }
 
@@ -148,7 +148,7 @@ export class MigrationRemovalError extends EmigrateError {
 }
 
 export class StorageInitError extends EmigrateError {
-  static fromError(error: Error) {
+  static fromError(error: Error): StorageInitError {
     return new StorageInitError('Could not initialize storage', { cause: error });
   }
 
@@ -158,11 +158,11 @@ export class StorageInitError extends EmigrateError {
 }
 
 export class CommandAbortError extends EmigrateError {
-  static fromSignal(signal: NodeJS.Signals) {
+  static fromSignal(signal: NodeJS.Signals): CommandAbortError {
     return new CommandAbortError(`Command aborted due to signal: ${signal}`);
   }
 
-  static fromReason(reason: string, cause?: unknown) {
+  static fromReason(reason: string, cause?: unknown): CommandAbortError {
     return new CommandAbortError(`Command aborted: ${reason}`, { cause });
   }
 
@@ -172,7 +172,7 @@ export class CommandAbortError extends EmigrateError {
 }
 
 export class ExecutionDesertedError extends EmigrateError {
-  static fromReason(reason: string, cause?: Error) {
+  static fromReason(reason: string, cause?: Error): ExecutionDesertedError {
     return new ExecutionDesertedError(`Execution deserted: ${reason}`, { cause });
   }
 

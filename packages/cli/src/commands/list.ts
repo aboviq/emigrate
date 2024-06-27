@@ -17,7 +17,7 @@ export default async function listCommand({
   storage: storageConfig,
   color,
   cwd,
-}: Config & ExtraFlags) {
+}: Config & ExtraFlags): Promise<number> {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }

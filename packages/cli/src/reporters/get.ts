@@ -1,7 +1,8 @@
+import type { EmigrateReporter } from '@emigrate/types';
 import { type Config } from '../types.js';
 import * as reporters from './index.js';
 
-export const getStandardReporter = (reporter?: Config['reporter']) => {
+export const getStandardReporter = (reporter?: Config['reporter']): EmigrateReporter | undefined => {
   if (!reporter) {
     return reporters.pretty;
   }
@@ -10,5 +11,5 @@ export const getStandardReporter = (reporter?: Config['reporter']) => {
     return reporters[reporter as keyof typeof reporters];
   }
 
-  return; // eslint-disable-line no-useless-return
+  return undefined;
 };

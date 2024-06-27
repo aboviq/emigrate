@@ -39,6 +39,6 @@ export const getMigrations = async (cwd: string, directory: string): Promise<Mig
       extension: withLeadingPeriod(path.extname(name)),
       directory,
       cwd,
-    } satisfies MigrationMetadata;
+    };
   });
 };

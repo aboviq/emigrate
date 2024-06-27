@@ -15,7 +15,7 @@ export type Mocked<T> = {
   [K in keyof T]: Mock<T[K]>;
 };
 
-export async function noop() {
+export async function noop(): Promise<void> {
   // noop
 }
 
@@ -31,8 +31,8 @@ export function getErrorCause(error: Error | undefined): Error | SerializedError
   return undefined;
 }
 
-export function getMockedStorage(historyEntries: Array<string | MigrationHistoryEntry>) {
-  const storage: Mocked<Storage> = {
+export function getMockedStorage(historyEntries: Array<string | MigrationHistoryEntry>): Mocked<Storage> {
+  return {
     lock: mock.fn(async (migrations) => migrations),
     unlock: mock.fn(async () => {
       // void
@@ -45,8 +45,6 @@ export function getMockedStorage(historyEntries: Array<string | MigrationHistory
     onError: mock.fn(),
     end: mock.fn(),
   };
-
-  return storage;
 }
 
 export function getMockedReporter(): Mocked<Required<EmigrateReporter>> {
