@@ -1,5 +1,12 @@
 # @emigrate/plugin-tools
 
+## 0.9.8
+
+### Patch Changes
+
+- d779286: Upgrade TypeScript to v5.5 and enable [isolatedDeclarations](https://devblogs.microsoft.com/typescript/announcing-typescript-5-5/#isolated-declarations)
+  - @emigrate/types@0.12.2
+
 ## 0.9.7
 
 ### Patch Changes

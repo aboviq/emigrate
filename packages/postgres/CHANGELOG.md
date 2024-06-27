@@ -1,5 +1,14 @@
 # @emigrate/postgres
 
+## 0.3.2
+
+### Patch Changes
+
+- d779286: Upgrade TypeScript to v5.5 and enable [isolatedDeclarations](https://devblogs.microsoft.com/typescript/announcing-typescript-5-5/#isolated-declarations)
+- Updated dependencies [d779286]
+  - @emigrate/plugin-tools@0.9.8
+  - @emigrate/types@0.12.2
+
 ## 0.3.1
 
 ### Patch Changes
