@@ -127,8 +127,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       mysql2:
-        specifier: 3.6.5
-        version: 3.6.5
+        specifier: 3.10.1
+        version: 3.10.1
     devDependencies:
       '@emigrate/tsconfig':
         specifier: workspace:*
@@ -3444,8 +3444,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  mysql2@3.6.5:
-    resolution: {integrity: sha512-pS/KqIb0xlXmtmqEuTvBXTmLoQ5LmAz5NW/r8UyQ1ldvnprNEj3P9GbmuQQ2J0A4LO+ynotGi6TbscPa8OUb+w==}
+  mysql2@3.10.1:
+    resolution: {integrity: sha512-6zo1T3GILsXMCex3YEu7hCz2OXLUarxFsxvFcUHWMpkPtmZLeTTWgRdc1gWyNJiYt6AxITmIf9bZDRy/jAfWew==}
     engines: {node: '>= 8.0'}
 
   mz@2.7.0:
@@ -7243,12 +7243,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1):
+  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1):
     dependencies:
       array.prototype.find: 2.2.2
       debug: 3.2.7
       enhanced-resolve: 0.9.1
-      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
+      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       find-root: 1.1.0
       hasown: 2.0.1
       interpret: 1.4.0
@@ -7261,14 +7261,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7296,7 +7296,7 @@ snapshots:
       eslint: 8.53.0
       ignore: 5.2.4
 
-  eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0):
+  eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       array-includes: 3.1.7
       array.prototype.flat: 1.3.2
@@ -7305,7 +7305,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       has: 1.0.4
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -9069,7 +9069,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  mysql2@3.6.5:
+  mysql2@3.10.1:
     dependencies:
       denque: 2.1.0
       generate-function: 2.3.1
@@ -10797,10 +10797,10 @@ snapshots:
       eslint-config-xo: 0.43.1(eslint@8.53.0)
       eslint-config-xo-typescript: 1.0.1(@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2))(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2)
       eslint-formatter-pretty: 5.0.0
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
       eslint-plugin-ava: 14.0.0(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
-      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
+      eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       eslint-plugin-n: 16.3.0(eslint@8.53.0)
       eslint-plugin-no-use-extend-native: 0.5.0
       eslint-plugin-prettier: 5.0.1(@types/eslint@8.56.10)(eslint-config-prettier@8.10.0(eslint@8.53.0))(eslint@8.53.0)(prettier@3.1.1)
