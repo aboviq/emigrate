@@ -58,10 +58,10 @@ importers:
         version: 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
       '@astrojs/starlight-tailwind':
         specifier: 2.0.1
-        version: 2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)
+        version: 2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.4.6))(tailwindcss@3.4.6)
       '@astrojs/tailwind':
         specifier: ^5.0.3
-        version: 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
+        version: 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.4.6)
       astro:
         specifier: ^4.0.1
         version: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
@@ -69,8 +69,8 @@ importers:
         specifier: ^0.32.5
         version: 0.32.6
       tailwindcss:
-        specifier: ^3.3.6
-        version: 3.3.6
+        specifier: ^3.4.6
+        version: 3.4.6
 
   packages/cli:
     dependencies:
@@ -3721,9 +3721,6 @@ packages:
   periscopic@3.1.0:
     resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
 
-  picocolors@1.0.0:
-    resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
-
   picocolors@1.0.1:
     resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
 
@@ -4184,6 +4181,7 @@ packages:
 
   shikiji@0.6.13:
     resolution: {integrity: sha512-4T7X39csvhT0p7GDnq9vysWddf2b6BeioiN3Ymhnt3xcy9tXmDcnsEFVxX18Z4YcQgEE/w48dLJ4pPPUcG9KkA==}
+    deprecated: Shikiji is merged back to Shiki v1.0, please migrate over to get the latest updates
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -4415,8 +4413,8 @@ packages:
     resolution: {integrity: sha512-L1dapNV6vu2s/4Sputv8xGsCdAVlb5nRDMFU/E27D44l5U6cw1g0dGd45uLc+OXjNMmF4ntiMdCimzcjFKQI8Q==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tailwindcss@3.3.6:
-    resolution: {integrity: sha512-AKjF7qbbLvLaPieoKeTjG1+FyNZT6KaJMJPFeQyLfIp7l82ggH1fbHJSsYIvnbTFQOlkh+gBYpyby5GT1LIdLw==}
+  tailwindcss@3.4.6:
+    resolution: {integrity: sha512-1uRHzPB+Vzu57ocybfZ4jh5Q3SdlH7XW23J5sQoM9LhE9eIOlzxer/3XPSsycvih3rboRsvt0QCmzSrqyOYUIA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -5042,7 +5040,7 @@ snapshots:
 
   '@ampproject/remapping@2.2.1':
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.3
+      '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.20
 
   '@astrojs/check@0.7.0(prettier@3.1.1)(typescript@5.5.2)':
@@ -5135,11 +5133,11 @@ snapshots:
       sitemap: 7.1.1
       zod: 3.22.4
 
-  '@astrojs/starlight-tailwind@2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)':
+  '@astrojs/starlight-tailwind@2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.4.6))(tailwindcss@3.4.6)':
     dependencies:
       '@astrojs/starlight': 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
-      '@astrojs/tailwind': 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
-      tailwindcss: 3.3.6
+      '@astrojs/tailwind': 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.4.6)
+      tailwindcss: 3.4.6
 
   '@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))':
     dependencies:
@@ -5165,13 +5163,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)':
+  '@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.4.6)':
     dependencies:
       astro: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
       autoprefixer: 10.4.16(postcss@8.4.32)
       postcss: 8.4.32
       postcss-load-config: 4.0.2(postcss@8.4.32)
-      tailwindcss: 3.3.6
+      tailwindcss: 3.4.6
     transitivePeerDependencies:
       - ts-node
 
@@ -5951,7 +5949,7 @@ snapshots:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       open: 9.1.0
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       tslib: 2.6.2
 
   '@rollup/rollup-android-arm-eabi@4.9.0':
@@ -6569,7 +6567,7 @@ snapshots:
       caniuse-lite: 1.0.30001570
       fraction.js: 4.3.7
       normalize-range: 0.1.2
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       postcss: 8.4.32
       postcss-value-parser: 4.2.0
 
@@ -7135,7 +7133,7 @@ snapshots:
     dependencies:
       get-intrinsic: 1.2.2
       has-tostringtag: 1.0.0
-      hasown: 2.0.0
+      hasown: 2.0.1
 
   es-shim-unscopables@1.0.2:
     dependencies:
@@ -7243,7 +7241,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1):
+  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1):
     dependencies:
       array.prototype.find: 2.2.2
       debug: 3.2.7
@@ -7261,14 +7259,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7305,7 +7303,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       has: 1.0.4
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -7685,7 +7683,7 @@ snapshots:
       function-bind: 1.1.2
       has-proto: 1.0.1
       has-symbols: 1.0.3
-      hasown: 2.0.0
+      hasown: 2.0.1
 
   get-set-props@0.1.0: {}
 
@@ -8112,7 +8110,7 @@ snapshots:
   internal-slot@1.0.6:
     dependencies:
       get-intrinsic: 1.2.2
-      hasown: 2.0.0
+      hasown: 2.0.1
       side-channel: 1.0.4
 
   interpret@1.4.0: {}
@@ -9373,8 +9371,6 @@ snapshots:
       estree-walker: 3.0.3
       is-reference: 3.0.2
 
-  picocolors@1.0.0: {}
-
   picocolors@1.0.1: {}
 
   picomatch@2.3.1: {}
@@ -9464,7 +9460,7 @@ snapshots:
   postcss@8.4.32:
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       source-map-js: 1.0.2
 
   postgres@3.4.3: {}
@@ -10134,7 +10130,7 @@ snapshots:
 
   sucrase@3.34.0:
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.3
+      '@jridgewell/gen-mapping': 0.3.5
       commander: 4.1.1
       glob: 7.1.6
       lines-and-columns: 1.2.4
@@ -10166,7 +10162,7 @@ snapshots:
       '@pkgr/utils': 2.4.2
       tslib: 2.6.2
 
-  tailwindcss@3.3.6:
+  tailwindcss@3.4.6:
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -10181,7 +10177,7 @@ snapshots:
       micromatch: 4.0.5
       normalize-path: 3.0.0
       object-hash: 3.0.0
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       postcss: 8.4.32
       postcss-import: 15.1.0(postcss@8.4.32)
       postcss-js: 4.0.1(postcss@8.4.32)
@@ -10520,7 +10516,7 @@ snapshots:
     dependencies:
       browserslist: 4.22.2
       escalade: 3.1.1
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   update-browserslist-db@1.0.16(browserslist@4.23.1):
     dependencies:
@@ -10797,7 +10793,7 @@ snapshots:
       eslint-config-xo: 0.43.1(eslint@8.53.0)
       eslint-config-xo-typescript: 1.0.1(@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2))(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2)
       eslint-formatter-pretty: 5.0.0
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
       eslint-plugin-ava: 14.0.0(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
       eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
