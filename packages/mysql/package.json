@@ -41,7 +41,7 @@
   "dependencies": {
     "@emigrate/plugin-tools": "workspace:*",
     "@emigrate/types": "workspace:*",
-    "mysql2": "3.6.5"
+    "mysql2": "3.11.0"
   },
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*",
