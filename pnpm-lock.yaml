@@ -102,8 +102,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       pretty-ms:
-        specifier: 8.0.0
-        version: 8.0.0
+        specifier: 9.1.0
+        version: 9.1.0
       serialize-error:
         specifier: 11.0.3
         version: 11.0.3
@@ -3663,9 +3663,9 @@ packages:
   parse-latin@5.0.1:
     resolution: {integrity: sha512-b/K8ExXaWC9t34kKeDV8kGXBkXZ1HCSAZRYE7HR14eA1GlXX5L8iWhs8USJNhQU9q5ci413jCKF0gOyovvyRBg==}
 
-  parse-ms@3.0.0:
-    resolution: {integrity: sha512-Tpb8Z7r7XbbtBTrM9UhpkzzaMrqA2VXMT3YChzYltwV3P3pM6t8wl7TvpMnSTosz1aQAdVib7kdoys7vYOPerw==}
-    engines: {node: '>=12'}
+  parse-ms@4.0.0:
+    resolution: {integrity: sha512-TXfryirbmq34y8QBwgqCVLi+8oA3oWx2eAnSn62ITyEhEYaWRlVZ2DvMM9eZbMs/RfxPu/PK/aBLyGj4IrqMHw==}
+    engines: {node: '>=18'}
 
   parse5@6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
@@ -3859,9 +3859,9 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  pretty-ms@8.0.0:
-    resolution: {integrity: sha512-ASJqOugUF1bbzI35STMBUpZqdfYKlJugy6JBziGi2EE+AL5JPJGSzvpeVXojxrr0ViUYoToUjb5kjSEGf7Y83Q==}
-    engines: {node: '>=14.16'}
+  pretty-ms@9.1.0:
+    resolution: {integrity: sha512-o1piW0n3tgKIKCwk2vpM/vOV13zjJzvP37Ioze54YlTHE06m4tjEbzg9WsKkvTuyYln2DHjo5pY4qrZGI0otpw==}
+    engines: {node: '>=18'}
 
   prismjs@1.29.0:
     resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
@@ -4184,6 +4184,7 @@ packages:
 
   shikiji@0.6.13:
     resolution: {integrity: sha512-4T7X39csvhT0p7GDnq9vysWddf2b6BeioiN3Ymhnt3xcy9tXmDcnsEFVxX18Z4YcQgEE/w48dLJ4pPPUcG9KkA==}
+    deprecated: Shikiji is merged back to Shiki v1.0, please migrate over to get the latest updates
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -7243,7 +7244,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1):
+  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1):
     dependencies:
       array.prototype.find: 2.2.2
       debug: 3.2.7
@@ -7261,14 +7262,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7305,7 +7306,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       has: 1.0.4
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -9330,7 +9331,7 @@ snapshots:
       unist-util-modify-children: 3.1.1
       unist-util-visit-children: 2.0.2
 
-  parse-ms@3.0.0: {}
+  parse-ms@4.0.0: {}
 
   parse5@6.0.1: {}
 
@@ -9501,9 +9502,9 @@ snapshots:
 
   prettier@3.1.1: {}
 
-  pretty-ms@8.0.0:
+  pretty-ms@9.1.0:
     dependencies:
-      parse-ms: 3.0.0
+      parse-ms: 4.0.0
 
   prismjs@1.29.0: {}
 
@@ -10797,7 +10798,7 @@ snapshots:
       eslint-config-xo: 0.43.1(eslint@8.53.0)
       eslint-config-xo-typescript: 1.0.1(@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2))(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2)
       eslint-formatter-pretty: 5.0.0
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
       eslint-plugin-ava: 14.0.0(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
       eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
