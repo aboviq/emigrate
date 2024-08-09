@@ -37,11 +37,36 @@ jobs:
         run: pnpm install
 
       - name: Create Release Pull Request
-        uses: changesets/action@v1.4.7
+        id: changesets
+        uses: aboviq/changesets-action@main
         with:
           publish: pnpm run release
           commit: 'chore(release): version packages'
           title: 'chore(release): version packages'
+          createGithubReleases: aggregate
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Release to @next tag on npm
+        if: github.ref_name == 'main' && steps.changesets.outputs.published != 'true'
+        run: |
+          git checkout main
+
+          CHANGESET_FILE=$(git diff-tree --no-commit-id --name-only HEAD -r ".changeset/*-*-*.md")
+          if [ -z "$CHANGESET_FILE" ]; then
+            echo "No changesets found, skipping release to @next tag"
+            exit 0
+          fi
+
+          AFFECTED_PACKAGES=$(sed -n '/---/,/---/p' "$CHANGESET_FILE" | sed '/---/d')
+          if [ -z "$AFFECTED_PACKAGES" ]; then
+            echo "No packages affected by changesets, skipping release to @next tag"
+            exit 0
+          fi
+
+          pnpm changeset version --snapshot next
+          pnpm changeset publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
