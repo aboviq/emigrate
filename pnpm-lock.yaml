@@ -58,10 +58,10 @@ importers:
         version: 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
       '@astrojs/starlight-tailwind':
         specifier: 2.0.1
-        version: 2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)
+        version: 2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.1.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)
       '@astrojs/tailwind':
-        specifier: ^5.0.3
-        version: 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
+        specifier: ^5.1.1
+        version: 5.1.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
       astro:
         specifier: ^4.0.1
         version: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
@@ -288,10 +288,10 @@ packages:
     peerDependencies:
       astro: ^4.0.0
 
-  '@astrojs/tailwind@5.0.3':
-    resolution: {integrity: sha512-p+uFa1PNuV8RxhGkPUFgVq8CUbmS3xr0u5k1An2xKECLotRh7vsrGcPUijHvYOt42URohcg8rIq0CxNoVMhReg==}
+  '@astrojs/tailwind@5.1.1':
+    resolution: {integrity: sha512-LwurA10uIKcGRxQP2R81RvAnBT0WPKzBntXZBF4hrAefDgM5Uumn0nsGr6tdIjSARgYz4X+Cq/Vh78t3bql3yw==}
     peerDependencies:
-      astro: ^3.0.0 || ^4.0.0
+      astro: ^3.0.0 || ^4.0.0 || ^5.0.0-beta.0
       tailwindcss: ^3.0.24
 
   '@astrojs/telemetry@3.0.4':
@@ -1434,8 +1434,8 @@ packages:
     resolution: {integrity: sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==}
     engines: {node: '>=8.0.0'}
 
-  autoprefixer@10.4.16:
-    resolution: {integrity: sha512-7vd3UC6xKp0HLfua5IjZlcXvGAGy7cBAXTg2lyQ/8WpNhd6SiZ8Be+xm3FyBSYJx5GKcpRCzBh7RH4/0dnY+uQ==}
+  autoprefixer@10.4.20:
+    resolution: {integrity: sha512-XY25y5xSv/wEoqzDyXXME4AFfkZI0P23z6Fs3YgymDnKJkCGOnkL0iTxCa85UTqaSgfcqyf3UA6+c7wUvx/16g==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
@@ -1508,13 +1508,8 @@ packages:
   breakword@1.0.6:
     resolution: {integrity: sha512-yjxDAYyK/pBvws9H4xKYpLDpYKEH6CzrBPAuXq3x18I+c/2MkVtT3qAr7Oloi6Dss9qNhPVueAAVU1CSeNDIXw==}
 
-  browserslist@4.22.2:
-    resolution: {integrity: sha512-0UgcrvQmBDvZHFGdYUehrCNIazki7/lUP3kkoi/r3YB2amZbFM9J43ZRkJTXBUZK4gmx56+Sqk9+Vs9mwZx9+A==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-
-  browserslist@4.23.1:
-    resolution: {integrity: sha512-TUfofFo/KsK/bWZ9TWQ5O26tsWW4Uhmt8IYklbnUa70udB6P2wA7w7o4PY4muaEPBQaAX+CEnmmIA41NVHtPVw==}
+  browserslist@4.23.3:
+    resolution: {integrity: sha512-btwCFJVjI4YWDNfau8RhZ+B1Q/VLoUITrm3RlP6y1tYGWIOa+InuYiRGXUBXo8nA1qKmHMyLB/iVQg5TT4eFoA==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -1567,11 +1562,8 @@ packages:
     resolution: {integrity: sha512-xlx1yCK2Oc1APsPXDL2LdlNP6+uu8OCDdhOBSVT279M/S+y75O30C2VuD8T2ogdePBBl7PfPF4504tnLgX3zfw==}
     engines: {node: '>=14.16'}
 
-  caniuse-lite@1.0.30001570:
-    resolution: {integrity: sha512-+3e0ASu4sw1SWaoCtvPeyXp+5PsjigkSt8OXZbF9StH5pQWbxEjLAZE3n8Aup5udop1uRiKA7a4utUk/uoSpUw==}
-
-  caniuse-lite@1.0.30001638:
-    resolution: {integrity: sha512-5SuJUJ7cZnhPpeLHaH0c/HPAnAHZvS6ElWyHK9GSIbVOQABLzowiI2pjmpvZ1WEbkyz46iFd4UXlOHR5SqgfMQ==}
+  caniuse-lite@1.0.30001662:
+    resolution: {integrity: sha512-sgMUVwLmGseH8ZIrm1d51UbrhqMCH3jvS7gF/M6byuHOnKyLOBL7W8yz5V02OHwgLGA36o/AFhWzzh4uc5aqTA==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -1931,11 +1923,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  electron-to-chromium@1.4.613:
-    resolution: {integrity: sha512-r4x5+FowKG6q+/Wj0W9nidx7QO31BJwmR2uEo+Qh3YLGQ8SbBAFuDFpTxzly/I2gsbrFwBuIjrMp423L3O5U3w==}
-
-  electron-to-chromium@1.4.812:
-    resolution: {integrity: sha512-7L8fC2Ey/b6SePDFKR2zHAy4mbdp1/38Yk5TsARO66W3hC5KEaeKMMHoxwtuH+jcu2AYLSn9QX04i95t6Fl1Hg==}
+  electron-to-chromium@1.5.27:
+    resolution: {integrity: sha512-o37j1vZqCoEgBuWWXLHQgTN/KDKe7zwpiY5CPeq2RvUqOyJw9xnrULzZAEVQ5p4h+zjMk7hgtOoPdnLxr7m/jw==}
 
   elegant-spinner@3.0.0:
     resolution: {integrity: sha512-nWUuor3FWTGYAch7SY0unb5qLzs7eAc24ic9PBh+eQctFNQ4IDWJqBpBgsL4SrrGHHN0mJoL7CpWZby5t2KjFg==}
@@ -2017,10 +2006,6 @@ packages:
     resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
     engines: {node: '>=12'}
     hasBin: true
-
-  escalade@3.1.1:
-    resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
-    engines: {node: '>=6'}
 
   escalade@3.1.2:
     resolution: {integrity: sha512-ErCHMCae19vR8vQGe50xIsVomy19rg6gFu3+r3jkEO46suLMWBksvVyoGgQV+jOfl84ZSOSlmv6Gxa89PmTGmA==}
@@ -3487,8 +3472,8 @@ packages:
   node-addon-api@6.1.0:
     resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
 
-  node-releases@2.0.14:
-    resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
+  node-releases@2.0.18:
+    resolution: {integrity: sha512-d9VeXT4SJ7ZeOqGX6R5EM022wpL+eWPooLI+5UpWn2jCT1aosUQEhQP214x33Wkwx3JQMvIm+tIoVOdodFS40g==}
 
   normalize-package-data@2.5.0:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
@@ -3724,8 +3709,8 @@ packages:
   picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
 
-  picocolors@1.0.1:
-    resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
+  picocolors@1.1.0:
+    resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
 
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
@@ -3826,6 +3811,10 @@ packages:
 
   postcss@8.4.32:
     resolution: {integrity: sha512-D/kj5JNu6oo2EIy+XL/26JEDTlIbB8hw85G8StOE6L74RQAVVP5rej6wxCNqyMbR4RkPfqvezVbPw81Ngd6Kcw==}
+    engines: {node: ^10 || ^12 || >=14}
+
+  postcss@8.4.47:
+    resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   postgres@3.4.3:
@@ -4184,6 +4173,7 @@ packages:
 
   shikiji@0.6.13:
     resolution: {integrity: sha512-4T7X39csvhT0p7GDnq9vysWddf2b6BeioiN3Ymhnt3xcy9tXmDcnsEFVxX18Z4YcQgEE/w48dLJ4pPPUcG9KkA==}
+    deprecated: Shikiji is merged back to Shiki v1.0, please migrate over to get the latest updates
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -4242,6 +4232,10 @@ packages:
 
   source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
+    engines: {node: '>=0.10.0'}
+
+  source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
   source-map-support@0.5.21:
@@ -4725,14 +4719,8 @@ packages:
     resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}
     engines: {node: '>=8'}
 
-  update-browserslist-db@1.0.13:
-    resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}
-    hasBin: true
-    peerDependencies:
-      browserslist: '>= 4.21.0'
-
-  update-browserslist-db@1.0.16:
-    resolution: {integrity: sha512-KVbTxlBYlckhF5wgfyZXTWnMn7MMZjMu9XG8bPlliUOP9ThaF4QnhP8qrjrH7DRzHfSk0oQv1wToW+iA5GajEQ==}
+  update-browserslist-db@1.1.0:
+    resolution: {integrity: sha512-EdRAaAyk2cUE1wOf2DkEhzxqOQvFOoRJFNS6NeyJ01Gp2beMRpBAINjM2iDXE3KCuKhwnvHIQCJm6ThL2Z+HzQ==}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
@@ -5135,10 +5123,10 @@ snapshots:
       sitemap: 7.1.1
       zod: 3.22.4
 
-  '@astrojs/starlight-tailwind@2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)':
+  '@astrojs/starlight-tailwind@2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.1.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)':
     dependencies:
       '@astrojs/starlight': 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
-      '@astrojs/tailwind': 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
+      '@astrojs/tailwind': 5.1.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
       tailwindcss: 3.3.6
 
   '@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))':
@@ -5165,12 +5153,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)':
+  '@astrojs/tailwind@5.1.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)':
     dependencies:
       astro: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
-      autoprefixer: 10.4.16(postcss@8.4.32)
-      postcss: 8.4.32
-      postcss-load-config: 4.0.2(postcss@8.4.32)
+      autoprefixer: 10.4.20(postcss@8.4.47)
+      postcss: 8.4.47
+      postcss-load-config: 4.0.2(postcss@8.4.47)
       tailwindcss: 3.3.6
     transitivePeerDependencies:
       - ts-node
@@ -5229,7 +5217,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.23.5
       '@babel/helper-validator-option': 7.23.5
-      browserslist: 4.22.2
+      browserslist: 4.23.3
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -5785,8 +5773,8 @@ snapshots:
       '@ctrl/tinycolor': 3.6.1
       hast-util-to-html: 8.0.4
       hastscript: 7.2.0
-      postcss: 8.4.32
-      postcss-nested: 6.0.1(postcss@8.4.32)
+      postcss: 8.4.47
+      postcss-nested: 6.0.1(postcss@8.4.47)
 
   '@expressive-code/plugin-frames@0.29.4':
     dependencies:
@@ -5951,7 +5939,7 @@ snapshots:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       open: 9.1.0
-      picocolors: 1.0.0
+      picocolors: 1.1.0
       tslib: 2.6.2
 
   '@rollup/rollup-android-arm-eabi@4.9.0':
@@ -6563,14 +6551,14 @@ snapshots:
 
   atomic-sleep@1.0.0: {}
 
-  autoprefixer@10.4.16(postcss@8.4.32):
+  autoprefixer@10.4.20(postcss@8.4.47):
     dependencies:
-      browserslist: 4.22.2
-      caniuse-lite: 1.0.30001570
+      browserslist: 4.23.3
+      caniuse-lite: 1.0.30001662
       fraction.js: 4.3.7
       normalize-range: 0.1.2
-      picocolors: 1.0.0
-      postcss: 8.4.32
+      picocolors: 1.1.0
+      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   available-typed-arrays@1.0.5: {}
@@ -6647,19 +6635,12 @@ snapshots:
     dependencies:
       wcwidth: 1.0.1
 
-  browserslist@4.22.2:
+  browserslist@4.23.3:
     dependencies:
-      caniuse-lite: 1.0.30001570
-      electron-to-chromium: 1.4.613
-      node-releases: 2.0.14
-      update-browserslist-db: 1.0.13(browserslist@4.22.2)
-
-  browserslist@4.23.1:
-    dependencies:
-      caniuse-lite: 1.0.30001638
-      electron-to-chromium: 1.4.812
-      node-releases: 2.0.14
-      update-browserslist-db: 1.0.16(browserslist@4.23.1)
+      caniuse-lite: 1.0.30001662
+      electron-to-chromium: 1.5.27
+      node-releases: 2.0.18
+      update-browserslist-db: 1.1.0(browserslist@4.23.3)
 
   buffer-from@1.1.2: {}
 
@@ -6713,9 +6694,7 @@ snapshots:
 
   camelcase@7.0.1: {}
 
-  caniuse-lite@1.0.30001570: {}
-
-  caniuse-lite@1.0.30001638: {}
+  caniuse-lite@1.0.30001662: {}
 
   ccount@2.0.1: {}
 
@@ -7034,9 +7013,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.4.613: {}
-
-  electron-to-chromium@1.4.812: {}
+  electron-to-chromium@1.5.27: {}
 
   elegant-spinner@3.0.0: {}
 
@@ -7198,8 +7175,6 @@ snapshots:
       '@esbuild/win32-ia32': 0.21.5
       '@esbuild/win32-x64': 0.21.5
 
-  escalade@3.1.1: {}
-
   escalade@3.1.2: {}
 
   escape-string-regexp@1.0.5: {}
@@ -7243,7 +7218,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1):
+  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1):
     dependencies:
       array.prototype.find: 2.2.2
       debug: 3.2.7
@@ -7261,14 +7236,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.10.0(eslint@8.53.0)(typescript@5.5.2)
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7305,7 +7280,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.53.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1))(eslint@8.53.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1))(eslint@8.53.0)
       has: 1.0.4
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -9118,7 +9093,7 @@ snapshots:
 
   node-addon-api@6.1.0: {}
 
-  node-releases@2.0.14: {}
+  node-releases@2.0.18: {}
 
   normalize-package-data@2.5.0:
     dependencies:
@@ -9375,7 +9350,7 @@ snapshots:
 
   picocolors@1.0.0: {}
 
-  picocolors@1.0.1: {}
+  picocolors@1.1.0: {}
 
   picomatch@2.3.1: {}
 
@@ -9449,9 +9424,21 @@ snapshots:
     optionalDependencies:
       postcss: 8.4.32
 
+  postcss-load-config@4.0.2(postcss@8.4.47):
+    dependencies:
+      lilconfig: 3.0.0
+      yaml: 2.3.4
+    optionalDependencies:
+      postcss: 8.4.47
+
   postcss-nested@6.0.1(postcss@8.4.32):
     dependencies:
       postcss: 8.4.32
+      postcss-selector-parser: 6.0.13
+
+  postcss-nested@6.0.1(postcss@8.4.47):
+    dependencies:
+      postcss: 8.4.47
       postcss-selector-parser: 6.0.13
 
   postcss-selector-parser@6.0.13:
@@ -9466,6 +9453,12 @@ snapshots:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+
+  postcss@8.4.47:
+    dependencies:
+      nanoid: 3.3.7
+      picocolors: 1.1.0
+      source-map-js: 1.2.1
 
   postgres@3.4.3: {}
 
@@ -9975,6 +9968,8 @@ snapshots:
       atomic-sleep: 1.0.0
 
   source-map-js@1.0.2: {}
+
+  source-map-js@1.2.1: {}
 
   source-map-support@0.5.21:
     dependencies:
@@ -10516,17 +10511,11 @@ snapshots:
 
   untildify@4.0.0: {}
 
-  update-browserslist-db@1.0.13(browserslist@4.22.2):
+  update-browserslist-db@1.1.0(browserslist@4.23.3):
     dependencies:
-      browserslist: 4.22.2
-      escalade: 3.1.1
-      picocolors: 1.0.0
-
-  update-browserslist-db@1.0.16(browserslist@4.23.1):
-    dependencies:
-      browserslist: 4.23.1
+      browserslist: 4.23.3
       escalade: 3.1.2
-      picocolors: 1.0.1
+      picocolors: 1.1.0
 
   uri-js@4.4.1:
     dependencies:
@@ -10577,7 +10566,7 @@ snapshots:
   vite@5.0.9(@types/node@20.12.14)(terser@5.31.1):
     dependencies:
       esbuild: 0.19.9
-      postcss: 8.4.32
+      postcss: 8.4.47
       rollup: 4.9.0
     optionalDependencies:
       '@types/node': 20.12.14
@@ -10694,7 +10683,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.12.1
       acorn: 8.12.0
       acorn-import-assertions: 1.9.0(acorn@8.12.0)
-      browserslist: 4.23.1
+      browserslist: 4.23.3
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.0
       es-module-lexer: 1.5.4
@@ -10797,7 +10786,7 @@ snapshots:
       eslint-config-xo: 0.43.1(eslint@8.53.0)
       eslint-config-xo-typescript: 1.0.1(@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2))(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0)(typescript@5.5.2)
       eslint-formatter-pretty: 5.0.0
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5)(webpack@5.90.1)
+      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint@8.53.0))(webpack@5.90.1)
       eslint-plugin-ava: 14.0.0(eslint@8.53.0)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.53.0)
       eslint-plugin-import: 2.27.5(@typescript-eslint/parser@6.10.0(eslint@8.53.0)(typescript@5.5.2))(eslint-import-resolver-webpack@0.13.8)(eslint@8.53.0)
