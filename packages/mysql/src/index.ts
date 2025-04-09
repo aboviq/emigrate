@@ -12,19 +12,17 @@ import {
   type RowDataPacket,
   type Connection,
 } from 'mysql2/promise';
-import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
 import {
-  type Awaitable,
   type MigrationMetadata,
-  type MigrationFunction,
+  type MigrationLoader,
   type EmigrateStorage,
   type LoaderPlugin,
   type Storage,
   type MigrationStatus,
   type MigrationMetadataFinished,
-  type GenerateMigrationFunction,
-  type GeneratorPlugin,
+  type TemplatePlugin,
   type SerializedError,
+  type Template,
 } from '@emigrate/types';
 
 const defaultTable = 'migrations';
@@ -429,14 +427,6 @@ export const createMysqlLoader = ({ connection }: MysqlLoaderOptions): LoaderPlu
   };
 };
 
-export const generateMigration: GenerateMigrationFunction = async (name) => {
-  return {
-    filename: `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.sql`,
-    content: `-- Migration: ${name}
-`,
-  };
-};
-
 const storage = createMysqlStorage({
   table: process.env['MYSQL_TABLE'],
   connection: process.env['MYSQL_URL'] ?? {
@@ -463,13 +453,19 @@ export const initializeStorage: () => Promise<Storage> = storage.initializeStora
 // eslint-disable-next-line prefer-destructuring
 export const loadableExtensions: string[] = loader.loadableExtensions;
 // eslint-disable-next-line prefer-destructuring
-export const loadMigration: (migration: MigrationMetadata) => Awaitable<MigrationFunction> = loader.loadMigration;
+export const loadMigration: MigrationLoader = loader.loadMigration;
 
-const defaultExport: EmigrateStorage & LoaderPlugin & GeneratorPlugin = {
+const sqlTemplate: Template = {
+  extension: '.sql',
+  template: `-- Migration: {{name}}
+`,
+};
+
+const defaultExport: EmigrateStorage & LoaderPlugin & TemplatePlugin = {
   initializeStorage,
   loadableExtensions,
   loadMigration,
-  generateMigration,
+  templates: [sqlTemplate],
 };
 
 export default defaultExport;

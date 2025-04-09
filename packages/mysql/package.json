@@ -33,7 +33,7 @@
     "emigrate-storage",
     "emigrate-loader",
     "emigrate-plugin",
-    "emigrate-generator",
+    "emigrate-template",
     "migrations",
     "mysql"
   ],
@@ -43,7 +43,6 @@
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "dependencies": {
-    "@emigrate/plugin-tools": "workspace:*",
     "@emigrate/types": "workspace:*",
     "mysql2": "3.6.5"
   },

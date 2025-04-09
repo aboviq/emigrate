@@ -1,14 +1,14 @@
 import { promisify } from 'node:util';
-import { type LoaderPlugin } from '@emigrate/types';
+import { type LoaderPlugin, type MigrationFunction } from '@emigrate/types';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const promisifyIfNeeded = <T extends Function>(fn: T) => {
   if (fn.length === 0) {
-    return fn;
+    return fn as unknown as MigrationFunction;
   }
 
   if (fn.length === 1) {
-    return promisify(fn);
+    return promisify(fn) as MigrationFunction;
   }
 
   throw new Error(
@@ -22,9 +22,7 @@ const loaderJs: LoaderPlugin = {
     const migrationModule: unknown = await import(migration.filePath);
 
     if (typeof migrationModule === 'function') {
-      return async () => {
-        await promisifyIfNeeded(migrationModule)();
-      };
+      return promisifyIfNeeded(migrationModule);
     }
 
     if (
@@ -33,10 +31,7 @@ const loaderJs: LoaderPlugin = {
       'default' in migrationModule &&
       typeof migrationModule.default === 'function'
     ) {
-      const migrationFunction = migrationModule.default;
-      return async () => {
-        await promisifyIfNeeded(migrationFunction)();
-      };
+      return promisifyIfNeeded(migrationModule.default);
     }
 
     if (
@@ -45,15 +40,10 @@ const loaderJs: LoaderPlugin = {
       'up' in migrationModule &&
       typeof migrationModule.up === 'function'
     ) {
-      const migrationFunction = migrationModule.up;
-      return async () => {
-        await promisifyIfNeeded(migrationFunction)();
-      };
+      return promisifyIfNeeded(migrationModule.up);
     }
 
-    return async () => {
-      throw new Error(`Migration file does not export a function: ${migration.relativeFilePath}`);
-    };
+    throw new Error(`Migration file does not export a migration function: ${migration.relativeFilePath}`);
   },
 };
 

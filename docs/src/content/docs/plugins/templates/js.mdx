@@ -1,0 +1,56 @@
+---
+title: "JavaScript Template"
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Link from '@components/Link.astro';
+
+A default <Link href="/plugins/templates/">template plugin</Link> that can generate JavaScript or TypeScript migration files (in either ESM or CommonJS format).
+
+## Installation
+
+The JavaScript template plugin is built-in and does not need to be installed separately.
+
+## Usage
+
+To generate a new migration file with the default JavaScript template and the `.js` file extension use the `new` command:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npx emigrate new create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm emigrate new create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn emigrate new create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bunx --bun emigrate new create some fancy table
+    ```
+  </TabItem>
+  <TabItem label="deno">
+    ```json title="package.json" {3}
+    {
+      "scripts": {
+        "emigrate": "emigrate"
+      }
+    }
+    ```
+
+    ```bash
+    deno task emigrate new create some fancy table
+    ```
+  </TabItem>
+</Tabs>
+
+You can use the `--extension` option to specify a different file extension for the migration file, e.g. `emigrate new --extension .cjs create some table`.
+
+For more information see <Link href="/cli/new/">the `new` command</Link>'s documentation.

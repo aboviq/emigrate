@@ -2,19 +2,40 @@ import process from 'node:process';
 import {
   type PluginFromType,
   type PluginType,
-  type GeneratorPlugin,
+  type TemplatePlugin,
+  type Template,
   type EmigrateReporter,
   type EmigrateStorage,
   type LoaderPlugin,
   type StringOrModule,
 } from '@emigrate/types';
 
-export const isGeneratorPlugin = (plugin: any): plugin is GeneratorPlugin => {
-  if (!plugin || typeof plugin !== 'object') {
+export const isTemplate = (template: unknown): template is Template => {
+  if (!template || typeof template !== 'object') {
     return false;
   }
 
-  return typeof plugin.generateMigration === 'function';
+  if (!('extension' in template) || !('template' in template)) {
+    return false;
+  }
+
+  if (typeof template.extension !== 'string') {
+    return false;
+  }
+
+  return ['function', 'string'].includes(typeof template.template);
+};
+
+export const isTemplatePlugin = (plugin: unknown): plugin is TemplatePlugin => {
+  if (!plugin || typeof plugin !== 'object' || !('templates' in plugin) || !Array.isArray(plugin.templates)) {
+    return false;
+  }
+
+  if (plugin.templates.length === 0) {
+    return false;
+  }
+
+  return plugin.templates.every((template) => isTemplate(template));
 };
 
 export const isEmigrateStorage = (plugin: any): plugin is EmigrateStorage => {
@@ -57,8 +78,8 @@ export const isEmigrateReporter = (plugin: any): plugin is EmigrateReporter => {
 };
 
 export const isPluginOfType = <T extends PluginType>(type: T, plugin: any): plugin is PluginFromType<T> => {
-  if (type === 'generator') {
-    return isGeneratorPlugin(plugin);
+  if (type === 'template') {
+    return isTemplatePlugin(plugin);
   }
 
   if (type === 'loader') {
@@ -100,9 +121,8 @@ export const getOrLoadPlugins = async <T extends PluginType>(
   plugins: Array<StringOrModule<unknown>>,
 ): Promise<Array<PluginFromType<T>>> => {
   const result: Array<PluginFromType<T>> = [];
-  const reversePlugins = [...plugins].reverse();
 
-  for await (let plugin of reversePlugins) {
+  for await (let plugin of plugins) {
     if (typeof plugin === 'function') {
       plugin = await plugin();
     }
@@ -133,9 +153,7 @@ const getOrLoad = async <T>(
   prefixes: string[],
   check: (value: unknown) => value is T,
 ) => {
-  const reversed = [...potentials].reverse();
-
-  for await (let potential of reversed) {
+  for await (let potential of potentials) {
     if (typeof potential === 'string') {
       return load(potential, prefixes, check);
     }

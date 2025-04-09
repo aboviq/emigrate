@@ -1,3 +1,0 @@
-{
-  "extends": "@emigrate/tsconfig/build.json"
-}

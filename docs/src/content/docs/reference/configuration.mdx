@@ -117,7 +117,7 @@ Set the plugins to use for the different commands. There are different types of 
 In short:
 
 * <Link href="/plugins/loaders/">Loader Plugins</Link> - are used for transforming non-JavaScript files into JavaScript files that can be executed by Node.js. These are only used by the `up` command.
-* <Link href="/plugins/generators/">Generator Plugins</Link> - are used for generating new migration files. These are only used by the `new` command.
+* <Link href="/plugins/templates/">Template Plugins</Link> - are used for generating the contents of new migration files. These are only used by the `new` command.
 
 ```js title="emigrate.config.js" {2}
 export default {
@@ -126,7 +126,7 @@ export default {
 ```
 
 :::tip[Did you know?]
-The same package can expose multiple plugins, so you can specify the plugin only once and it can be used as both a loader and a generator (and storage, in the case of <Link href="/plugins/storage/mysql/">MySQL</Link> for instance).
+The same package can expose multiple plugins, so you can specify the plugin only once and it can be used as both a loader and a template plugin (and storage, in the case of <Link href="/plugins/storage/mysql/">MySQL</Link> for instance).
 :::
 
 ### `template`
