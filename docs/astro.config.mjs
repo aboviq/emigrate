@@ -194,24 +194,24 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Generator Plugins',
+              label: 'Template Plugins',
               collapsed: true,
               items: [
                 {
-                  label: 'Generator Plugins',
-                  link: '/plugins/generators/',
+                  label: 'Template Plugins',
+                  link: '/plugins/templates/',
                 },
                 {
-                  label: 'JavaScript Generator',
-                  link: '/plugins/generators/js/',
+                  label: 'JavaScript Template (default)',
+                  link: '/plugins/templates/js/',
                 },
                 {
-                  label: 'PostgreSQL Generator',
-                  link: '/plugins/generators/postgres/',
+                  label: 'PostgreSQL Template',
+                  link: '/plugins/templates/postgres/',
                 },
                 {
-                  label: 'MySQL Generator',
-                  link: '/plugins/generators/mysql/',
+                  label: 'MySQL Template',
+                  link: '/plugins/templates/mysql/',
                 },
               ],
             },

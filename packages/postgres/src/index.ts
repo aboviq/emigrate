@@ -1,23 +1,26 @@
 import process from 'node:process';
+import fs from 'node:fs/promises';
 import postgres, { type Options, type PostgresType, type Sql } from 'postgres';
-import { getTimestampPrefix, sanitizeMigrationName } from '@emigrate/plugin-tools';
 import {
   type MigrationMetadata,
   type EmigrateStorage,
   type LoaderPlugin,
   type Storage,
   type MigrationMetadataFinished,
-  type GenerateMigrationFunction,
-  type GeneratorPlugin,
+  type TemplatePlugin,
   type SerializedError,
   type MigrationHistoryEntry,
-  type Awaitable,
-  type MigrationFunction,
+  type MigrationLoader,
+  type Template,
 } from '@emigrate/types';
 
 const defaultTable = 'migrations';
 
 type ConnectionOptions = Options<Record<string, PostgresType>>;
+
+export type { Sql } from 'postgres';
+
+export type Migration = (sql: Sql) => Promise<void>;
 
 export type PostgresStorageOptions = {
   table?: string;
@@ -257,29 +260,76 @@ export const createPostgresStorage = ({
   };
 };
 
-export const createPostgresLoader = ({ connection }: PostgresLoaderOptions): LoaderPlugin => {
-  return {
-    loadableExtensions: ['.sql'],
-    async loadMigration(migration) {
-      return async () => {
-        const sql = await getPool(connection);
+const isLoadable = async (migration: MigrationMetadata) => {
+  if (migration.extension === '.sql') {
+    return true;
+  }
 
-        try {
-          // @ts-expect-error The "simple" option is not documented, but it exists
-          await sql.file(migration.filePath, { simple: true });
-        } finally {
-          await sql.end();
-        }
-      };
-    },
-  };
+  const content = await fs.readFile(migration.filePath, 'utf8');
+
+  return content.includes('@emigrate/postgres');
 };
 
-export const generateMigration: GenerateMigrationFunction = async (name) => {
+export const createPostgresLoader = ({ connection }: PostgresLoaderOptions): LoaderPlugin => {
   return {
-    filename: `${getTimestampPrefix()}_${sanitizeMigrationName(name)}.sql`,
-    content: `-- Migration: ${name}
-`,
+    loadableExtensions: ['.sql', '.js', '.mjs', '.ts', '.cjs', '.cts'],
+    async loadMigration(migration) {
+      if (!(await isLoadable(migration))) {
+        return;
+      }
+
+      if (migration.extension === '.sql') {
+        return async () => {
+          const sql = await getPool(connection);
+
+          try {
+            // @ts-expect-error The "simple" option is not documented, but it exists
+            await sql.file(migration.filePath, { simple: true });
+          } finally {
+            await sql.end();
+          }
+        };
+      }
+
+      const migrationModule: unknown = await import(migration.filePath);
+      let migrationFunction: Migration | undefined;
+
+      if (typeof migrationModule === 'function') {
+        migrationFunction = migrationModule as Migration;
+      }
+
+      if (
+        migrationModule &&
+        typeof migrationModule === 'object' &&
+        'default' in migrationModule &&
+        typeof migrationModule.default === 'function'
+      ) {
+        migrationFunction = migrationModule.default as Migration;
+      }
+
+      if (
+        migrationModule &&
+        typeof migrationModule === 'object' &&
+        'up' in migrationModule &&
+        typeof migrationModule.up === 'function'
+      ) {
+        migrationFunction = migrationModule.up as Migration;
+      }
+
+      if (migrationFunction) {
+        return async () => {
+          const sql = await getPool(connection);
+
+          try {
+            await migrationFunction(sql);
+          } finally {
+            await sql.end();
+          }
+        };
+      }
+
+      throw new Error(`Migration file does not export a migration function: ${migration.relativeFilePath}`);
+    },
   };
 };
 
@@ -309,13 +359,69 @@ export const initializeStorage: () => Promise<Storage> = storage.initializeStora
 // eslint-disable-next-line prefer-destructuring
 export const loadableExtensions: string[] = loader.loadableExtensions;
 // eslint-disable-next-line prefer-destructuring
-export const loadMigration: (migration: MigrationMetadata) => Awaitable<MigrationFunction> = loader.loadMigration;
+export const loadMigration: MigrationLoader = loader.loadMigration;
 
-const defaultExport: EmigrateStorage & LoaderPlugin & GeneratorPlugin = {
+const sqlTemplate: Template = {
+  extension: '.sql',
+  template: `
+-- Migration: {{name}}
+`.trimStart(),
+};
+
+const tsTemplate: Template = {
+  extension: '.ts',
+  template: `
+import type { Migration } from '@emigrate/postgres';
+
+/**
+ * {{name}}
+ */
+export const up: Migration = async (sql) => {
+
+};
+`.trimStart(),
+};
+
+const jsTemplate: Template = {
+  extension: '.js',
+  template: `
+/**
+ * {{name}}
+ *
+ * @param {import('@emigrate/postgres').Sql} sql
+ */
+export const up = async (sql) => {
+
+};
+`.trimStart(),
+};
+
+const cjsTemplate: Template = {
+  extension: '.cjs',
+  template: `
+/**
+ * {{name}}
+ *
+ * @param {import('@emigrate/postgres').Sql} sql
+ */
+module.exports = async (sql) => {
+
+};
+`.trimStart(),
+};
+
+const defaultExport: EmigrateStorage & LoaderPlugin & TemplatePlugin = {
   initializeStorage,
   loadableExtensions,
   loadMigration,
-  generateMigration,
+  templates: [
+    sqlTemplate,
+    jsTemplate,
+    { ...jsTemplate, extension: '.mjs' },
+    tsTemplate,
+    { ...tsTemplate, extension: '.cts' },
+    cjsTemplate,
+  ],
 };
 
 export default defaultExport;

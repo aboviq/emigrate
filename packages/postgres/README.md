@@ -10,7 +10,7 @@ This plugin is actually three different Emigrate plugins in one:
 
 1. A [storage plugin](#using-the-storage-plugin) for storing the migration history in a PostgreSQL database.
 2. A [loader plugin](#using-the-loader-plugin) for loading .sql migration files and be able to execute them as part of the migration process.
-3. A [generator plugin](#using-the-generator-plugin) for generating .sql migration files.
+3. A [template plugin](#using-the-template-plugin) for generating .sql or .js and .ts migration files.
 
 ## Installation
 
@@ -94,7 +94,7 @@ export default {
 };
 ```
 
-**NOTE:** Using the root level `plugins` option will load the plugin for all commands, which means the [generator plugin](#using-the-generator-plugin) will be used by default for the "new" command as well. If you only want to use the loader plugin, use the `up.plugins` option instead:
+**NOTE:** Using the root level `plugins` option will load the plugin for all commands, which means the [template plugin](#using-the-template-plugin) will be used by default for the "new" command as well. If you only want to use the loader plugin, use the `up.plugins` option instead:
 
 ```js
 export default {
@@ -113,11 +113,11 @@ The loader plugin can also be loaded using the CLI option `--plugin` (or `-p`) t
 emigrate up --plugin postgres  # the @emigrate/ prefix is optional
 ```
 
-### Using the generator plugin
+### Using the template plugin
 
-The generator plugin is used to generate skeleton .sql migration files inside your migration directory.
+The template plugin is used to generate skeleton .sql or .js and .ts migration files inside your migration directory.
 
-Configure the generator in your `emigrate.config.js` file:
+Configure the template plugin in your `emigrate.config.js` file:
 
 ```js
 export default {
@@ -137,7 +137,18 @@ export default {
 };
 ```
 
-**NOTE:** Using the root level `plugins` option will load the plugin for all commands, which means the [loader plugin](#using-the-loader-plugin) will be used by default for the "up" command as well. If you only want to use the generator plugin, use the `new.plugins` option instead:
+Use the `extension` option or (`--extension` CLI option for the `new` command) to chose which of the three formats to use for the generated migration file:
+
+- `.sql` - will generate a .sql migration file
+- `.js` - will generate a .js migration file
+- `.ts` - will generate a .ts migration file
+
+The loader plugin will automatically figure out if it should be used for loading .js and .ts migration files instead of the built-in loader.  
+It does this by checking if the migration file contains `@emigrate/postgres` or not, if it does it will use the loader plugin, otherwise Emigrate will use the built-in loader for `.js` and `.ts` files.
+
+But remember to add `@emigrate/postgres` as a loader plugin for it to work.
+
+**NOTE:** Using the root level `plugins` option will load the plugin for all commands, which means the [loader plugin](#using-the-loader-plugin) will be used by default for the "up" command as well. If you only want to use the template plugin, use the `new.plugins` option instead:
 
 ```js
 export default {
@@ -150,7 +161,7 @@ export default {
 };
 ```
 
-The generator plugin can also be loaded using the CLI option `--plugin` (or `-p`) together with the "new" command:
+The template plugin can also be loaded using the CLI option `--plugin` (or `-p`) together with the "new" command:
 
 ```bash
 emigrate new --plugin postgres My new migration file  # the @emigrate/ prefix is optional

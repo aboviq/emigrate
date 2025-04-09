@@ -126,7 +126,14 @@ describe('up', () => {
   describe('each migration file extension needs a corresponding loader plugin', () => {
     it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin', async () => {
       const storage = getMockedStorage([]);
-      const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], storage);
+      const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], storage, [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return () => {};
+          },
+        },
+      ]);
 
       const exitCode = await run();
 
@@ -149,7 +156,14 @@ describe('up', () => {
 
     it('returns 1 and finishes with an error when there are migration file extensions without a corresponding loader plugin in dry-run mode as well', async () => {
       const storage = getMockedStorage([]);
-      const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], storage);
+      const { reporter, run } = getUpCommand(['some_other.js', 'some_file.sql'], storage, [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return () => {};
+          },
+        },
+      ]);
 
       const exitCode = await run({ dry: true });
 
@@ -168,6 +182,36 @@ describe('up', () => {
         ],
         BadOptionError.fromOption('plugin', 'No loader plugin found for file extension: .sql'),
       );
+    });
+
+    it('should use the first matching loader plugin that returns a migration function in its loadMigration method', async () => {
+      const storage = getMockedStorage([]);
+      const { reporter, run } = getUpCommand(['some_other.js'], storage, [
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            // Skip me
+            return undefined;
+          },
+        },
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            return () => {};
+          },
+        },
+        {
+          loadableExtensions: ['.js'],
+          async loadMigration() {
+            throw new Error('This loadMigration method should not be called at all');
+          },
+        },
+      ]);
+
+      const exitCode = await run({ dry: true });
+
+      assert.strictEqual(exitCode, 0, 'Exit code');
+      assertPreconditionsFulfilled({ dry: true }, reporter, storage, [{ name: 'some_other.js', status: 'pending' }]);
     });
   });
 
@@ -278,6 +322,14 @@ describe('up', () => {
       const { reporter, run } = getUpCommand(
         ['some_already_run_migration.js', 'some_migration.js', 'some_other_migration.js'],
         storage,
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return () => {};
+            },
+          },
+        ],
       );
 
       const exitCode = await run({ dry: true, limit: 1 });
@@ -427,6 +479,14 @@ describe('up', () => {
       const { reporter, run } = getUpCommand(
         ['1_some_already_run_migration.js', '2_some_migration.js', '3_some_other_migration.js'],
         storage,
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return () => {};
+            },
+          },
+        ],
       );
 
       const exitCode = await run({ dry: true, from: '3_some_other_migration.js' });
@@ -544,6 +604,14 @@ describe('up', () => {
           '4_some_other_migration.js',
         ],
         storage,
+        [
+          {
+            loadableExtensions: ['.js'],
+            async loadMigration() {
+              return () => {};
+            },
+          },
+        ],
       );
 
       const exitCode = await run({ dry: true, to: '3_existing_migration.js' });

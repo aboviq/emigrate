@@ -94,31 +94,6 @@ export type EmigrateStorage = {
 
 export type InitializeStorageFunction = EmigrateStorage['initializeStorage'];
 
-export type MigrationFile = {
-  /**
-   * The complete filename of the migration file, including the extension.
-   *
-   * Migrations that have not yet been executed will be run in alphabetical order, so preferably prefix the filename with a timestamp (and avoid unix timestamp and prefer something more human readable).
-   */
-  filename: string;
-  /**
-   * The content of the migration file.
-   */
-  content: string;
-};
-
-export type GeneratorPlugin = {
-  /**
-   * Used to generate a new migration file.
-   *
-   * @param name The name of the migration that should be generated (provided as arguments to the CLI)
-   * @returns The generated migration file.
-   */
-  generateMigration(name: string): Promise<MigrationFile>;
-};
-
-export type GenerateMigrationFunction = GeneratorPlugin['generateMigration'];
-
 export type MigrationFunction = () => Awaitable<void>;
 
 export type MigrationMetadata = {
@@ -198,10 +173,45 @@ export type LoaderPlugin = {
   /**
    * Used to load a migration file, i.e. transform it into a function that can be executed.
    *
+   * The plugin can return undefined if it decides that the migration is not loadable.
+   * For instance if many loader plugins can load the same file extension, but only one
+   * of them can load a specific file depending on its content or metadata.
+   *
    * @param migration Some metadata about the migration file that should be loaded.
-   * @returns A function that will execute the migration.
+   * @returns A function that will execute the migration or undefined if the plugin decided the migration is not loadable.
    */
-  loadMigration(migration: MigrationMetadata): Awaitable<MigrationFunction>;
+  loadMigration(migration: MigrationMetadata): Awaitable<MigrationFunction | undefined>;
+};
+
+export type MigrationLoader = LoaderPlugin['loadMigration'];
+
+export type TemplatePlugin = {
+  /**
+   * The different templates that this plugin provides.
+   */
+  templates: Template[];
+};
+
+export type Template = {
+  /**
+   * An optional template description that will be shown to the user when they are prompted to select a template.
+   */
+  description?: string;
+  /**
+   * The migration file extension that this template generates.
+   *
+   * The first template that matches the extension provided to the "new" command will be used (or `.js` which is the default).
+   *
+   * @example .js
+   */
+  extension: string;
+  /**
+   * The template to use for the new migration file.
+   *
+   * Any occurrences of the string `{{name}}` in the template string or the returned string from
+   * the template function will be replaced with the name of the migration.
+   */
+  template: string | ((name: string) => Awaitable<string>);
 };
 
 export type ReporterInitParameters = {
@@ -328,11 +338,11 @@ export type EmigrateReporter = Partial<{
   onFinished(migrations: MigrationMetadataFinished[], error?: Error): Awaitable<void>;
 }>;
 
-export type Plugin = GeneratorPlugin | LoaderPlugin;
+export type Plugin = LoaderPlugin | TemplatePlugin;
 
 type PluginTypeMap = {
-  generator: GeneratorPlugin;
   loader: LoaderPlugin;
+  template: TemplatePlugin;
 };
 
 export type PluginType = keyof PluginTypeMap;

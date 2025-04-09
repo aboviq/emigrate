@@ -1,13 +1,15 @@
 import path from 'node:path';
 import { getOrLoadPlugins, getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
-import { isFinishedMigration, type LoaderPlugin } from '@emigrate/types';
+import { isFinishedMigration, type MigrationFunction } from '@emigrate/types';
 import {
   BadOptionError,
+  EmigrateError,
   MigrationLoadError,
   MissingOptionError,
   StorageInitError,
   toError,
   toSerializedError,
+  UnexpectedError,
 } from '../errors.js';
 import { type Config } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
@@ -80,20 +82,14 @@ export default async function upCommand({
   try {
     const collectedMigrations = collectMigrations(cwd, directory, storage.getHistory(), getMigrations);
 
-    const loaderPlugins = await getOrLoadPlugins('loader', [lazyPluginLoaderJs, ...plugins]);
+    const loaderPlugins = await getOrLoadPlugins('loader', [...plugins, lazyPluginLoaderJs]);
 
-    const loaderByExtension = new Map<string, LoaderPlugin | undefined>();
+    const migrationFunctions = new Map<string, MigrationFunction | undefined>();
 
-    const getLoaderByExtension = (extension: string) => {
-      if (!loaderByExtension.has(extension)) {
-        const loader = loaderPlugins.find((plugin) =>
-          plugin.loadableExtensions.some((loadableExtension) => withLeadingPeriod(loadableExtension) === extension),
-        );
-
-        loaderByExtension.set(extension, loader);
-      }
-
-      return loaderByExtension.get(extension);
+    const getLoadersByExtension = (extension: string) => {
+      return loaderPlugins.filter((plugin) =>
+        plugin.loadableExtensions.some((loadableExtension) => withLeadingPeriod(loadableExtension) === extension),
+      );
     };
 
     if (from && !from.includes(path.sep)) {
@@ -122,25 +118,49 @@ export default async function upCommand({
           return;
         }
 
-        const loader = getLoaderByExtension(migration.extension);
+        const loaders = getLoadersByExtension(migration.extension);
 
-        if (!loader) {
+        if (loaders.length === 0) {
           throw BadOptionError.fromOption(
             'plugin',
             `No loader plugin found for file extension: ${migration.extension}`,
           );
         }
+
+        const [migrationFunction, loadError] = await exec(async () => {
+          for await (const loader of loaders) {
+            const migrationFunction = await loader.loadMigration(migration);
+
+            if (migrationFunction) {
+              return migrationFunction;
+            }
+          }
+
+          if (noExecution) {
+            // It doesn't matter if the migration can't be loaded if we're not going to execute it
+            return;
+          }
+
+          throw BadOptionError.fromOption('plugin', `No loader plugin could load: ${migration.relativeFilePath}`);
+        });
+
+        if (loadError instanceof EmigrateError) {
+          throw loadError;
+        } else if (loadError) {
+          throw MigrationLoadError.fromMetadata(migration, loadError);
+        }
+
+        migrationFunctions.set(migration.filePath, migrationFunction);
       },
       async execute(migration) {
         if (noExecution) {
           return;
         }
 
-        const loader = getLoaderByExtension(migration.extension)!;
-        const [migrationFunction, loadError] = await exec(async () => loader.loadMigration(migration));
+        const migrationFunction = migrationFunctions.get(migration.filePath);
 
-        if (loadError) {
-          throw MigrationLoadError.fromMetadata(migration, loadError);
+        if (!migrationFunction) {
+          throw new UnexpectedError(`No migration function loaded for: ${migration.relativeFilePath}`);
         }
 
         await migrationFunction();
@@ -152,6 +172,8 @@ export default async function upCommand({
         await storage.onError(migration, toSerializedError(error));
       },
     });
+
+    migrationFunctions.clear();
 
     return error ? 1 : 0;
   } catch (error) {

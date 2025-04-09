@@ -29,7 +29,7 @@
     "emigrate-storage",
     "emigrate-loader",
     "emigrate-plugin",
-    "emigrate-generator",
+    "emigrate-template",
     "migrations",
     "postgres",
     "postgresql"
@@ -40,7 +40,6 @@
   "bugs": "https://github.com/aboviq/emigrate/issues",
   "license": "MIT",
   "dependencies": {
-    "@emigrate/plugin-tools": "workspace:*",
     "@emigrate/types": "workspace:*",
     "postgres": "3.4.3"
   },

@@ -1,7 +1,7 @@
 import { hrtime } from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugin, getOrLoadReporter } from '@emigrate/plugin-tools';
+import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugins, getOrLoadReporter } from '@emigrate/plugin-tools';
 import { type MigrationMetadataFinished, type MigrationMetadata, isFailedMigration } from '@emigrate/types';
 import {
   BadOptionError,
@@ -16,6 +16,7 @@ import { withLeadingPeriod } from '../with-leading-period.js';
 import { version } from '../get-package-info.js';
 import { getDuration } from '../get-duration.js';
 import { getStandardReporter } from '../reporters/get.js';
+import { DEFAULT_TEMPLATE_PLUGIN } from '../defaults.js';
 
 type ExtraFlags = {
   cwd: string;
@@ -33,10 +34,6 @@ export default async function newCommand(
     throw MissingArgumentsError.fromArgument('name');
   }
 
-  if (!extension && !template && plugins.length === 0) {
-    throw MissingOptionError.fromOption(['extension', 'template', 'plugin']);
-  }
-
   const reporter = getStandardReporter(reporterConfig) ?? (await getOrLoadReporter([reporterConfig]));
 
   if (!reporter) {
@@ -50,17 +47,15 @@ export default async function newCommand(
 
   const start = hrtime();
 
-  let filename: string | undefined;
   let content: string | undefined;
 
   if (template) {
-    const fs = await import('node:fs/promises');
     const templatePath = path.resolve(cwd, template);
     const fileExtension = path.extname(templatePath);
 
     try {
       content = await fs.readFile(templatePath, 'utf8');
-      content = content.replaceAll('{{name}}', name);
+      extension ??= fileExtension || undefined;
     } catch (error) {
       await reporter.onFinished?.(
         [],
@@ -68,37 +63,16 @@ export default async function newCommand(
       );
       return;
     }
-
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension ?? fileExtension)}`;
   }
 
-  let hasGeneratedFile = Boolean(filename && content !== undefined);
+  extension ??= '.js';
+  extension = withLeadingPeriod(extension);
 
-  if (plugins.length > 0 && !hasGeneratedFile) {
-    const generatorPlugin = await getOrLoadPlugin('generator', plugins);
+  content ??= await getContentFromTemplates(plugins, extension, name);
+  content ??= '';
+  content = content.replaceAll('{{name}}', name);
 
-    if (generatorPlugin) {
-      const generated = await generatorPlugin.generateMigration(name);
-
-      filename = generated.filename;
-      content = generated.content;
-    }
-  }
-
-  hasGeneratedFile = Boolean(filename && content !== undefined);
-
-  if (extension && !hasGeneratedFile) {
-    content = '';
-    filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension)}`;
-  }
-
-  if (!filename || content === undefined) {
-    throw BadOptionError.fromOption(
-      'plugin',
-      'No generator plugin found, please specify a generator plugin using the plugin option',
-    );
-  }
-
+  const filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension)}`;
   const directoryPath = path.resolve(cwd, directory);
   const filePath = path.resolve(directoryPath, filename);
 
@@ -138,6 +112,24 @@ export default async function newCommand(
         : undefined;
 
   await reporter.onFinished?.(finishedMigrations, firstError);
+}
+
+async function getContentFromTemplates(
+  plugins: Exclude<Config['plugins'], undefined>,
+  extension: string,
+  name: string,
+) {
+  const templatePlugins = await getOrLoadPlugins('template', plugins);
+
+  for (const templatePlugin of [...templatePlugins, DEFAULT_TEMPLATE_PLUGIN]) {
+    for (const template of templatePlugin.templates) {
+      if (withLeadingPeriod(template.extension) === extension) {
+        return typeof template.template === 'function' ? template.template(name) : template.template;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 async function createDirectory(directoryPath: string) {
