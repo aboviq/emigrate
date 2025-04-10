@@ -1,7 +1,7 @@
 import { hrtime } from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, sanitizeMigrationName, getOrLoadPlugins, getOrLoadReporter } from '@emigrate/plugin-tools';
+import { getTimestampPrefix, getOrLoadPlugins, getOrLoadReporter } from '@emigrate/plugin-tools';
 import { type MigrationMetadataFinished, type MigrationMetadata, isFailedMigration } from '@emigrate/types';
 import {
   BadOptionError,
@@ -17,6 +17,7 @@ import { version } from '../get-package-info.js';
 import { getDuration } from '../get-duration.js';
 import { getStandardReporter } from '../reporters/get.js';
 import { DEFAULT_TEMPLATE_PLUGIN } from '../defaults.js';
+import { sanitizeName } from '../sanitize-name.js';
 
 type ExtraFlags = {
   cwd: string;
@@ -72,7 +73,7 @@ export default async function newCommand(
   content ??= '';
   content = content.replaceAll('{{name}}', name);
 
-  const filename = `${getTimestampPrefix()}_${sanitizeMigrationName(name)}${withLeadingPeriod(extension)}`;
+  const filename = `${getTimestampPrefix()}_${sanitizeName(name)}${withLeadingPeriod(extension)}`;
   const directoryPath = path.resolve(cwd, directory);
   const filePath = path.resolve(directoryPath, filename);
 

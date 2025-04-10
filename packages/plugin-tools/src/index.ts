@@ -223,15 +223,3 @@ const load = async <T>(
  * @returns A timestamp string in the format YYYYMMDDHHmmssmmm
  */
 export const getTimestampPrefix = (): string => new Date().toISOString().replaceAll(/[-:ZT.]/g, '');
-
-/**
- * A utility function to sanitize a migration name so that it can be used as a filename
- *
- * @param name A migration name to sanitize
- * @returns A sanitized migration name that can be used as a filename
- */
-export const sanitizeMigrationName = (name: string): string =>
-  name
-    .replaceAll(/[\W/\\:|*?'"<>_]+/g, '_')
-    .trim()
-    .replace(/^_|_$/, '');
