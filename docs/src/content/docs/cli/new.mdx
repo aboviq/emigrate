@@ -5,6 +5,7 @@ description: "Create new migration."
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import Link from '@components/Link.astro';
+import { standardPrefixOptions } from "@emigrate/prefixes";
 
 The `new` command is used to create a new migration file in the given directory.
 
@@ -74,9 +75,18 @@ The directory where the migration files are located. The given path should be ab
 
 The template file to use for generating the migration file. The given path should be absolute or relative to the current working directory.
 
-The template can contain a `{{name}}` placeholder which will be replaced with the migration name provided to the command. The generated file will have the same extension as the template file, unless the [`--extension`](#-x---extension-ext) option is used.
+The template can contain a `{{name}}` placeholder which will be replaced with the migration name provided to the command. The generated file will have the same extension as the template file, unless the [`--extension`](#-e---extension-ext) option is used.
 
-### `-x`, `--extension <ext>`
+### `-x`, `--prefix <name>`
+
+**type:** <code>"{standardPrefixOptions.join('" | "')}"</code>  
+**default:** `timestamp`
+
+The type of prefix to use for the new migration file.
+
+If you want a custom prefix function you can specify that in your configuration file using the <Link href="/reference/configuration/#prefix">`prefix`</Link> option.
+
+### `-e`, `--extension <ext>`
 
 **type:** `string`  
 **default:** `.js`
@@ -86,6 +96,14 @@ The extension to use for the migration file. Unless the [`--template`](#-t---tem
 If both the `--template` and `--extension` options are specified, the extension will override the template file extension.
 
 **Example:** `--extension .sql` will generate a file with the `.sql` extension.
+
+### `-j`, `--joiner <string>`
+
+**type:** `string`  
+**default:** `_`
+
+The string to use to join the prefix and the name of the migration file.  
+It's also used for replacing whitespace and characters that are not allowed in filenames in the name.
 
 ### `-p`, `--plugin <name>`
 

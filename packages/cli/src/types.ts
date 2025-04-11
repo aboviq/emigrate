@@ -1,5 +1,6 @@
 import { type EmigrateStorage, type Awaitable, type Plugin, type EmigrateReporter } from '@emigrate/types';
 import type * as reporters from './reporters/index.js';
+import { type PrefixGenerator, type StandardPrefix } from './prefixes.js';
 
 export type StandardReporter = keyof typeof reporters;
 
@@ -14,6 +15,8 @@ export type Config = {
   directory?: string;
   template?: string;
   extension?: string;
+  prefix?: StandardPrefix | PrefixGenerator;
+  joiner?: string;
   color?: boolean;
   abortRespite?: number;
 };
@@ -24,3 +27,5 @@ export type EmigrateConfig = Config & {
   list?: Config;
   remove?: Config;
 };
+
+export { type PrefixGenerator, type StandardPrefix } from './prefixes.js';

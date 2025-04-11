@@ -214,12 +214,3 @@ const load = async <T>(
 
   return undefined;
 };
-
-/**
- * Get a timestamp string in the format YYYYMMDDHHmmssmmm based on the current time (UTC)
- *
- * Can be used to prefix migration filenames so that they are executed in the correct order
- *
- * @returns A timestamp string in the format YYYYMMDDHHmmssmmm
- */
-export const getTimestampPrefix = (): string => new Date().toISOString().replaceAll(/[-:ZT.]/g, '');

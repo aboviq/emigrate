@@ -6,6 +6,7 @@ import importFromEsm from 'import-from-esm';
 import { CommandAbortError, ShowUsageError } from './errors.js';
 import { getConfig } from './get-config.js';
 import { DEFAULT_RESPITE_SECONDS } from './defaults.js';
+import { isValidPrefix, standardPrefixOptions } from './prefixes.js';
 
 type Action = (args: string[], abortSignal: AbortSignal) => Promise<void>;
 
@@ -234,7 +235,15 @@ const newMigration: Action = async (args) => {
       },
       extension: {
         type: 'string',
+        short: 'e',
+      },
+      prefix: {
+        type: 'string',
         short: 'x',
+      },
+      joiner: {
+        type: 'string',
+        short: 'j',
       },
       plugin: {
         type: 'string',
@@ -270,33 +279,43 @@ Options:
 
   -h, --help              Show this help message and exit
 
-  -d, --directory <path>  The directory where the migration files are located (required)
+  -d, --directory <path>  The directory where the new migration file should be created (required)
+
+  -x, --prefix <name>     The type of prefix to use for the new migration file (default: timestamp)
+                          The available built-in prefixes are: ${standardPrefixOptions.join(', ')}
+
+  -e, --extension <ext>   The extension to use for the new migration file (default: .js, unless a template file is provided)
+
+  -t, --template <path>   A template file to use as contents for the new migration file
+                          (if the extension option is not provided the template file's extension will be used)
+
+  -p, --plugin <name>     The template plugin(s) to use (can be specified multiple times)
 
   -i, --import <module>   Additional modules/packages to import before creating the migration (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables or when using TypeScript
 
   -r, --reporter <name>   The reporter to use for reporting the migration file creation progress (default: pretty)
 
-  -p, --plugin <name>     The plugin(s) to use (can be specified multiple times)
-
-  -t, --template <path>   A template file to use as contents for the new migration file
-                          (if the extension option is not provided the template file's extension will be used)
-
-  -x, --extension <ext>   The extension to use for the new migration file
-                          (if no template or plugin is provided an empty migration file will be created with the given extension)
+  -j, --joiner <string>   The string to use to join the prefix and the name of the migration file (default: _)
+                          It's also used for replacing whitespace and characters that are not allowed in filenames in the name
 
   --color                 Force color output (this option is passed to the reporter)
 
   --no-color              Disable color output (this option is passed to the reporter)
 
-  One of the --template, --extension or the --plugin options must be specified
-
 Examples:
 
+  # Create a new migration file with the name "YYYYMMDDHHmmss_create_users_table.js" in the "src/migrations" directory using the migration-template.js file as a template
   emigrate new -d src/migrations -t migration-template.js create users table
-  emigrate new --directory ./migrations --plugin @emigrate/postgres create_users_table
-  emigrate new -d ./migrations -x .sql create_users_table
-  emigrate new -d ./migrations -t .migration-template -x .sql "drop some table"
+
+  # Create a new migration file with the name "YYYYMMDDHHmmss_create_users_table.sql" in the "./migrations" directory using the SQL template from @emigrate/postgres
+  emigrate new --directory ./migrations --extension .sql --plugin @emigrate/postgres create_users_table
+
+  # Create a new empty migration file with the name "YYYYMMDDHHmmss_create_users_table.sql" in the "./migrations" directory
+  emigrate new -d ./migrations -e .sql create users table
+
+  # Create a new migration file with the name "NNNN_drop_some_table.sql" in the "./migrations" directory using the SQL template from @emigrate/postgres
+  emigrate new -d ./migrations -t .migration-template --prefix numeric -e .sql "drop some table"
 `;
 
   if (values.help) {
@@ -318,14 +337,39 @@ Examples:
     directory = config.directory,
     template = config.template,
     extension = config.extension,
-    reporter = config.reporter,
+    prefix = config.prefix,
+    joiner = config.joiner,
   } = values;
   const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
   const name = positionals.join(' ').trim();
 
+  if (!isValidPrefix(prefix)) {
+    console.error(
+      'Invalid prefix value, expected a function or one of:',
+      standardPrefixOptions.join(', '),
+      'but was:',
+      prefix,
+    );
+    console.log(usage);
+    process.exitCode = 1;
+    return;
+  }
+
   try {
     const { default: newCommand } = await import('./commands/new.js');
-    await newCommand({ directory, template, plugins, extension, reporter, cwd, color: useColors(values) }, name);
+    await newCommand(
+      {
+        directory,
+        template,
+        plugins,
+        extension,
+        prefix,
+        joiner,
+        cwd,
+        color: useColors(values),
+      },
+      name,
+    );
   } catch (error) {
     if (error instanceof ShowUsageError) {
       console.error(error.message, '\n');
