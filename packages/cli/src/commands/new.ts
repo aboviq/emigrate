@@ -1,7 +1,7 @@
 import { hrtime } from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getTimestampPrefix, getOrLoadPlugins, getOrLoadReporter } from '@emigrate/plugin-tools';
+import { getOrLoadPlugins, getOrLoadReporter } from '@emigrate/plugin-tools';
 import { type MigrationMetadataFinished, type MigrationMetadata, isFailedMigration } from '@emigrate/types';
 import {
   BadOptionError,
@@ -17,14 +17,28 @@ import { version } from '../get-package-info.js';
 import { getDuration } from '../get-duration.js';
 import { getStandardReporter } from '../reporters/get.js';
 import { DEFAULT_TEMPLATE_PLUGIN } from '../defaults.js';
+import { getMigrations as getMigrationsOriginal, type GetMigrationsFunction } from '../get-migrations.js';
+import { getPrefixGenerator } from '../prefixes.js';
 import { sanitizeName } from '../sanitize-name.js';
 
 type ExtraFlags = {
   cwd: string;
+  getMigrations?: GetMigrationsFunction;
 };
 
 export default async function newCommand(
-  { directory, template, reporter: reporterConfig, plugins = [], cwd, extension, color }: Config & ExtraFlags,
+  {
+    directory,
+    template,
+    reporter: reporterConfig,
+    plugins = [],
+    cwd,
+    extension,
+    color,
+    prefix = 'timestamp',
+    joiner = '_',
+    getMigrations = getMigrationsOriginal,
+  }: Config & ExtraFlags,
   name: string,
 ): Promise<void> {
   if (!directory) {
@@ -73,7 +87,17 @@ export default async function newCommand(
   content ??= '';
   content = content.replaceAll('{{name}}', name);
 
-  const filename = `${getTimestampPrefix()}_${sanitizeName(name)}${withLeadingPeriod(extension)}`;
+  const migrations = await getMigrations(cwd, directory);
+
+  const prefixGenerator = getPrefixGenerator(prefix);
+  const namePrefix = prefixGenerator(name, migrations.at(-1));
+
+  if (typeof namePrefix !== 'string') {
+    throw BadOptionError.fromOption('prefix', 'Prefix generator must return a string');
+  }
+
+  const nameSuffix = `${sanitizeName(name, joiner)}${withLeadingPeriod(extension)}`;
+  const filename = namePrefix ? `${namePrefix}${joiner}${nameSuffix}` : nameSuffix;
   const directoryPath = path.resolve(cwd, directory);
   const filePath = path.resolve(directoryPath, filename);
 

@@ -58,16 +58,16 @@ importers:
         version: 0.7.0(prettier@3.1.1)(typescript@5.5.2)
       '@astrojs/starlight':
         specifier: ^0.15.0
-        version: 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
+        version: 0.15.0(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))
       '@astrojs/starlight-tailwind':
         specifier: 2.0.1
-        version: 2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)
+        version: 2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)
       '@astrojs/tailwind':
         specifier: ^5.0.3
-        version: 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
+        version: 5.0.3(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
       astro:
         specifier: ^4.0.1
-        version: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
+        version: 4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)
       sharp:
         specifier: ^0.32.5
         version: 0.32.6
@@ -101,6 +101,9 @@ importers:
       is-interactive:
         specifier: 2.0.0
         version: 2.0.0
+      kebab-case:
+        specifier: 2.0.2
+        version: 2.0.2
       log-update:
         specifier: 6.0.0
         version: 6.0.0
@@ -123,9 +126,6 @@ importers:
 
   packages/mysql:
     dependencies:
-      '@emigrate/plugin-tools':
-        specifier: workspace:*
-        version: link:../plugin-tools
       '@emigrate/types':
         specifier: workspace:*
         version: link:../types
@@ -143,19 +143,6 @@ importers:
         specifier: 1.1.8
         version: 1.1.8
 
-  packages/plugin-generate-js:
-    dependencies:
-      '@emigrate/plugin-tools':
-        specifier: workspace:*
-        version: link:../plugin-tools
-      '@emigrate/types':
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@emigrate/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-
   packages/plugin-tools:
     dependencies:
       '@emigrate/types':
@@ -171,9 +158,6 @@ importers:
 
   packages/postgres:
     dependencies:
-      '@emigrate/plugin-tools':
-        specifier: workspace:*
-        version: link:../plugin-tools
       '@emigrate/types':
         specifier: workspace:*
         version: link:../types
@@ -1174,6 +1158,9 @@ packages:
 
   '@types/node@20.12.14':
     resolution: {integrity: sha512-scnD59RpYD91xngrQQLGkE+6UrHUPzeKZWhhjBSa3HSkwjbQc38+q3RoIVEwxQGRw3M+j5hpNAM+lgV3cVormg==}
+
+  '@types/node@20.14.9':
+    resolution: {integrity: sha512-06OCtnTXtWOZBJlRApleWndH4JsRVs1pDCc8dLSQp+7PpUpX3ePdHyeNSFTeSe7FtKyQkrlPvHwJOW3SLd8Oyg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -3200,6 +3187,9 @@ packages:
   jsonparse@1.3.1:
     resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
     engines: {'0': node >= 0.2.0}
+
+  kebab-case@2.0.2:
+    resolution: {integrity: sha512-NhIP7vecGtqJfNZ85ct0yRQfx//gCJHapJCBZP6/BBcBw/U218Jw7YX7rO6TI5/cCp5dJvlIjN3vbcRTqq7nWA==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -5379,12 +5369,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@2.0.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))':
+  '@astrojs/mdx@2.0.1(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))':
     dependencies:
       '@astrojs/markdown-remark': 4.0.1
       '@mdx-js/mdx': 3.0.0
       acorn: 8.11.2
-      astro: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
+      astro: 4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)
       es-module-lexer: 1.4.1
       estree-util-visit: 2.0.0
       github-slugger: 2.0.0
@@ -5409,21 +5399,21 @@ snapshots:
       sitemap: 7.1.1
       zod: 3.22.4
 
-  '@astrojs/starlight-tailwind@2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)':
+  '@astrojs/starlight-tailwind@2.0.1(@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)))(@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6))(tailwindcss@3.3.6)':
     dependencies:
-      '@astrojs/starlight': 0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
-      '@astrojs/tailwind': 5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
+      '@astrojs/starlight': 0.15.0(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))
+      '@astrojs/tailwind': 5.0.3(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)
       tailwindcss: 3.3.6
 
-  '@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))':
+  '@astrojs/starlight@0.15.0(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))':
     dependencies:
-      '@astrojs/mdx': 2.0.1(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
+      '@astrojs/mdx': 2.0.1(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))
       '@astrojs/sitemap': 3.0.3
       '@pagefind/default-ui': 1.0.4
       '@types/hast': 3.0.3
       '@types/mdast': 4.0.3
-      astro: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
-      astro-expressive-code: 0.29.4(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))
+      astro: 4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)
+      astro-expressive-code: 0.29.4(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))
       bcp-47: 2.1.0
       execa: 8.0.1
       hast-util-select: 6.0.2
@@ -5439,9 +5429,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)':
+  '@astrojs/tailwind@5.0.3(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2))(tailwindcss@3.3.6)':
     dependencies:
-      astro: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
+      astro: 4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)
       autoprefixer: 10.4.16(postcss@8.4.32)
       postcss: 8.4.32
       postcss-load-config: 4.0.2(postcss@8.4.32)
@@ -6423,6 +6413,11 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
+  '@types/node@20.14.9':
+    dependencies:
+      undici-types: 5.26.5
+    optional: true
+
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/parse5@6.0.3': {}
@@ -6847,12 +6842,12 @@ snapshots:
 
   astring@1.8.6: {}
 
-  astro-expressive-code@0.29.4(astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)):
+  astro-expressive-code@0.29.4(astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)):
     dependencies:
-      astro: 4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2)
+      astro: 4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2)
       remark-expressive-code: 0.29.4
 
-  astro@4.0.5(@types/node@20.12.14)(terser@5.31.1)(typescript@5.5.2):
+  astro@4.0.5(@types/node@20.14.9)(terser@5.31.1)(typescript@5.5.2):
     dependencies:
       '@astrojs/compiler': 2.3.2
       '@astrojs/internal-helpers': 0.2.1
@@ -6910,8 +6905,8 @@ snapshots:
       tsconfck: 3.0.0(typescript@5.5.2)
       unist-util-visit: 5.0.0
       vfile: 6.0.1
-      vite: 5.0.9(@types/node@20.12.14)(terser@5.31.1)
-      vitefu: 0.2.5(vite@5.0.9(@types/node@20.12.14)(terser@5.31.1))
+      vite: 5.0.9(@types/node@20.14.9)(terser@5.31.1)
+      vitefu: 0.2.5(vite@5.0.9(@types/node@20.14.9)(terser@5.31.1))
       which-pm: 2.1.1
       yargs-parser: 21.1.1
       zod: 3.22.4
@@ -8831,6 +8826,8 @@ snapshots:
       graceful-fs: 4.2.11
 
   jsonparse@1.3.1: {}
+
+  kebab-case@2.0.2: {}
 
   keyv@4.5.4:
     dependencies:
@@ -11177,19 +11174,19 @@ snapshots:
       unist-util-stringify-position: 4.0.0
       vfile-message: 4.0.2
 
-  vite@5.0.9(@types/node@20.12.14)(terser@5.31.1):
+  vite@5.0.9(@types/node@20.14.9)(terser@5.31.1):
     dependencies:
       esbuild: 0.19.9
       postcss: 8.4.32
       rollup: 4.9.0
     optionalDependencies:
-      '@types/node': 20.12.14
+      '@types/node': 20.14.9
       fsevents: 2.3.3
       terser: 5.31.1
 
-  vitefu@0.2.5(vite@5.0.9(@types/node@20.12.14)(terser@5.31.1)):
+  vitefu@0.2.5(vite@5.0.9(@types/node@20.14.9)(terser@5.31.1)):
     optionalDependencies:
-      vite: 5.0.9(@types/node@20.12.14)(terser@5.31.1)
+      vite: 5.0.9(@types/node@20.14.9)(terser@5.31.1)
 
   volar-service-css@0.0.45(@volar/language-service@2.2.5):
     dependencies:
