@@ -1,5 +1,16 @@
 # @emigrate/mysql
 
+## 0.3.3
+
+### Patch Changes
+
+- 26240f4: Make sure we can initialize multiple running instances of Emigrate using @emigrate/mysql concurrently without issues with creating the history table (for instance in a Kubernetes environment and/or with a Percona cluster).
+- d779286: Upgrade TypeScript to v5.5 and enable [isolatedDeclarations](https://devblogs.microsoft.com/typescript/announcing-typescript-5-5/#isolated-declarations)
+- 26240f4: Either lock all or none of the migrations to run to make sure they run in order when multiple instances of Emigrate runs concurrently (for instance in a Kubernetes environment)
+- Updated dependencies [d779286]
+  - @emigrate/plugin-tools@0.9.8
+  - @emigrate/types@0.12.2
+
 ## 0.3.2
 
 ### Patch Changes

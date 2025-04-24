@@ -1,5 +1,11 @@
 # @emigrate/tsconfig
 
+## 1.0.3
+
+### Patch Changes
+
+- d779286: Upgrade TypeScript to v5.5 and enable [isolatedDeclarations](https://devblogs.microsoft.com/typescript/announcing-typescript-5-5/#isolated-declarations)
+
 ## 1.0.2
 
 ### Patch Changes
