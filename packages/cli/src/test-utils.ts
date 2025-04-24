@@ -1,5 +1,6 @@
 import { mock, type Mock } from 'node:test';
 import path from 'node:path';
+import assert from 'node:assert';
 import {
   type SerializedError,
   type EmigrateReporter,
@@ -9,6 +10,7 @@ import {
   type NonFailedMigrationHistoryEntry,
   type Storage,
 } from '@emigrate/types';
+import { toSerializedError } from './errors.js';
 
 export type Mocked<T> = {
   // @ts-expect-error - This is a mock
@@ -109,4 +111,24 @@ export function toEntries(
   status?: MigrationHistoryEntry['status'],
 ): MigrationHistoryEntry[] {
   return names.map((name) => (typeof name === 'string' ? toEntry(name, status) : name));
+}
+
+export function assertErrorEqualEnough(actual?: Error | SerializedError, expected?: Error, message?: string): void {
+  if (expected === undefined) {
+    assert.strictEqual(actual, undefined);
+    return;
+  }
+
+  const {
+    cause: actualCause,
+    stack: actualStack,
+    ...actualError
+  } = actual instanceof Error ? toSerializedError(actual) : actual ?? {};
+  const { cause: expectedCause, stack: expectedStack, ...expectedError } = toSerializedError(expected);
+  // @ts-expect-error Ignore
+  const { stack: actualCauseStack, ...actualCauseRest } = actualCause ?? {};
+  // @ts-expect-error Ignore
+  const { stack: expectedCauseStack, ...expectedCauseRest } = expectedCause ?? {};
+  assert.deepStrictEqual(actualError, expectedError, message);
+  assert.deepStrictEqual(actualCauseRest, expectedCauseRest, message ? `${message} (cause)` : undefined);
 }

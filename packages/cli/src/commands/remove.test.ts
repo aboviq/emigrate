@@ -11,6 +11,7 @@ import {
   StorageInitError,
 } from '../errors.js';
 import {
+  assertErrorEqualEnough,
   getErrorCause,
   getMockedReporter,
   getMockedStorage,
@@ -199,6 +200,11 @@ function assertPreconditionsFailed(reporter: Mocked<Required<EmigrateReporter>>,
   assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0, 'Total pending and skipped');
   assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
   const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
+  // hackety hack:
+  if (finishedError) {
+    finishedError.stack = error?.stack;
+  }
+
   assert.deepStrictEqual(error, finishedError, 'Finished error');
   const cause = getErrorCause(error);
   const expectedCause = finishedError?.cause;
@@ -288,14 +294,7 @@ function assertPreconditionsFulfilled(
   assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0, 'Total pending and skipped');
   assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
   const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-  assert.deepStrictEqual(error, finishedError, 'Finished error');
-  const cause = getErrorCause(error);
-  const expectedCause = finishedError?.cause;
-  assert.deepStrictEqual(
-    cause,
-    expectedCause ? deserializeError(expectedCause) : expectedCause,
-    'Finished error cause',
-  );
+  assertErrorEqualEnough(error, finishedError, 'Finished error');
   assert.strictEqual(entries?.length, expected.length, 'Finished entries length');
   assert.deepStrictEqual(
     entries.map((entry) => `${entry.name} (${entry.status})`),

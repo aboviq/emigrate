@@ -1,5 +1,6 @@
 import process from 'node:process';
 import fs from 'node:fs/promises';
+import { setTimeout } from 'node:timers/promises';
 import {
   createConnection,
   createPool,
@@ -54,6 +55,7 @@ const getConnection = async (options: ConnectionOptions | string) => {
     // best to leave this at 0 (disabled)
     uri.searchParams.set('connectTimeout', '0');
     uri.searchParams.set('multipleStatements', 'true');
+    uri.searchParams.set('flags', '-FOUND_ROWS');
 
     connection = await createConnection(uri.toString());
   } else {
@@ -64,6 +66,7 @@ const getConnection = async (options: ConnectionOptions | string) => {
       // best to leave this at 0 (disabled)
       connectTimeout: 0,
       multipleStatements: true,
+      flags: ['-FOUND_ROWS'],
     });
   }
 
@@ -84,6 +87,7 @@ const getPool = (connection: PoolOptions | string) => {
     // it throws an error you can't catch and crashes node
     // best to leave this at 0 (disabled)
     uri.searchParams.set('connectTimeout', '0');
+    uri.searchParams.set('flags', '-FOUND_ROWS');
 
     return createPool(uri.toString());
   }
@@ -94,6 +98,7 @@ const getPool = (connection: PoolOptions | string) => {
     // it throws an error you can't catch and crashes node
     // best to leave this at 0 (disabled)
     connectTimeout: 0,
+    flags: ['-FOUND_ROWS'],
   });
 };
 
@@ -104,8 +109,8 @@ type HistoryEntry = {
   error?: SerializedError;
 };
 
-const lockMigration = async (pool: Pool, table: string, migration: MigrationMetadata) => {
-  const [result] = await pool.execute<ResultSetHeader>({
+const lockMigration = async (connection: Connection, table: string, migration: MigrationMetadata) => {
+  const [result] = await connection.execute<ResultSetHeader>({
     sql: `
       INSERT INTO ${escapeId(table)} (name, status, date)
       VALUES (?, ?, NOW())
@@ -228,8 +233,10 @@ const initializeDatabase = async (config: ConnectionOptions | string) => {
   }
 };
 
-const initializeTable = async (pool: Pool, table: string) => {
-  const [result] = await pool.execute<RowDataPacket[]>({
+const lockWaitTimeout = 10; // seconds
+
+const isHistoryTableExisting = async (connection: Connection, table: string) => {
+  const [result] = await connection.execute<RowDataPacket[]>({
     sql: `
       SELECT
         1 as table_exists
@@ -242,24 +249,70 @@ const initializeTable = async (pool: Pool, table: string) => {
     values: [table],
   });
 
-  if (result[0]?.['table_exists']) {
+  return result[0]?.['table_exists'] === 1;
+};
+
+const initializeTable = async (config: ConnectionOptions | string, table: string) => {
+  const connection = await getConnection(config);
+
+  if (await isHistoryTableExisting(connection, table)) {
+    await connection.end();
     return;
   }
 
-  // This table definition is compatible with the one used by the immigration-mysql package
-  await pool.execute(`
-    CREATE TABLE ${escapeId(table)} (
-      name varchar(255) not null primary key,
-      status varchar(32),
-      date datetime not null
-    ) Engine=InnoDB;
-  `);
+  const lockName = `emigrate_init_table_lock_${table}`;
+
+  const [lockResult] = await connection.query<RowDataPacket[]>(`SELECT GET_LOCK(?, ?) AS got_lock`, [
+    lockName,
+    lockWaitTimeout,
+  ]);
+  const didGetLock = lockResult[0]?.['got_lock'] === 1;
+
+  if (didGetLock) {
+    try {
+      // This table definition is compatible with the one used by the immigration-mysql package
+      await connection.execute(`
+        CREATE TABLE IF NOT EXISTS ${escapeId(table)} (
+          name varchar(255) not null primary key,
+          status varchar(32),
+          date datetime not null
+        ) Engine=InnoDB;
+      `);
+    } finally {
+      await connection.query(`SELECT RELEASE_LOCK(?)`, [lockName]);
+      await connection.end();
+    }
+
+    return;
+  }
+
+  // Didn't get the lock, wait to see if the table was created by another process
+  const maxWait = lockWaitTimeout * 1000; // milliseconds
+  const checkInterval = 250; // milliseconds
+  const start = Date.now();
+
+  try {
+    while (Date.now() - start < maxWait) {
+      // eslint-disable-next-line no-await-in-loop
+      if (await isHistoryTableExisting(connection, table)) {
+        return;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      await setTimeout(checkInterval);
+    }
+
+    throw new Error(`Timeout waiting for table ${table} to be created by other process`);
+  } finally {
+    await connection.end();
+  }
 };
 
 export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlStorageOptions): EmigrateStorage => {
   return {
     async initializeStorage() {
       await initializeDatabase(connection);
+      await initializeTable(connection, table);
 
       const pool = getPool(connection);
 
@@ -271,24 +324,35 @@ export const createMysqlStorage = ({ table = defaultTable, connection }: MysqlSt
         });
       }
 
-      try {
-        await initializeTable(pool, table);
-      } catch (error) {
-        await pool.end();
-        throw error;
-      }
-
       const storage: Storage = {
         async lock(migrations) {
-          const lockedMigrations: MigrationMetadata[] = [];
+          const connection = await pool.getConnection();
 
-          for await (const migration of migrations) {
-            if (await lockMigration(pool, table, migration)) {
-              lockedMigrations.push(migration);
+          try {
+            await connection.beginTransaction();
+            const lockedMigrations: MigrationMetadata[] = [];
+
+            for await (const migration of migrations) {
+              if (await lockMigration(connection, table, migration)) {
+                lockedMigrations.push(migration);
+              }
             }
-          }
 
-          return lockedMigrations;
+            if (lockedMigrations.length === migrations.length) {
+              await connection.commit();
+
+              return lockedMigrations;
+            }
+
+            await connection.rollback();
+
+            return [];
+          } catch (error) {
+            await connection.rollback();
+            throw error;
+          } finally {
+            connection.release();
+          }
         },
         async unlock(migrations) {
           for await (const migration of migrations) {
