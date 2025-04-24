@@ -1,13 +1,6 @@
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert';
-import {
-  type EmigrateReporter,
-  type Storage,
-  type Plugin,
-  type SerializedError,
-  type MigrationMetadataFinished,
-} from '@emigrate/types';
-import { deserializeError } from 'serialize-error';
+import { type EmigrateReporter, type Storage, type Plugin, type MigrationMetadataFinished } from '@emigrate/types';
 import { version } from '../get-package-info.js';
 import {
   BadOptionError,
@@ -16,7 +9,6 @@ import {
   MigrationHistoryError,
   MigrationRunError,
   StorageInitError,
-  toSerializedError,
 } from '../errors.js';
 import {
   type Mocked,
@@ -24,7 +16,7 @@ import {
   toMigrations,
   getMockedReporter,
   getMockedStorage,
-  getErrorCause,
+  assertErrorEqualEnough,
 } from '../test-utils.js';
 import upCommand from './up.js';
 
@@ -930,15 +922,13 @@ function assertPreconditionsFulfilled(
   for (const [index, entry] of failedEntries.entries()) {
     if (entry.status === 'failed') {
       const error = reporter.onMigrationError.mock.calls[index]?.arguments[1];
-      assert.deepStrictEqual(error, entry.error, 'Error');
-      const cause = entry.error?.cause;
-      assert.deepStrictEqual(error?.cause, cause ? deserializeError(cause) : cause, 'Error cause');
+      assertErrorEqualEnough(error, entry.error, 'Error');
 
       if (entry.started) {
         const [finishedMigration, error] = storage.onError.mock.calls[index]?.arguments ?? [];
         assert.strictEqual(finishedMigration?.name, entry.name);
         assert.strictEqual(finishedMigration?.status, entry.status);
-        assertErrorEqualEnough(error, entry.error);
+        assertErrorEqualEnough(error, entry.error, `Entry error (${entry.name})`);
       }
     }
   }
@@ -946,15 +936,7 @@ function assertPreconditionsFulfilled(
   assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, pending + skipped, 'Total pending and skipped');
   assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
   const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-  assertErrorEqualEnough(error, finishedError);
-
-  const cause = getErrorCause(error);
-  const expectedCause = finishedError?.cause;
-  assert.deepStrictEqual(
-    cause,
-    expectedCause ? deserializeError(expectedCause) : expectedCause,
-    'Finished error cause',
-  );
+  assertErrorEqualEnough(error, finishedError, 'Finished error');
   assert.strictEqual(entries?.length, expected.length, 'Finished entries length');
   assert.deepStrictEqual(
     entries.map((entry) => `${entry.name} (${entry.status})`),
@@ -995,33 +977,6 @@ function assertPreconditionsFailed(
   assert.strictEqual(reporter.onMigrationSkip.mock.calls.length, 0, 'Total pending and skipped');
   assert.strictEqual(reporter.onFinished.mock.calls.length, 1, 'Finished called once');
   const [entries, error] = reporter.onFinished.mock.calls[0]?.arguments ?? [];
-  assert.deepStrictEqual(error, finishedError, 'Finished error');
-  const cause = getErrorCause(error);
-  const expectedCause = finishedError?.cause;
-  assert.deepStrictEqual(
-    cause,
-    expectedCause ? deserializeError(expectedCause) : expectedCause,
-    'Finished error cause',
-  );
+  assertErrorEqualEnough(error, finishedError, 'Finished error');
   assert.strictEqual(entries?.length, 0, 'Finished entries length');
-}
-
-function assertErrorEqualEnough(actual?: Error | SerializedError, expected?: Error) {
-  if (expected === undefined) {
-    assert.strictEqual(actual, undefined);
-    return;
-  }
-
-  const {
-    cause: actualCause,
-    stack: actualStack,
-    ...actualError
-  } = actual instanceof Error ? toSerializedError(actual) : actual ?? {};
-  const { cause: expectedCause, stack: expectedStack, ...expectedError } = toSerializedError(expected);
-  // @ts-expect-error Ignore
-  const { stack: actualCauseStack, ...actualCauseRest } = actualCause ?? {};
-  // @ts-expect-error Ignore
-  const { stack: expectedCauseStack, ...expectedCauseRest } = expectedCause ?? {};
-  assert.deepStrictEqual(actualError, expectedError);
-  assert.deepStrictEqual(actualCauseRest, expectedCauseRest);
 }

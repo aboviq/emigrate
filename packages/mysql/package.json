@@ -17,12 +17,16 @@
   },
   "files": [
     "dist",
-    "!dist/*.tsbuildinfo"
+    "!dist/*.tsbuildinfo",
+    "!dist/**/*.test.js",
+    "!dist/tests/*"
   ],
   "scripts": {
     "build": "tsc --pretty",
     "build:watch": "tsc --pretty --watch",
-    "lint": "xo --cwd=../.. $(pwd)"
+    "lint": "xo --cwd=../.. $(pwd)",
+    "test-disabled": "glob -c \"node --import tsx --test-reporter spec --test\" \"./src/**/*.test.ts\"",
+    "test:watch": "glob -c \"node --watch --import tsx --test-reporter spec --test\" \"./src/**/*.test.ts\""
   },
   "keywords": [
     "emigrate",
