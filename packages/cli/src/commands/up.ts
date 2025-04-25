@@ -11,7 +11,7 @@ import {
   toSerializedError,
   UnexpectedError,
 } from '../errors.js';
-import { type Config } from '../types.js';
+import { type DefaultConfig } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { type GetMigrationsFunction } from '../get-migrations.js';
 import { exec } from '../exec.js';
@@ -49,7 +49,7 @@ export default async function upCommand({
   plugins = [],
   cwd,
   getMigrations,
-}: Config & ExtraFlags): Promise<number> {
+}: DefaultConfig & ExtraFlags): Promise<number> {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }

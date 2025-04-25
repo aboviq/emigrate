@@ -11,6 +11,7 @@ import {
   type Storage,
 } from '@emigrate/types';
 import { toSerializedError } from './errors.js';
+import type { NewCommandReporter } from './reporters/new-command.js';
 
 export type Mocked<T> = {
   // @ts-expect-error - This is a mock
@@ -58,6 +59,18 @@ export function getMockedReporter(): Mocked<Required<EmigrateReporter>> {
     onLockedMigrations: mock.fn(noop),
     onNewMigration: mock.fn(noop),
     onMigrationStart: mock.fn(noop),
+    onMigrationSuccess: mock.fn(noop),
+    onMigrationError: mock.fn(noop),
+    onMigrationSkip: mock.fn(noop),
+  };
+}
+
+export function getMockedNewCommandReporter(): Mocked<Required<NewCommandReporter>> {
+  return {
+    onFinished: mock.fn(noop),
+    onInit: mock.fn(noop),
+    onAbort: mock.fn(noop),
+    onNewMigration: mock.fn(noop),
     onMigrationSuccess: mock.fn(noop),
     onMigrationError: mock.fn(noop),
     onMigrationSkip: mock.fn(noop),

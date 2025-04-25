@@ -1,6 +1,6 @@
 import process from 'node:process';
 import { cosmiconfig, defaultLoaders } from 'cosmiconfig';
-import { type Config, type EmigrateConfig } from './types.js';
+import { type EmigrateConfig, type EmigrateCommandConfigs } from './types.js';
 
 const commands = ['up', 'list', 'new', 'remove'] as const;
 type Command = (typeof commands)[number];
@@ -18,7 +18,10 @@ const getEmigrateConfig = (config: any): EmigrateConfig => {
   return {};
 };
 
-export const getConfig = async (command: Command, forceImportTypeScriptAsIs = false): Promise<Config> => {
+export const getConfig = async <C extends Command>(
+  command: C,
+  forceImportTypeScriptAsIs = false,
+): Promise<EmigrateCommandConfigs[C]> => {
   const explorer = cosmiconfig('emigrate', {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     loaders: forceImportTypeScriptAsIs || canImportTypeScriptAsIs ? { '.ts': defaultLoaders['.js'] } : undefined,

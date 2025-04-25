@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import { type Plugin } from '@emigrate/types';
-import { getMockedReporter, toMigrations } from '../test-utils.js';
+import { getMockedNewCommandReporter, toMigrations } from '../test-utils.js';
 import { BadOptionError } from '../errors.js';
 import prefixes from '../prefixes.js';
 import newCommand from './new.js';
@@ -309,7 +309,7 @@ module.exports = async () => {
 });
 
 function getNewCommand(migrationFiles: string[], plugins?: Plugin[]) {
-  const reporter = getMockedReporter();
+  const reporter = getMockedNewCommandReporter();
 
   const run = async (
     name: string,
