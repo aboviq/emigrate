@@ -6,11 +6,15 @@ let container: StartedTestContainer | undefined;
 
 export const startDatabase = async (): Promise<{ port: number; host: string }> => {
   if (process.env['CI']) {
-    return {
+    const config = {
       port: process.env['MYSQL_PORT'] ? Number.parseInt(process.env['MYSQL_PORT'], 10) : 3306,
       // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       host: process.env['MYSQL_HOST'] || 'localhost',
     };
+
+    console.log(`Connecting to MySQL from environment variables: ${JSON.stringify(config)}`);
+
+    return config;
   }
 
   if (!container) {

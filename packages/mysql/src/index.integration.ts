@@ -7,6 +7,8 @@ import { createMysqlStorage } from './index.js';
 
 let db: { port: number; host: string };
 
+const toEnd = new Set<{ end: () => Promise<void> }>();
+
 describe('emigrate-mysql', async () => {
   before(
     async () => {
@@ -17,6 +19,12 @@ describe('emigrate-mysql', async () => {
 
   after(
     async () => {
+      for (const storage of toEnd) {
+        // eslint-disable-next-line no-await-in-loop
+        await storage.end();
+      }
+
+      toEnd.clear();
       await stopDatabase();
     },
     { timeout: 10_000 },
@@ -36,6 +44,9 @@ describe('emigrate-mysql', async () => {
       });
 
       const [storage1, storage2] = await Promise.all([initializeStorage(), initializeStorage()]);
+
+      toEnd.add(storage1);
+      toEnd.add(storage2);
 
       const migrations = toMigrations('/emigrate', 'migrations', [
         '2023-10-01-01-test.js',

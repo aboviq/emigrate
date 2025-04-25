@@ -62,7 +62,10 @@
     },
     "overrides": [
       {
-        "files": "packages/**/*.test.ts",
+        "files": [
+          "packages/**/*.test.ts",
+          "packages/**/*.integration.ts"
+        ],
         "rules": {
           "@typescript-eslint/no-floating-promises": 0,
           "max-params": 0

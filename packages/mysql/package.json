@@ -25,8 +25,8 @@
     "build": "tsc --pretty",
     "build:watch": "tsc --pretty --watch",
     "lint": "xo --cwd=../.. $(pwd)",
-    "test-disabled": "glob -c \"node --import tsx --test-reporter spec --test\" \"./src/**/*.test.ts\"",
-    "test:watch": "glob -c \"node --watch --import tsx --test-reporter spec --test\" \"./src/**/*.test.ts\""
+    "integration": "glob -c \"node --import tsx --test-reporter spec --test\" \"./src/**/*.integration.ts\"",
+    "integration:watch": "glob -c \"node --watch --import tsx --test-reporter spec --test\" \"./src/**/*.integration.ts\""
   },
   "keywords": [
     "emigrate",
