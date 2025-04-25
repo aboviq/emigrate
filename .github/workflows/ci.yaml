@@ -15,18 +15,6 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       DO_NOT_TRACK: 1
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: emigrate
-          MYSQL_USER: emigrate
-          MYSQL_PASSWORD: emigrate
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping -h localhost" --health-interval=10s --health-timeout=5s --health-retries=5
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -44,16 +32,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            nc -z localhost 3306 && echo "MySQL is up!" && break
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
-
       - name: Checks
-        env:
-          MYSQL_HOST: localhost
-          MYSQL_PORT: 3306
         run: pnpm checks
