@@ -1,6 +1,6 @@
 import { getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { BadOptionError, MissingOptionError, StorageInitError, toError } from '../errors.js';
-import { type Config } from '../types.js';
+import { type DefaultConfig } from '../types.js';
 import { exec } from '../exec.js';
 import { migrationRunner } from '../migration-runner.js';
 import { collectMigrations } from '../collect-migrations.js';
@@ -17,7 +17,7 @@ export default async function listCommand({
   storage: storageConfig,
   color,
   cwd,
-}: Config & ExtraFlags): Promise<number> {
+}: DefaultConfig & ExtraFlags): Promise<number> {
   if (!directory) {
     throw MissingOptionError.fromOption('directory');
   }

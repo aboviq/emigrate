@@ -8,9 +8,7 @@ export type EmigratePlugin = Plugin;
 
 type StringOrModule<T> = string | T | (() => Awaitable<T>) | (() => Awaitable<{ default: T }>);
 
-export type Config = {
-  storage?: StringOrModule<EmigrateStorage>;
-  reporter?: StandardReporter | StringOrModule<EmigrateReporter>;
+export type NewCommandConfig = {
   plugins?: Array<StringOrModule<EmigratePlugin>>;
   directory?: string;
   template?: string;
@@ -18,14 +16,24 @@ export type Config = {
   prefix?: StandardPrefix | PrefixGenerator;
   joiner?: string;
   color?: boolean;
+};
+
+export type DefaultConfig = {
+  storage?: StringOrModule<EmigrateStorage>;
+  reporter?: StandardReporter | StringOrModule<EmigrateReporter>;
+  plugins?: Array<StringOrModule<EmigratePlugin>>;
+  directory?: string;
+  color?: boolean;
   abortRespite?: number;
 };
 
-export type EmigrateConfig = Config & {
-  up?: Config;
-  new?: Config;
-  list?: Config;
-  remove?: Config;
+export type EmigrateCommandConfigs = {
+  up: DefaultConfig;
+  new: NewCommandConfig;
+  list: DefaultConfig;
+  remove: DefaultConfig;
 };
+
+export type EmigrateConfig = NewCommandConfig & DefaultConfig & Partial<EmigrateCommandConfigs>;
 
 export { type PrefixGenerator, type StandardPrefix } from './prefixes.js';

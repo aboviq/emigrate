@@ -1,7 +1,7 @@
 import { hrtime } from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getOrLoadPlugins, getOrLoadReporter } from '@emigrate/plugin-tools';
+import { getOrLoadPlugins } from '@emigrate/plugin-tools';
 import { type MigrationMetadataFinished, type MigrationMetadata, isFailedMigration } from '@emigrate/types';
 import {
   BadOptionError,
@@ -11,11 +11,11 @@ import {
   UnexpectedError,
   toError,
 } from '../errors.js';
-import { type Config } from '../types.js';
+import { type NewCommandConfig } from '../types.js';
 import { withLeadingPeriod } from '../with-leading-period.js';
 import { version } from '../get-package-info.js';
 import { getDuration } from '../get-duration.js';
-import { getStandardReporter } from '../reporters/get.js';
+import { newCommandReporter, type NewCommandReporter } from '../reporters/new-command.js';
 import { DEFAULT_TEMPLATE_PLUGIN } from '../defaults.js';
 import { getMigrations as getMigrationsOriginal, type GetMigrationsFunction } from '../get-migrations.js';
 import { getPrefixGenerator } from '../prefixes.js';
@@ -24,13 +24,14 @@ import { sanitizeName } from '../sanitize-name.js';
 type ExtraFlags = {
   cwd: string;
   getMigrations?: GetMigrationsFunction;
+  reporter?: NewCommandReporter;
 };
 
 export default async function newCommand(
   {
     directory,
     template,
-    reporter: reporterConfig,
+    reporter = newCommandReporter,
     plugins = [],
     cwd,
     extension,
@@ -38,7 +39,7 @@ export default async function newCommand(
     prefix = 'timestamp',
     joiner = '_',
     getMigrations = getMigrationsOriginal,
-  }: Config & ExtraFlags,
+  }: NewCommandConfig & ExtraFlags,
   name: string,
 ): Promise<void> {
   if (!directory) {
@@ -49,16 +50,7 @@ export default async function newCommand(
     throw MissingArgumentsError.fromArgument('name');
   }
 
-  const reporter = getStandardReporter(reporterConfig) ?? (await getOrLoadReporter([reporterConfig]));
-
-  if (!reporter) {
-    throw BadOptionError.fromOption(
-      'reporter',
-      'No reporter found, please specify an existing reporter using the reporter option',
-    );
-  }
-
-  await reporter.onInit?.({ command: 'new', version, cwd, dry: false, directory, color });
+  reporter.onInit({ command: 'new', version, cwd, dry: false, directory, color });
 
   const start = hrtime();
 
@@ -72,10 +64,7 @@ export default async function newCommand(
       content = await fs.readFile(templatePath, 'utf8');
       extension ??= fileExtension || undefined;
     } catch (error) {
-      await reporter.onFinished?.(
-        [],
-        new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error }),
-      );
+      reporter.onFinished([], new UnexpectedError(`Failed to read template file: ${templatePath}`, { cause: error }));
       return;
     }
   }
@@ -110,7 +99,7 @@ export default async function newCommand(
     cwd,
   };
 
-  await reporter.onNewMigration?.(migration, content);
+  reporter.onNewMigration(migration, content);
 
   const finishedMigrations: MigrationMetadataFinished[] = [];
 
@@ -136,11 +125,11 @@ export default async function newCommand(
           })
         : undefined;
 
-  await reporter.onFinished?.(finishedMigrations, firstError);
+  reporter.onFinished(finishedMigrations, firstError);
 }
 
 async function getContentFromTemplates(
-  plugins: Exclude<Config['plugins'], undefined>,
+  plugins: Exclude<NewCommandConfig['plugins'], undefined>,
   extension: string,
   name: string,
 ) {

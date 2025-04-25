@@ -11,7 +11,7 @@ import {
   StorageInitError,
   toError,
 } from '../errors.js';
-import { type Config } from '../types.js';
+import { type DefaultConfig } from '../types.js';
 import { exec } from '../exec.js';
 import { version } from '../get-package-info.js';
 import { collectMigrations } from '../collect-migrations.js';
@@ -37,7 +37,7 @@ export default async function removeCommand(
     cwd,
     force = false,
     getMigrations,
-  }: Config & ExtraFlags,
+  }: DefaultConfig & ExtraFlags,
   name: string,
 ): Promise<number> {
   if (!directory) {

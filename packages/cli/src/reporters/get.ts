@@ -1,8 +1,8 @@
 import type { EmigrateReporter } from '@emigrate/types';
-import { type Config } from '../types.js';
+import { type DefaultConfig } from '../types.js';
 import * as reporters from './index.js';
 
-export const getStandardReporter = (reporter?: Config['reporter']): EmigrateReporter | undefined => {
+export const getStandardReporter = (reporter?: DefaultConfig['reporter']): EmigrateReporter | undefined => {
   if (!reporter) {
     return reporters.pretty;
   }

@@ -225,10 +225,6 @@ const newMigration: Action = async (args) => {
         type: 'string',
         short: 'd',
       },
-      reporter: {
-        type: 'string',
-        short: 'r',
-      },
       template: {
         type: 'string',
         short: 't',
@@ -294,14 +290,12 @@ Options:
   -i, --import <module>   Additional modules/packages to import before creating the migration (can be specified multiple times)
                           For example if you want to use Dotenv to load environment variables or when using TypeScript
 
-  -r, --reporter <name>   The reporter to use for reporting the migration file creation progress (default: pretty)
-
   -j, --joiner <string>   The string to use to join the prefix and the name of the migration file (default: _)
                           It's also used for replacing whitespace and characters that are not allowed in filenames in the name
 
-  --color                 Force color output (this option is passed to the reporter)
+  --color                 Force color output
 
-  --no-color              Disable color output (this option is passed to the reporter)
+  --no-color              Disable color output
 
 Examples:
 
