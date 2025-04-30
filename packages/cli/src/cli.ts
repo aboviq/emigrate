@@ -162,7 +162,7 @@ Examples:
     'abort-respite': abortRespiteString,
     'no-execution': noExecution,
   } = values;
-  const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
+  const plugins = [...(values.plugin ?? []), ...(config.plugins ?? [])];
 
   const limit = limitString === undefined ? undefined : Number.parseInt(limitString, 10);
   const abortRespite = abortRespiteString === undefined ? config.abortRespite : Number.parseInt(abortRespiteString, 10);
@@ -334,7 +334,7 @@ Examples:
     prefix = config.prefix,
     joiner = config.joiner,
   } = values;
-  const plugins = [...(config.plugins ?? []), ...(values.plugin ?? [])];
+  const plugins = [...(values.plugin ?? []), ...(config.plugins ?? [])];
   const name = positionals.join(' ').trim();
 
   if (!isValidPrefix(prefix)) {
