@@ -1,6 +1,6 @@
+import assert from 'node:assert';
 import { mock, type Mock } from 'node:test';
 import path from 'node:path';
-import assert from 'node:assert';
 import {
   type SerializedError,
   type EmigrateReporter,
@@ -14,8 +14,8 @@ import { toSerializedError } from './errors.js';
 import type { NewCommandReporter } from './reporters/new-command.js';
 
 export type Mocked<T> = {
-  // @ts-expect-error - This is a mock
-  [K in keyof T]: Mock<T[K]>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [K in keyof T]: T[K] extends Function ? Mock<T[K]> : T[K];
 };
 
 export async function noop(): Promise<void> {
@@ -65,7 +65,7 @@ export function getMockedReporter(): Mocked<Required<EmigrateReporter>> {
   };
 }
 
-export function getMockedNewCommandReporter(): Mocked<Required<NewCommandReporter>> {
+export function getMockedNewCommandReporter(): Mocked<NewCommandReporter> {
   return {
     onFinished: mock.fn(noop),
     onInit: mock.fn(noop),

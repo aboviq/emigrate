@@ -63,7 +63,7 @@ export default async function removeCommand(
     );
   }
 
-  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, directory, color });
+  await reporter.onInit?.({ command: 'remove', version, cwd, dry: false, color });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 

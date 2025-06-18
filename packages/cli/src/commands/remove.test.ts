@@ -189,7 +189,6 @@ function assertPreconditionsFailed(reporter: Mocked<Required<EmigrateReporter>>,
       version,
       dry: false,
       color: undefined,
-      directory: 'migrations',
     },
   ]);
   assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0, 'Collected call');
@@ -230,7 +229,6 @@ function assertPreconditionsFulfilled(
       version,
       dry: false,
       color: undefined,
-      directory: 'migrations',
     },
   ]);
 

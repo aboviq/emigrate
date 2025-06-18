@@ -69,7 +69,7 @@ export default async function upCommand({
     );
   }
 
-  await reporter.onInit?.({ command: 'up', version, cwd, dry, directory, color });
+  await reporter.onInit?.({ command: 'up', version, cwd, dry, color });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 
