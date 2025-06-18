@@ -226,10 +226,6 @@ export type ReporterInitParameters = {
    */
   command: 'up' | 'new' | 'list' | 'remove';
   /**
-   * The directory where the migration files are located
-   */
-  directory: string;
-  /**
    * The current working directory (the same as process.cwd())
    */
   cwd: string;

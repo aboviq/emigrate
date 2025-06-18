@@ -925,7 +925,6 @@ function assertPreconditionsFulfilled(
       version,
       dry: options.dry,
       color: undefined,
-      directory: 'migrations',
     },
   ]);
 
@@ -1034,7 +1033,6 @@ function assertPreconditionsFailed(
       version,
       dry: options.dry,
       color: undefined,
-      directory: 'migrations',
     },
   ]);
   assert.strictEqual(reporter.onCollectedMigrations.mock.calls.length, 0, 'Collected call');

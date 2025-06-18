@@ -37,7 +37,7 @@ export default async function listCommand({
     );
   }
 
-  await reporter.onInit?.({ command: 'list', version, cwd, dry: false, directory, color });
+  await reporter.onInit?.({ command: 'list', version, cwd, dry: false, color });
 
   const [storage, storageError] = await exec(async () => storagePlugin.initializeStorage());
 
