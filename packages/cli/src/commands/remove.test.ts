@@ -37,6 +37,10 @@ describe('remove', () => {
 
     const exitCode = await run('some_migration.js');
 
+    const migrationError = MigrationNotRunError.fromMetadata(
+      toMigrations('/emigrate', 'migrations', ['some_migration.js'])[0]!,
+    );
+
     assert.strictEqual(exitCode, 1, 'Exit code');
     assertPreconditionsFulfilled(
       reporter,
@@ -45,10 +49,10 @@ describe('remove', () => {
         {
           name: 'some_migration.js',
           status: 'failed',
-          error: new MigrationNotRunError('Migration "some_migration.js" is not in the migration history'),
+          error: migrationError,
         },
       ],
-      new MigrationNotRunError('Migration "some_migration.js" is not in the migration history'),
+      migrationError,
     );
   });
 

@@ -8,7 +8,21 @@ import { getConfig } from './get-config.js';
 import { DEFAULT_RESPITE_SECONDS } from './defaults.js';
 import { isValidPrefix, standardPrefixOptions } from './prefixes.js';
 
+process.title = 'emigrate';
+
 type Action = (args: string[], abortSignal: AbortSignal) => Promise<void>;
+
+// Make util.styleText respect the cli flags --color and --no-color:
+if (process.argv.includes('--no-color')) {
+  process.env['NO_COLOR'] = '1';
+} else if (process.argv.includes('--color')) {
+  process.env['FORCE_COLOR'] = '1';
+}
+
+// Make util.styleText respect the EMIGRATE_NO_COLOR and EMIGRATE_DISABLE_COLORS env vars:
+if (process.env['EMIGRATE_NO_COLOR'] ?? process.env['EMIGRATE_DISABLE_COLORS']) {
+  process.env['NO_COLOR'] = '1';
+}
 
 const useColors = (values: { color?: boolean; 'no-color'?: boolean }) => {
   if (values['no-color']) {
@@ -213,7 +227,7 @@ Examples:
   }
 };
 
-const newMigration: Action = async (args) => {
+const newMigration: Action = async (args, abortSignal) => {
   const { values, positionals } = parseArgs({
     args,
     options: {
@@ -263,19 +277,19 @@ const newMigration: Action = async (args) => {
     allowPositionals: true,
   });
 
-  const usage = `Usage: emigrate new [options] <name>
+  const usage = `Usage: emigrate new [options] [<name>]
 
 Create a new migration file with the given name in the specified directory
 
 Arguments:
 
-  name   The name of the migration file to create (required)
+  name   The name of the migration file to create
 
 Options:
 
   -h, --help              Show this help message and exit
 
-  -d, --directory <path>  The directory where the new migration file should be created (required)
+  -d, --directory <path>  The directory where the new migration file should be created (required, if not specified in the config)
 
   -x, --prefix <name>     The type of prefix to use for the new migration file (default: timestamp)
                           The available built-in prefixes are: ${standardPrefixOptions.join(', ')}
@@ -293,11 +307,16 @@ Options:
   -j, --joiner <string>   The string to use to join the prefix and the name of the migration file (default: _)
                           It's also used for replacing whitespace and characters that are not allowed in filenames in the name
 
+  -y, --yes               Skip any prompts and use default values (required in non-interactive mode)
+
   --color                 Force color output
 
   --no-color              Disable color output
 
 Examples:
+
+  # Create a new migration using an interactive prompt
+  emigrate new
 
   # Create a new migration file with the name "YYYYMMDDHHmmss_create_users_table.js" in the "src/migrations" directory using the migration-template.js file as a template
   emigrate new -d src/migrations -t migration-template.js create users table
@@ -351,7 +370,7 @@ Examples:
 
   try {
     const { default: newCommand } = await import('./commands/new.js');
-    await newCommand(
+    process.exitCode = await newCommand(
       {
         directory,
         template,
@@ -361,6 +380,7 @@ Examples:
         joiner,
         cwd,
         color: useColors(values),
+        abortSignal,
       },
       name,
     );

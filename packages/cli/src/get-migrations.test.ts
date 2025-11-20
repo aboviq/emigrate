@@ -17,6 +17,7 @@ describe('get-migrations', () => {
   });
 
   it('should skip files with leading periods', async () => {
+    // @ts-expect-error -- mocking --
     opendirMock.mock.mockImplementation(async function* () {
       yield* [
         { name: '.foo.js', isFile: () => true },
@@ -48,6 +49,7 @@ describe('get-migrations', () => {
   });
 
   it('should skip files with leading underscores', async () => {
+    // @ts-expect-error -- mocking --
     opendirMock.mock.mockImplementation(async function* () {
       yield* [
         { name: '_foo.js', isFile: () => true },
@@ -79,6 +81,7 @@ describe('get-migrations', () => {
   });
 
   it('should skip files without file extensions', async () => {
+    // @ts-expect-error -- mocking --
     opendirMock.mock.mockImplementation(async function* () {
       yield* [
         { name: 'foo', isFile: () => true },
@@ -110,6 +113,7 @@ describe('get-migrations', () => {
   });
 
   it('should skip non-files', async () => {
+    // @ts-expect-error -- mocking --
     opendirMock.mock.mockImplementation(async function* () {
       yield* [
         { name: 'foo.js', isFile: () => false },
@@ -141,6 +145,7 @@ describe('get-migrations', () => {
   });
 
   it('should sort them in lexicographical order', async () => {
+    // @ts-expect-error -- mocking --
     opendirMock.mock.mockImplementation(async function* () {
       yield* [
         { name: 'foo.js', isFile: () => true },
