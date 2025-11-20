@@ -44,7 +44,7 @@
   "license": "MIT",
   "dependencies": {
     "@emigrate/types": "workspace:*",
-    "mysql2": "3.6.5"
+    "mysql2": "3.9.8"
   },
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*",
