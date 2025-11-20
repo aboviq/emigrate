@@ -1,9 +1,11 @@
-import { black, blueBright, bold, cyan, dim, faint, gray, green, red, redBright, yellow, yellowBright } from 'ansis';
 import elegantSpinner from 'elegant-spinner';
 import figures from 'figures';
 import isInteractive from 'is-interactive';
 import prettyMs from 'pretty-ms';
 import { type MigrationMetadata, type MigrationMetadataFinished, type ReporterInitParameters } from '@emigrate/types';
+import { style } from '../style.js';
+
+const { black, blueBright, bgBlueBright, bold, cyan, dim, gray, green, red, redBright, yellow, yellowBright } = style;
 
 type Status = ReturnType<typeof getMigrationStatus>;
 type Command = ReporterInitParameters['command'];
@@ -18,9 +20,9 @@ const formatDuration = (duration: number): string => {
 };
 
 export const getTitle = ({ command, version, dry, cwd }: ReporterInitParameters) => {
-  return `${black.bgBlueBright` Emigrate `.trim()} ${blueBright.bold(command)} ${blueBright`v${version}`} ${gray(cwd)}${
-    dry ? yellow` (dry run)` : ''
-  }`;
+  return `${black(bgBlueBright(` Emigrate `)).trim()} ${blueBright(bold(command))} ${blueBright(`v${version}`)} ${gray(
+    cwd,
+  )}${dry ? yellow(` (dry run)`) : ''}`;
 };
 
 const getMigrationStatus = (
@@ -90,7 +92,7 @@ const getName = (name: string, status?: Status) => {
     }
 
     case 'pending': {
-      return faint(name);
+      return dim(name);
     }
 
     default: {
@@ -112,7 +114,7 @@ export const getMigrationText = (
   parts.push(`${dim(pathWithoutName)}${getName(nameWithoutExtension, status)}${dim(migration.extension)}`);
 
   if ('status' in migration || migration.name === activeMigration?.name) {
-    parts.push(gray`(${status})`);
+    parts.push(gray(`(${status})`));
   }
 
   if ('duration' in migration && migration.duration) {
@@ -161,7 +163,7 @@ export const getError = (error?: ErrorLike, indent = '  '): string => {
   const code = codeString ? ` [${codeString}]` : '';
 
   const errorTitle = error.name ? `${error.name}${code}: ${error.message}` : error.message;
-  const parts = [`${indent}${bold.red(errorTitle)}`, ...stack.map((line) => `${indent}  ${dim(line.trim())}`)];
+  const parts = [`${indent}${bold(red(errorTitle))}`, ...stack.map((line) => `${indent}  ${dim(line.trim())}`)];
 
   if (properties.length > 0) {
     parts.push(`${indent}  ${JSON.stringify(others, undefined, 2).split('\n').join(`\n${indent}  `)}`);
@@ -180,7 +182,7 @@ export const getAbortMessage = (reason?: Error): string => {
     return '';
   }
 
-  const parts = [`  ${red.bold(reason.message)}`];
+  const parts = [`  ${bold(red(reason.message))}`];
 
   if (isErrorLike(reason.cause)) {
     parts.push(getError(reason.cause, '    '));
@@ -231,10 +233,10 @@ export const getSummary = (
   const showTotal = command !== 'new';
 
   const statusLine = [
-    failed ? red.bold(`${failed} failed`) : '',
-    done ? green.bold(`${done} ${command === 'new' ? 'created' : command === 'remove' ? 'removed' : 'done'}`) : '',
-    skipped ? yellow.bold(`${skipped} skipped`) : '',
-    pending ? cyan.bold(`${pending} pending`) : '',
+    failed ? red(bold(`${failed} failed`)) : '',
+    done ? green(bold(`${done} ${command === 'new' ? 'created' : command === 'remove' ? 'removed' : 'done'}`)) : '',
+    skipped ? yellow(bold(`${skipped} skipped`)) : '',
+    pending ? cyan(bold(`${pending} pending`)) : '',
   ]
     .filter(Boolean)
     .join(dim(' | '));
