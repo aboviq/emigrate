@@ -1,5 +1,37 @@
 # @emigrate/cli
 
+## 1.0.0
+
+### Major Changes
+
+- 4e181d9: Remove the `directory` property from the ReporterInitParameters. This is to make it easier to adapt Emigrate to do migrations that are not file based. It also makes Emigrate more flexible in case future versions will allow running migrations from different locations at the same time.
+- a9cd349: With the introduction of the new "prefix" option the short CLI option alias for the "--extension" option has been renamed from "-x" to "-e", and the new "--prefix" CLI option now has "-x" as its alias.
+- 768a752: The "new" command is now smarter and more beginner friendly and have overall better UX by prompting for information about the migration file to create, like its name, file extension and template. In non-interactive mode, i.e. where Emigrate can't prompt, it will now fail instead of creating an empty migration file when not all information is provided, unless the `--yes/-y` CLI flag is provided that is. So for users using Emigrate's "new" command in non-interactive mode this is a breaking change.
+- d49da0c: Generator plugins are no more. Template plugins is the new thing. A generator plugin was responsible both for generating the contents of new migration files and their filenames, a template plugin only generates the contents of new files. A template plugin can provide multiple templates where each template have a corresponding file extension. Multiple template plugins can have templates with the same extension and in a coming change the user will be able to chose which template to use when that's the case. This new type of plugin opens up new potential use cases like automatically generating migration files based on diffing two database schemas for instance. A template plugin can provide templates as either strings, or sync or async functions returning strings.
+- 5175beb: Use `styleText` from the native `node:util` instead of 3rd party modules for CLI colors. With this the minimum NodeJS version for Emigrate has been bumped to v22.
+- dafde8c: Remove the "reporter" option from the "new" command. It now has its own custom default reporter. This makes more sense as you usually don't want to change the reporter for the "new" command, but only for the other commands (e.g. to the "pino" reporter in a production environment). With this change the "EmigrateConfig" type has been changed to reflect this, so that the "new" command has a different type than the other commands.
+
+### Minor Changes
+
+- a9cd349: Add support for a "prefix" option. With the prefix option it's possible to customize the prefix of new migration files. Emigrate comes with a set of built-in prefixes and it can also be customized using any function as the prefix option in the configuration file.
+- f70dd70: Specify a description for each migration template and sort them in priority order
+- a9cd349: Add support for a "joiner" option. The specified joiner is used as a separator between the migration file's prefix and its name, and it is also used as a replacement for illegal filename characters if any. The default joiner is "\_".
+- d49da0c: Loader plugins are now allowed to return `undefined` to signal to Emigrate to skip to the next loader plugin. This way multiple loader plugins are able to load migration files with the same file extension and it is up to the loader plugins themselves to figure out if they are able to load a certain migration file or not.
+
+### Patch Changes
+
+- d49da0c: The built-in JavaScript and TypeScript migration file loader plugin now avoids anonymous functions for easier debugging
+- b270555: Prioritize plugins provided via CLI flags over those in the config file
+- Updated dependencies [c3c4fb2]
+- Updated dependencies [4e181d9]
+- Updated dependencies [db6c356]
+- Updated dependencies [d49da0c]
+- Updated dependencies [d49da0c]
+- Updated dependencies [d49da0c]
+- Updated dependencies [a9cd349]
+  - @emigrate/plugin-tools@1.0.0
+  - @emigrate/types@1.0.0
+
 ## 0.18.4
 
 ### Patch Changes

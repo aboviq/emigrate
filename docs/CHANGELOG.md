@@ -1,5 +1,16 @@
 # @emigrate/docs
 
+## 2.0.0
+
+### Major Changes
+
+- d49da0c: Generator plugins are no more. Template plugins is the new thing. A generator plugin was responsible both for generating the contents of new migration files and their filenames, a template plugin only generates the contents of new files. A template plugin can provide multiple templates where each template have a corresponding file extension. Multiple template plugins can have templates with the same extension and in a coming change the user will be able to chose which template to use when that's the case. This new type of plugin opens up new potential use cases like automatically generating migration files based on diffing two database schemas for instance. A template plugin can provide templates as either strings, or sync or async functions returning strings.
+
+### Minor Changes
+
+- a9cd349: Add support for a "prefix" option. With the prefix option it's possible to customize the prefix of new migration files. Emigrate comes with a set of built-in prefixes and it can also be customized using any function as the prefix option in the configuration file.
+- a9cd349: Add support for a "joiner" option. The specified joiner is used as a separator between the migration file's prefix and its name, and it is also used as a replacement for illegal filename characters if any. The default joiner is "\_".
+
 ## 1.0.0
 
 ### Major Changes

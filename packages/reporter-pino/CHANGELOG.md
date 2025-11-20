@@ -1,5 +1,13 @@
 # @emigrate/reporter-pino
 
+## 0.6.6
+
+### Patch Changes
+
+- Updated dependencies [4e181d9]
+- Updated dependencies [d49da0c]
+  - @emigrate/types@1.0.0
+
 ## 0.6.5
 
 ### Patch Changes

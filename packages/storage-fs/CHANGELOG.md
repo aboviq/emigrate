@@ -1,5 +1,13 @@
 # @emigrate/storage-fs
 
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [4e181d9]
+- Updated dependencies [d49da0c]
+  - @emigrate/types@1.0.0
+
 ## 0.4.7
 
 ### Patch Changes
