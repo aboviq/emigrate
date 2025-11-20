@@ -19,7 +19,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.PAT_GITHUB_TOKEN }}
           persist-credentials: false
