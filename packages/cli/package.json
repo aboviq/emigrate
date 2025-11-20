@@ -41,6 +41,7 @@
   ],
   "devDependencies": {
     "@emigrate/tsconfig": "workspace:*",
+    "@inquirer/type": "3.0.6",
     "@types/bun": "1.0.5",
     "bun-types": "1.0.26"
   },
@@ -52,7 +53,9 @@
   "dependencies": {
     "@emigrate/plugin-tools": "workspace:*",
     "@emigrate/types": "workspace:*",
-    "ansis": "2.0.3",
+    "@inquirer/confirm": "5.1.9",
+    "@inquirer/input": "4.1.9",
+    "@inquirer/select": "4.2.0",
     "cosmiconfig": "9.0.0",
     "elegant-spinner": "3.0.0",
     "figures": "6.0.1",

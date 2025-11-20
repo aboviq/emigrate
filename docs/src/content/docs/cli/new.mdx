@@ -16,22 +16,22 @@ The migration file can be based on a template file, a <Link href="/plugins/templ
 <Tabs>
   <TabItem label="npm">
     ```bash
-    npx emigrate new [options] <name>
+    npx emigrate new [options] [<name>]
     ```
   </TabItem>
   <TabItem label="pnpm">
     ```bash
-    pnpm emigrate new [options] <name>
+    pnpm emigrate new [options] [<name>]
     ```
   </TabItem>
   <TabItem label="yarn">
     ```bash
-    yarn emigrate new [options] <name>
+    yarn emigrate new [options] [<name>]
     ```
   </TabItem>
   <TabItem label="bun">
     ```bash
-    bunx --bun emigrate new [options] <name>
+    bunx --bun emigrate new [options] [<name>]
     ```
   </TabItem>
   <TabItem label="deno">
@@ -47,7 +47,7 @@ The migration file can be based on a template file, a <Link href="/plugins/templ
     ```
 
     ```bash
-    deno task emigrate new [options] <name>
+    deno task emigrate new [options] [<name>]
     ```
   </TabItem>
 </Tabs>
@@ -58,8 +58,9 @@ The migration file can be based on a template file, a <Link href="/plugins/templ
 
 The name of the migration. The name will be used to generate the migration filename.
 
-The name can be provided as a single argument or as multiple arguments.
-If multiple arguments are provided, the arguments will be joined with a space before being passed to the filename generator (the default filename generator replaces all whitespace and non-path safe characters with underscores).
+The name can be provided as a single argument or as multiple arguments. If the name argument is not provided, you'll be prompted for it.
+
+The name can contain any characters and any whitespace. Illegal file name characters and whitespace will be replaced with the [`--joiner`](#-j---joiner-string) option (default is `_`) and any consecutive such characters will be replaced with a single occurrence of the "joiner".
 
 ## Options
 
@@ -71,6 +72,8 @@ Show command help and exit
 
 The directory where the migration files are located. The given path should be absolute or relative to the current working directory.
 
+If not provided via the command line option or configuration file, the directory will be prompted for.
+
 ### `-t`, `--template <path>`
 
 The template file to use for generating the migration file. The given path should be absolute or relative to the current working directory.
@@ -79,7 +82,7 @@ The template can contain a `{{name}}` placeholder which will be replaced with th
 
 ### `-x`, `--prefix <name>`
 
-**type:** <code>"{standardPrefixOptions.join('" | "')}"</code>  
+**type:** <code>"{standardPrefixOptions.join('" | "')}"</code>
 **default:** `timestamp`
 
 The type of prefix to use for the new migration file.
@@ -88,21 +91,23 @@ If you want a custom prefix function you can specify that in your configuration 
 
 ### `-e`, `--extension <ext>`
 
-**type:** `string`  
+**type:** `string`
 **default:** `.js`
 
-The extension to use for the migration file. Unless the [`--template`](#-t---template-path) option is also specified the file will be empty.
+The extension to use for the migration file. If not provided, and the [`--template`](#-t---template-path) option is specified its file extension will be used.
 
 If both the `--template` and `--extension` options are specified, the extension will override the template file extension.
+
+If none of `--template` or `--extension` are specified, the extension to use will be prompted for if there are registered template plugins that can generate migration files with different extensions, otherwise it will default to `.js`.
 
 **Example:** `--extension .sql` will generate a file with the `.sql` extension.
 
 ### `-j`, `--joiner <string>`
 
-**type:** `string`  
+**type:** `string`
 **default:** `_`
 
-The string to use to join the prefix and the name of the migration file.  
+The string to use to join the prefix and the name of the migration file.
 It's also used for replacing whitespace and characters that are not allowed in filenames in the name.
 
 ### `-p`, `--plugin <name>`

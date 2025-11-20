@@ -223,6 +223,8 @@ describe('up', () => {
 
       const exitCode = await run();
 
+      const migrationHistoryError = MigrationHistoryError.fromHistoryEntry(failedEntry);
+
       assert.strictEqual(exitCode, 1, 'Exit code');
       assertPreconditionsFulfilled(
         { dry: false },
@@ -232,17 +234,11 @@ describe('up', () => {
           {
             name: 'some_failed_migration.js',
             status: 'failed',
-            error: new MigrationHistoryError(
-              'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-              { cause: failedEntry.error },
-            ),
+            error: migrationHistoryError,
           },
           { name: 'some_file.js', status: 'skipped' },
         ],
-        new MigrationHistoryError(
-          'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-          { cause: failedEntry.error },
-        ),
+        migrationHistoryError,
       );
     });
 
@@ -253,6 +249,8 @@ describe('up', () => {
 
       const exitCode = await run({ dry: true });
 
+      const migrationHistoryError = MigrationHistoryError.fromHistoryEntry(failedEntry);
+
       assert.strictEqual(exitCode, 1, 'Exit code');
       assertPreconditionsFulfilled(
         { dry: true },
@@ -262,17 +260,11 @@ describe('up', () => {
           {
             name: 'some_failed_migration.js',
             status: 'failed',
-            error: new MigrationHistoryError(
-              'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-              { cause: failedEntry.error },
-            ),
+            error: migrationHistoryError,
           },
           { name: 'some_file.js', status: 'skipped' },
         ],
-        new MigrationHistoryError(
-          'Migration some_failed_migration.js is in a failed state, it should be fixed and removed',
-          { cause: failedEntry.error },
-        ),
+        migrationHistoryError,
       );
     });
 
