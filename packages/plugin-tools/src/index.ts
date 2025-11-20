@@ -148,6 +148,43 @@ export const getOrLoadPlugins = async <T extends PluginType>(
   return result;
 };
 
+export const getOrLoadPluginsWithNames = async <T extends PluginType>(
+  type: T,
+  plugins: Array<StringOrModule<unknown>>,
+): Promise<Array<{ name: string; plugin: PluginFromType<T> }>> => {
+  const result: Array<{ name: string; plugin: PluginFromType<T> }> = [];
+
+  for await (let plugin of plugins) {
+    let name: string | undefined;
+
+    if (typeof plugin === 'function') {
+      name = plugin.name;
+      plugin = await plugin();
+    }
+
+    if (isPluginOfType(type, plugin)) {
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      result.push({ name: name || 'anonymous', plugin });
+      continue;
+    }
+
+    // Support export default ...
+    if (plugin && typeof plugin === 'object' && 'default' in plugin && isPluginOfType(type, plugin.default)) {
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      result.push({ name: name || 'anonymous', plugin: plugin.default });
+      continue;
+    }
+
+    const loadedPlugin = typeof plugin === 'string' ? await loadPluginWithName(type, plugin) : undefined;
+
+    if (loadedPlugin) {
+      result.push(loadedPlugin);
+    }
+  }
+
+  return result;
+};
+
 const getOrLoad = async <T>(
   potentials: Array<StringOrModule<unknown>>,
   prefixes: string[],
@@ -185,6 +222,19 @@ const loadPlugin = async <T extends PluginType>(type: T, plugin: string): Promis
   );
 };
 
+const loadPluginWithName = async <T extends PluginType>(
+  type: T,
+  plugin: string,
+): Promise<{ name: string; plugin: PluginFromType<T> } | undefined> => {
+  return loadWithName(
+    plugin,
+    ['@emigrate/plugin-', 'emigrate-plugin-', '@emigrate/'],
+    (value: unknown): value is PluginFromType<T> => {
+      return isPluginOfType(type, value);
+    },
+  );
+};
+
 const load = async <T>(
   name: string,
   prefixes: string[],
@@ -206,6 +256,36 @@ const load = async <T>(
       // Support export default ...
       if (module && typeof module === 'object' && 'default' in module && check(module.default)) {
         return module.default;
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  return undefined;
+};
+
+const loadWithName = async <T>(
+  name: string,
+  prefixes: string[],
+  check: (value: unknown) => value is T,
+): Promise<{ name: string; plugin: T } | undefined> => {
+  const { default: importFromEsm } = await import('import-from-esm');
+
+  const importsToTry = name.startsWith('.') ? [name] : [...prefixes.map((prefix) => `${prefix}${name}`), name];
+
+  for await (const importPath of importsToTry) {
+    try {
+      const module: unknown = await importFromEsm(process.cwd(), importPath);
+
+      // Support module.exports = ...
+      if (check(module)) {
+        return { name: importPath, plugin: module };
+      }
+
+      // Support export default ...
+      if (module && typeof module === 'object' && 'default' in module && check(module.default)) {
+        return { name: importPath, plugin: module.default };
       }
     } catch {
       // Ignore errors
