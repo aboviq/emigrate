@@ -457,6 +457,7 @@ export const loadMigration: MigrationLoader = loader.loadMigration;
 
 const sqlTemplate: Template = {
   extension: '.sql',
+  description: 'SQL template',
   template: `-- Migration: {{name}}
 `,
 };

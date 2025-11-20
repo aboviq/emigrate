@@ -24,28 +24,34 @@ export default async () => {
 export const DEFAULT_TEMPLATE_PLUGIN: TemplatePlugin = {
   templates: [
     {
-      extension: '.cjs',
-      template: commonJsTemplate,
+      extension: '.js',
+      description: 'JavaScript template (ESM)',
+      template: esModuleTemplate,
     },
     {
-      extension: '.js',
+      extension: '.ts',
+      description: 'TypeScript template (ESM)',
       template: esModuleTemplate,
     },
     {
       extension: '.mjs',
-      template: esModuleTemplate,
-    },
-    {
-      extension: '.cts',
-      template: commonJsTemplate,
-    },
-    {
-      extension: '.ts',
+      description: 'JavaScript template (ESM)',
       template: esModuleTemplate,
     },
     {
       extension: '.mts',
+      description: 'TypeScript template (ESM)',
       template: esModuleTemplate,
+    },
+    {
+      extension: '.cjs',
+      description: 'JavaScript template (CJS)',
+      template: commonJsTemplate,
+    },
+    {
+      extension: '.cts',
+      description: 'TypeScript template (CJS)',
+      template: commonJsTemplate,
     },
   ],
 };

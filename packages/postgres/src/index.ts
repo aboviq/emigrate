@@ -363,6 +363,7 @@ export const loadMigration: MigrationLoader = loader.loadMigration;
 
 const sqlTemplate: Template = {
   extension: '.sql',
+  description: 'SQL template',
   template: `
 -- Migration: {{name}}
 `.trimStart(),
@@ -370,6 +371,7 @@ const sqlTemplate: Template = {
 
 const tsTemplate: Template = {
   extension: '.ts',
+  description: 'TypeScript template',
   template: `
 import type { Migration } from '@emigrate/postgres';
 
@@ -384,6 +386,7 @@ export const up: Migration = async (sql) => {
 
 const jsTemplate: Template = {
   extension: '.js',
+  description: 'JavaScript template (ESM)',
   template: `
 /**
  * {{name}}
@@ -398,6 +401,7 @@ export const up = async (sql) => {
 
 const cjsTemplate: Template = {
   extension: '.cjs',
+  description: 'JavaScript template (CJS)',
   template: `
 /**
  * {{name}}
@@ -417,8 +421,8 @@ const defaultExport: EmigrateStorage & LoaderPlugin & TemplatePlugin = {
   templates: [
     sqlTemplate,
     jsTemplate,
-    { ...jsTemplate, extension: '.mjs' },
     tsTemplate,
+    { ...jsTemplate, extension: '.mjs' },
     { ...tsTemplate, extension: '.cts' },
     cjsTemplate,
   ],
