@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { type MigrationHistoryEntry, type MigrationMetadataFinished } from '@emigrate/types';
-import { withLeadingPeriod } from './with-leading-period.js';
+import { withLeadingPeriod } from './utils/with-leading-period.js';
 import { MigrationHistoryError } from './errors.js';
 
 export const toMigrationMetadata = (

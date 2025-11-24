@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { type MigrationMetadata } from '@emigrate/types';
-import { withLeadingPeriod } from './with-leading-period.js';
+import { withLeadingPeriod } from './utils/with-leading-period.js';
 import { BadOptionError } from './errors.js';
-import { arrayFromAsync } from './array-from-async.js';
+import { arrayFromAsync } from './utils/array-from-async.js';
 
 export type GetMigrationsFunction = typeof getMigrations;
 

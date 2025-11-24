@@ -11,7 +11,7 @@ import {
 } from '@emigrate/types';
 import { toError, EmigrateError, MigrationRunError, BadOptionError } from './errors.js';
 import { exec } from './exec.js';
-import { getDuration } from './get-duration.js';
+import { getDuration } from './utils/get-duration.js';
 
 type MigrationRunnerParameters<T extends MigrationMetadata | MigrationMetadataFinished> = {
   dry: boolean;

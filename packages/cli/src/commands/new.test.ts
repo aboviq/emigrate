@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import { type MigrationMetadataFinished, type Plugin } from '@emigrate/types';
-import { assertErrorEqualEnough, getMockedNewCommandReporter, toMigrations, type Mocked } from '../test-utils.js';
+import { assertErrorEqualEnough, getMockedNewCommandReporter, toMigrations, type Mocked } from '../tests/utils.js';
 import { BadOptionError } from '../errors.js';
 import prefixes from '../prefixes.js';
 import type { NewCommandReporter } from '../reporters/new-command.js';

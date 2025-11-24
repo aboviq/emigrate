@@ -10,8 +10,8 @@ import {
   type NonFailedMigrationHistoryEntry,
   type Storage,
 } from '@emigrate/types';
-import { toSerializedError } from './errors.js';
-import type { NewCommandReporter } from './reporters/new-command.js';
+import { toSerializedError } from '../errors.js';
+import type { NewCommandReporter } from '../reporters/new-command.js';
 
 export type Mocked<T> = {
   // eslint-disable-next-line @typescript-eslint/ban-types

@@ -12,7 +12,7 @@ import {
   UnexpectedError,
 } from '../errors.js';
 import { type DefaultConfig } from '../types.js';
-import { withLeadingPeriod } from '../with-leading-period.js';
+import { withLeadingPeriod } from '../utils/with-leading-period.js';
 import { type GetMigrationsFunction } from '../get-migrations.js';
 import { exec } from '../exec.js';
 import { migrationRunner } from '../migration-runner.js';
