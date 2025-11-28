@@ -1,11 +1,11 @@
 import { beforeEach, describe, it, mock } from 'node:test';
 import assert from 'node:assert';
+import type { RunnableMigration } from '../types/migrations.js';
 import { getMockedConfig } from '../tests/config.js';
 import { assertStorageRemoved } from '../tests/storage.js';
 import { assertCommandDone, assertCommandFailed } from '../tests/plugin.js';
 import { CommandAbortError, MigrationNotRunError, OptionNeededError } from '../errors.js';
 import { removeCommand } from './new-remove.js';
-import type { RunnableMigration } from '../types/migrations.js';
 
 describe('new remove command', () => {
   const doneMigration1 = mock.fn(async function doneMigration1() {});
@@ -258,7 +258,7 @@ describe('new remove command', () => {
       assertCommandDone(plugin, [[failedMigration.name, 'removed']]);
     });
 
-    it('calls done with all migrations skipped except the removed one', async () => {
+    it('calls done with only the removed migration', async () => {
       // Given
       const { config, plugin } = getMockedConfig([
         [doneMigration1, 'done'],
@@ -270,12 +270,8 @@ describe('new remove command', () => {
       await removeCommand({ ...config, name: failedMigration.name });
 
       // Then
-      // Note: Migrations that are already done/failed in history retain their state when skipped
-      assertCommandDone(plugin, [
-        [doneMigration1.name, 'done'],
-        [failedMigration.name, 'removed'],
-        [doneMigration2.name, 'done'],
-      ]);
+      // Only the removed migration should be in the finished list
+      assertCommandDone(plugin, [[failedMigration.name, 'removed']]);
     });
 
     it('calls done with an error when trying to remove a done migration without force', async () => {
@@ -337,7 +333,7 @@ describe('new remove command', () => {
       assertCommandDone(plugin, []);
     });
 
-    it('calls done with all migrations with their original state when the specified migration is not found', async () => {
+    it('calls done with empty array when the specified migration is not found', async () => {
       // Given
       const { config, plugin } = getMockedConfig([
         [doneMigration1, 'done'],
@@ -348,14 +344,11 @@ describe('new remove command', () => {
       await removeCommand({ ...config, name: 'nonexistentMigration' });
 
       // Then
-      // Note: Migrations that are already done in history retain their state when skipped
-      assertCommandDone(plugin, [
-        [doneMigration1.name, 'done'],
-        [doneMigration2.name, 'done'],
-      ]);
+      // No migration should be in the finished list when the specified migration is not found
+      assertCommandDone(plugin, []);
     });
 
-    it('calls done with force removal of done migration', async () => {
+    it('calls done with only the force removed done migration', async () => {
       // Given
       const { config, plugin } = getMockedConfig([
         [doneMigration1, 'done'],
@@ -366,10 +359,8 @@ describe('new remove command', () => {
       await removeCommand({ ...config, name: doneMigration1.name, force: true });
 
       // Then
-      assertCommandDone(plugin, [
-        [doneMigration1.name, 'removed'],
-        [doneMigration2.name, 'done'],
-      ]);
+      // Only the removed migration should be in the finished list
+      assertCommandDone(plugin, [[doneMigration1.name, 'removed']]);
     });
   });
 });

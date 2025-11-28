@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { createEmigrateContext } from '../context/index.js';
 import { MigrationNotRunError, OptionNeededError } from '../errors.js';
 import type { EmigrateConfig } from '../types/config.js';
@@ -13,12 +14,7 @@ type ExtraFlags = {
 
 type RemoveOptions = Simplify<EmigrateConfig & ExtraFlags>;
 
-export const removeCommand = async ({
-  force,
-  abortSignal,
-  name,
-  ...config
-}: RemoveOptions): Promise<boolean> => {
+export const removeCommand = async ({ force, abortSignal, name, ...config }: RemoveOptions): Promise<boolean> => {
   const context = await createEmigrateContext({ config, abortSignal, command: 'remove' });
 
   await context.setup();
@@ -30,8 +26,8 @@ export const removeCommand = async ({
   }));
 
   for (const migration of context.migrations.values()) {
+    // Ignore migrations that don't match the specified name
     if (migration.identifier !== name) {
-      await context.skip(migration);
       continue;
     }
 
