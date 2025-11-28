@@ -131,6 +131,20 @@ describe('new remove command', () => {
       // Then
       assertStorageRemoved(storage, [failedMigration.name]);
     });
+
+    it('does not remove any migration when abortSignal is already aborted before the command runs', async () => {
+      // Given
+      const abortController = new AbortController();
+      const abortError = CommandAbortError.fromReason('Aborted before command');
+      abortController.abort(abortError);
+      const { config, storage } = getMockedConfig([[failedMigration, 'failed', migrationError]]);
+
+      // When
+      await removeCommand({ ...config, name: failedMigration.name, abortSignal: abortController.signal });
+
+      // Then
+      assertStorageRemoved(storage, []);
+    });
   });
 
   /**
