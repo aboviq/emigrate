@@ -94,3 +94,14 @@ export const assertStorageUnlocked = (storage: MockedStorage, entries: string[])
 
   assert.deepStrictEqual(unlockedMigrations, entries, 'Unlocked migrations do not match');
 };
+
+export const assertStorageRemoved = (storage: MockedStorage, entries: string[]): void => {
+  assert.strictEqual(storage.remove.mock.callCount(), entries.length, 'Unexpected number of remove calls');
+
+  entries.forEach((identifier, index) => {
+    const call = storage.remove.mock.calls[index];
+    const removedIdentifier = call?.arguments[0].identifier;
+
+    assert.strictEqual(removedIdentifier, identifier, `Removed identifier does not match for entry ${index}`);
+  });
+};

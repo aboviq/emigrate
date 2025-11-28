@@ -4,7 +4,7 @@ import assert from 'node:assert';
 import type { BasePluginHooks } from '../types/plugins.js';
 import { assertErrorEqualEnough, type Mocked } from './utils.js';
 
-type MockedFinished = [string, 'done' | 'skip'] | [string, 'failed', Error];
+type MockedFinished = [string, 'done' | 'skip' | 'removed'] | [string, 'failed', Error];
 
 export type MockedPlugin = { name: string; hooks: Mocked<BasePluginHooks> };
 
