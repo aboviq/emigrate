@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { defineConfig } from '../config/index.js';
 import inline from '../plugins/inline.js';
 import type { EmigrateConfig } from '../types/config.js';
@@ -29,7 +30,7 @@ export const getMockedConfig = (
   const debugPlugin: EmigratePlugin = {
     name: 'emigrate-plugin-debug',
     hooks: {
-      'emigrate:migrations:collected': ({ migrations, logger }) => {
+      'emigrate:migrations:collected'({ migrations, logger }) {
         if (migrations.size === 0) {
           logger.debug('No migrations collected');
           return;
@@ -39,7 +40,7 @@ export const getMockedConfig = (
           migrations: [...migrations.keys()],
         });
       },
-      'emigrate:migrations:loaded': ({ migrations, logger }) => {
+      'emigrate:migrations:loaded'({ migrations, logger }) {
         if (migrations.size === 0) {
           logger.debug('No migrations loaded');
           return;
@@ -49,16 +50,16 @@ export const getMockedConfig = (
           migrations: [...migrations.keys()],
         });
       },
-      'emigrate:migration:execute': ({ migration, logger }) => {
+      'emigrate:migration:execute'({ migration, logger }) {
         logger.debug(`Executing migration: ${migration.identifier}`, { migration });
       },
-      'emigrate:migration:wait': ({ migration, logger }) => {
+      'emigrate:migration:wait'({ migration, logger }) {
         logger.debug(`Waiting for migration: ${migration.identifier}`, { migration });
       },
-      'emigrate:migration:done': ({ migration, logger }) => {
+      'emigrate:migration:done'({ migration, logger }) {
         logger.debug(`Migration done: ${migration.identifier}`, { migration });
       },
-      'emigrate:command:done': ({ error, logger }) => {
+      'emigrate:command:done'({ error, logger }) {
         if (error) {
           logger.debug(`Command failed with error: ${error.message}`, { error });
         } else {

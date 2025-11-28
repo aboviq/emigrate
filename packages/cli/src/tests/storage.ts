@@ -1,7 +1,7 @@
 import { mock } from 'node:test';
+import assert from 'node:assert';
 import type { EmigrateStorage } from '../types/storage.js';
 import type { Mocked } from './utils.js';
-import assert from 'node:assert';
 
 type MockedEntry = [string] | [string, Error];
 
@@ -13,17 +13,15 @@ export const getMockedStorage = (historyEntries: MockedEntry[]): MockedStorage =
     init: mock.fn(async () => {
       // void
     }),
-    lock: mock.fn(async (migrations) => migrations.slice()),
+    lock: mock.fn(async (migrations) => [...migrations]),
     unlock: mock.fn(async () => {
       // void
     }),
     getHistory: mock.fn(async function* () {
       for (const entry of historyEntries) {
-        if (entry.length === 1) {
-          yield { identifier: entry[0], state: { status: 'done' } };
-        } else {
-          yield { identifier: entry[0], state: { status: 'failed', error: entry[1] } };
-        }
+        yield entry.length === 1
+          ? { identifier: entry[0], state: { status: 'done' } }
+          : { identifier: entry[0], state: { status: 'failed', error: entry[1] } };
       }
     }),
     remove: mock.fn(),
@@ -40,7 +38,7 @@ export const getMockedStorage = (historyEntries: MockedEntry[]): MockedStorage =
 export const assertStorageLogged = (storage: MockedStorage, entries: MockedEntry[]): void => {
   assert.strictEqual(storage.log.mock.callCount(), entries.length, 'Unexpected number of log calls');
 
-  entries.forEach((entry, index) => {
+  for (const [index, entry] of entries.entries()) {
     const call = storage.log.mock.calls[index];
     const loggedIdentifier = call?.arguments[0].identifier;
     const loggedError = call?.arguments[1];
@@ -57,18 +55,18 @@ export const assertStorageLogged = (storage: MockedStorage, entries: MockedEntry
     } else {
       assert.strictEqual(loggedError, undefined, `Expected no error to be logged for entry ${index}`);
     }
-  });
+  }
 };
 
 export const assertStorageWaited = (storage: MockedStorage, entries: string[]): void => {
   assert.strictEqual(storage.wait.mock.callCount(), entries.length, 'Unexpected number of wait calls');
 
-  entries.forEach((identifier, index) => {
+  for (const [index, identifier] of entries.entries()) {
     const call = storage.wait.mock.calls[index];
     const waitedIdentifier = call?.arguments[0].identifier;
 
     assert.strictEqual(waitedIdentifier, identifier, `Waited identifier does not match for entry ${index}`);
-  });
+  }
 };
 
 export const assertStorageLocked = (storage: MockedStorage, entries: string[]): void => {

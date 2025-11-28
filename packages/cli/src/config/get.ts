@@ -1,7 +1,7 @@
 import process from 'node:process';
+import path from 'node:path';
 import { cosmiconfig, defaultLoaders } from 'cosmiconfig';
 import type { EmigrateConfig } from '../types/config.js';
-import path from 'node:path';
 import { relativize } from '../utils/relativize.js';
 
 const canImportTypeScriptAsIs = Boolean(process.isBun) || typeof Deno !== 'undefined';
@@ -23,15 +23,16 @@ export const getConfig = async (
   forceImportTypeScriptAsIs = false,
 ): Promise<EmigrateConfig> => {
   const explorer = cosmiconfig('emigrate', {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     loaders:
       forceImportTypeScriptAsIs || canImportTypeScriptAsIs
-        ? { '.ts': defaultLoaders['.js'], '.cts': defaultLoaders['.cjs'], '.mts': defaultLoaders['.mjs'] }
+        ? // eslint-disable-next-line @typescript-eslint/naming-convention
+          { '.ts': defaultLoaders['.js'], '.cts': defaultLoaders['.cjs'], '.mts': defaultLoaders['.mjs'] }
         : undefined,
   });
 
   const result = await explorer.search(cwd);
 
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (result?.isEmpty || !result?.config) {
     return {};
   }

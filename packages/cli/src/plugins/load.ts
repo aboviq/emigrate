@@ -1,3 +1,4 @@
+import process from 'node:process';
 import type { EmigratePlugin } from '../types/plugins.js';
 import type { StringOrModule } from '../types/utils.js';
 
@@ -41,6 +42,8 @@ const loadPluginByName = async (name: string, prefixes: string[], cwd: string): 
 };
 
 export const getOrLoadPlugin = async (
+  // Allow "null" for convenience in other code bases
+  // eslint-disable-next-line @typescript-eslint/ban-types
   plugin: StringOrModule<EmigratePlugin | false | null | undefined>,
   cwd: string = process.cwd(),
 ): Promise<EmigratePlugin | undefined> => {

@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { createEmigrateContext } from '../context/index.js';
 import { MigrationHistoryError } from '../errors.js';
 import type { EmigrateConfig } from '../types/config.js';
@@ -66,11 +67,7 @@ export const upCommand = async ({
   await context.lock(toRun);
 
   for (const migration of toRun) {
-    if (noExecution) {
-      await context.log(migration);
-    } else {
-      await context.execute(migration);
-    }
+    await (noExecution ? context.log(migration) : context.execute(migration));
   }
 
   return context.done();

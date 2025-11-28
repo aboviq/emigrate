@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import type { EmigratePlugin } from '../types/plugins.js';
 import type { Awaitable } from '../types/utils.js';
 
@@ -5,7 +6,7 @@ const createInlinePlugin = (migrations: Array<() => Awaitable<void>>): EmigrateP
   return {
     name: 'emigrate-plugin-inline',
     hooks: {
-      'emigrate:migrations:collect': ({ collectMigration }) => {
+      'emigrate:migrations:collect'({ collectMigration }) {
         for (const migrationFunction of migrations) {
           if (!migrationFunction.name) {
             throw new Error('Inline migration functions must have a name');
@@ -17,7 +18,7 @@ const createInlinePlugin = (migrations: Array<() => Awaitable<void>>): EmigrateP
           });
         }
       },
-      'emigrate:migrations:load': ({ migration, setMigrationFunction }) => {
+      'emigrate:migrations:load'({ migration, setMigrationFunction }) {
         const migrationFunction = migrations.find((m) => m.name === migration.identifier);
 
         if (migrationFunction) {

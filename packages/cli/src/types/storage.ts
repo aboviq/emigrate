@@ -8,6 +8,35 @@ export type EmigrateStorage = {
   name: string;
 
   /**
+   * Called when the command is finished or aborted (e.g. by a SIGTERM or SIGINT signal).
+   *
+   * Use this to clean up any resources like database connections or file handles.
+   *
+   * Is optional.
+   */
+  end?: () => Promise<void>;
+
+  /**
+   * Called for pending migrations that couldn't be locked, instead of executing them.
+   *
+   * This is important for concurrent migration runs (e.g. in clustered environments where multiple instances might try to run migrations at the same time).
+   * The first instance to acquire the lock will execute the migrations, while the others will wait for the migrations to be done.
+   * And if a migration fails, those waiting for the migration should also throw an error.
+   * This way the system remains consistent and no instance proceeds with an incomplete migration state,
+   * i.e. the whole deployment should fail if any instance encounters a migration failure.
+   *
+   * Usually implemented by polling the migration state until it is no longer locked.
+   *
+   * If not implemented, pending migrations that couldn't be locked will simply be skipped.
+   * I.e. in concurrent migration runs, only the instance that acquired the lock will run the migrations,
+   * while the others will skip them and continue as if the migrations were already executed.
+   * This might lead to crashes or inconsistent states if the application expects certain migrations to be executed.
+   *
+   * @param migration The migration that should be waited for.
+   */
+  wait?: (migration: RunnableMigration) => Promise<void>;
+
+  /**
    * Initialize the storage plugin.
    *
    * Called at the beginning of a migration command.
@@ -27,7 +56,7 @@ export type EmigrateStorage = {
    *
    * @returns The migrations that were successfully locked.
    */
-  lock(migrations: ReadonlyArray<RunnableMigration>): Promise<RunnableMigration[]>;
+  lock(migrations: readonly RunnableMigration[]): Promise<RunnableMigration[]>;
 
   /**
    * The unlock method is called after all migrations have been executed or when the process is interrupted (e.g. by a SIGTERM or SIGINT signal).
@@ -36,7 +65,7 @@ export type EmigrateStorage = {
    *
    * @param migrations The previously successfully locked migrations that should now be unlocked.
    */
-  unlock(migrations: ReadonlyArray<RunnableMigration>): Promise<void>;
+  unlock(migrations: readonly RunnableMigration[]): Promise<void>;
 
   /**
    * Remove a migration from the history.
@@ -68,33 +97,4 @@ export type EmigrateStorage = {
    * @param error An optional error if the migration failed. Serialized for easy storage.
    */
   log(migration: RunnableMigration, error?: SerializedError): Promise<void>;
-
-  /**
-   * Called for pending migrations that couldn't be locked, instead of executing them.
-   *
-   * This is important for concurrent migration runs (e.g. in clustered environments where multiple instances might try to run migrations at the same time).
-   * The first instance to acquire the lock will execute the migrations, while the others will wait for the migrations to be done.
-   * And if a migration fails, those waiting for the migration should also throw an error.
-   * This way the system remains consistent and no instance proceeds with an incomplete migration state,
-   * i.e. the whole deployment should fail if any instance encounters a migration failure.
-   *
-   * Usually implemented by polling the migration state until it is no longer locked.
-   *
-   * If not implemented, pending migrations that couldn't be locked will simply be skipped.
-   * I.e. in concurrent migration runs, only the instance that acquired the lock will run the migrations,
-   * while the others will skip them and continue as if the migrations were already executed.
-   * This might lead to crashes or inconsistent states if the application expects certain migrations to be executed.
-   *
-   * @param migration The migration that should be waited for.
-   */
-  wait?: (migration: RunnableMigration) => Promise<void>;
-
-  /**
-   * Called when the command is finished or aborted (e.g. by a SIGTERM or SIGINT signal).
-   *
-   * Use this to clean up any resources like database connections or file handles.
-   *
-   * Is optional.
-   */
-  end?: () => Promise<void>;
 };

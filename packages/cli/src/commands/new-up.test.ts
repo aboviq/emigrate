@@ -1,7 +1,6 @@
 import { beforeEach, describe, it, mock } from 'node:test';
-import { getMockedConfig } from '../tests/config.js';
-import { upCommand } from './new-up.js';
 import assert from 'node:assert';
+import { getMockedConfig } from '../tests/config.js';
 import {
   assertStorageLocked,
   assertStorageLogged,
@@ -10,6 +9,7 @@ import {
 } from '../tests/storage.js';
 import { assertCommandDone, assertCommandFailed } from '../tests/plugin.js';
 import { CommandAbortError, MigrationHistoryError, MigrationRunError, MigrationWaitError } from '../errors.js';
+import { upCommand } from './new-up.js';
 
 describe('new up command', () => {
   const doneMigration = mock.fn(async function doneMigration() {});
@@ -1218,9 +1218,9 @@ describe('new up command', () => {
       // Given
       // Use an object to define migrations to preserve their names with extensions
       const migrations = {
-        'newMigration.js': async () => {},
-        'anotherMigration.ts': async () => {},
-        'yetAnother.sql': async () => {},
+        async 'newMigration.js'() {},
+        async 'anotherMigration.ts'() {},
+        async 'yetAnother.sql'() {},
       };
       const newMigration = mock.fn(migrations['newMigration.js']);
       const anotherMigration = mock.fn(migrations['anotherMigration.ts']);

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { mock } from 'node:test';
+import assert from 'node:assert';
 import type { BasePluginHooks } from '../types/plugins.js';
 import { assertErrorEqualEnough, type Mocked } from './utils.js';
-import assert from 'node:assert';
 
 type MockedFinished = [string, 'done' | 'skip'] | [string, 'failed', Error];
 

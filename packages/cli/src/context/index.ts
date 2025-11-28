@@ -1,3 +1,5 @@
+import path from 'node:path';
+import process from 'node:process';
 import { getConsoleSink, jsonLinesFormatter } from '@logtape/logtape';
 import { getConfig } from '../config/get.js';
 import { mergeConfig } from '../config/merge.js';
@@ -23,7 +25,7 @@ import type { Logger, LogLevel } from '../types/logging.js';
 import type { EmigratePlugin } from '../types/plugins.js';
 import type { EmigrateStorage } from '../types/storage.js';
 import {
-  MigrationIdentifier,
+  type MigrationIdentifier,
   type CollectedMigration,
   type FinishedMigration,
   type LoadedMigration,
@@ -35,9 +37,8 @@ import { exec } from '../utils/exec.js';
 import { toError, toSerializedError } from '../utils/errors.js';
 import { createFailsafeStorage } from '../plugins/storage.js';
 import type { FailsafeStorage } from '../types/internal.js';
-import path from 'node:path';
 
-interface ContextOptions {
+type ContextOptions = {
   /**
    * The command to run
    */
@@ -69,9 +70,9 @@ interface ContextOptions {
    * Provided by the CLI and aborted on SIGINT/SIGTERM
    */
   abortSignal?: AbortSignal;
-}
+};
 
-interface EmigrateContext {
+type EmigrateContext = {
   /**
    * The command being run
    */
@@ -175,13 +176,14 @@ interface EmigrateContext {
    * @returns `true` if all migrations were successful, `false` otherwise
    */
   done: () => Promise<boolean>;
-}
+};
 
 const logger = getDefaultLogger();
 
 const getDefaultLoggingConfig = (logLevel: LogLevel) => {
   return defineLoggingConfig({
     sinks: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'emigrate:main': getConsoleSink({ formatter: jsonLinesFormatter }),
     },
     loggers: [
@@ -416,7 +418,7 @@ function createLifecycleFunctions({
     }));
 
     if (command !== 'up') {
-      toLock.forEach((m) => runtime.lockedMigrations.add(m));
+      for (const m of toLock) runtime.lockedMigrations.add(m);
 
       logger.debug(`All migrations locked for command "${command}"`, () => ({
         migrations: toLock.map((m) => m.identifier),
@@ -469,6 +471,7 @@ function createLifecycleFunctions({
         continue;
       }
 
+      // eslint-disable-next-line no-await-in-loop
       await skip(migration);
     }
 
@@ -520,11 +523,12 @@ async function resolveConfig(
   abortSignal?: AbortSignal,
 ) {
   let storage: EmigrateStorage | undefined;
-  const resolvedPlugins: Array<EmigratePlugin> = [];
+  const resolvedPlugins: EmigratePlugin[] = [];
   const loadedPluginNames = new Set<string>();
 
   // We need an ordinary for-loop here to allow plugins to add new plugins during setup
   for (let index = 0; index < (emigrateConfig.plugins ?? []).length; index++) {
+    // eslint-disable-next-line no-await-in-loop
     const plugin = await getOrLoadPlugin(emigrateConfig.plugins?.[index], cwd);
 
     if (!plugin) {
@@ -552,11 +556,13 @@ async function resolveConfig(
       });
     };
 
+    // eslint-disable-next-line no-await-in-loop
     await runHook({
       plugin,
       hookName: 'emigrate:config:setup',
       // Params is a function here so that we always get the latest config/storage values if they are modified by plugins
-      params() {
+      // eslint-disable-next-line @typescript-eslint/no-loop-func
+      parameters() {
         return {
           config: emigrateConfig,
           command,
@@ -628,6 +634,7 @@ async function getMigrations(hooksRunner: HooksRunner, storage: FailsafeStorage,
   });
 
   for (const [identifier, collectedMigration] of collectedMigrations) {
+    // eslint-disable-next-line no-await-in-loop
     await hooksRunner('emigrate:migrations:load', {
       migration: collectedMigration,
       loadedMigrations,
@@ -668,7 +675,7 @@ async function getMigrations(hooksRunner: HooksRunner, storage: FailsafeStorage,
 
       loadedDryRunMigrations.set(identifier, {
         ...collectedMigration,
-        execute: async () => {
+        async execute() {
           /* no-op */
         },
       });

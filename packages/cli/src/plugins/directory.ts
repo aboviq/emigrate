@@ -1,17 +1,20 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+import process from 'node:process';
 import { promisify } from 'node:util';
-
 import type { EmigratePlugin } from '../types/plugins.js';
 import type { CollectedMigration, MigrationFunction } from '../types/migrations.js';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Emigrate {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     export interface MigrationMetadata {
       'directory-plugin'?: DirectoryPluginMigrationMetadata;
     }
   }
 }
 
-interface DirectoryPluginMigrationMetadata {
+type DirectoryPluginMigrationMetadata = {
   /**
    * The name of the migration file
    *
@@ -48,7 +51,7 @@ interface DirectoryPluginMigrationMetadata {
    * @example .js
    */
   extension: string;
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const promisifyIfNeeded = <T extends Function>(fn: T) => {
@@ -65,7 +68,7 @@ const promisifyIfNeeded = <T extends Function>(fn: T) => {
   );
 };
 
-const loadableExtensions = ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts'];
+const loadableExtensions = new Set(['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts']);
 
 const getMigrationFunction = async (migration: CollectedMigration): Promise<MigrationFunction> => {
   const meta = migration.meta['directory-plugin'];
@@ -105,12 +108,12 @@ const createDirectoryPlugin = (directory: string): EmigratePlugin => {
   const directoryLoadPlugin: EmigratePlugin = {
     name: 'emigrate-plugin-directory/load',
     hooks: {
-      'emigrate:migrations:load': async ({ migration, loadedMigrations, setMigrationFunction }) => {
+      async 'emigrate:migrations:load'({ migration, loadedMigrations, setMigrationFunction }) {
         // Skip if already loaded or not a directory migration
         if (
           loadedMigrations.has(migration.identifier) ||
           !migration.meta['directory-plugin'] ||
-          !loadableExtensions.includes(migration.meta['directory-plugin'].extension)
+          !loadableExtensions.has(migration.meta['directory-plugin'].extension)
         ) {
           return;
         }
@@ -125,12 +128,12 @@ const createDirectoryPlugin = (directory: string): EmigratePlugin => {
   return {
     name: 'emigrate-plugin-directory',
     hooks: {
-      'emigrate:config:setup': ({ updateConfig }) => {
+      'emigrate:config:setup'({ updateConfig }) {
         // Add the directory load plugin to the config plugins
         // this way it's run after user-defined plugins, so any custom loaders have priority
         updateConfig({ plugins: [directoryLoadPlugin] });
       },
-      'emigrate:migrations:collect': async ({ collectMigration }) => {
+      async 'emigrate:migrations:collect'({ collectMigration }) {
         const { getMigrations } = await import('../get-migrations.js');
 
         const migrations = await getMigrations(process.cwd(), directory);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import type { EmigrateCommand, EmigrateConfig, EmigrateResolvedConfig } from './config.js';
 import type { Logger, LogLevel } from './logging.js';
 import type {
@@ -12,14 +13,14 @@ import type { Simplify } from './simplify.js';
 import type { EmigrateStorage } from './storage.js';
 import type { Awaitable, DeepPartial } from './utils.js';
 
-export interface EmigratePlugin {
+export type EmigratePlugin = {
   name: string;
   hooks: {
     [K in keyof Emigrate.PluginHooks]?: Emigrate.PluginHooks[K];
   } & Partial<Record<string, unknown>>;
-}
+};
 
-export interface BasePluginHooks {
+export type BasePluginHooks = {
   'emigrate:config:setup': (options: {
     command: EmigrateCommand;
     config: EmigrateConfig;
@@ -87,7 +88,7 @@ export interface BasePluginHooks {
     migrations: ReadonlyMap<MigrationIdentifier, FinishedMigration>;
     error?: Error;
   }) => Awaitable<void>;
-}
+};
 
 export type HookParameters<
   Hook extends keyof EmigratePlugin['hooks'],

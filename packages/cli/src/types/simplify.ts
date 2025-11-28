@@ -56,4 +56,5 @@ fn(someInterface as Simplify<SomeInterface>); // Good: transform an `interface` 
 @link https://github.com/microsoft/TypeScript/issues/15300
 @category Object
 */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};

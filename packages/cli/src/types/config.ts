@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import type { LogFormatter, LogLevel, LogSink } from './logging.js';
 import type { EmigratePlugin } from './plugins.js';
 import type { Simplify } from './simplify.js';
@@ -75,7 +76,7 @@ export type EmigrateResolvedBaseConfig = {
    *
    * See {@link EmigratePlugin} for details.
    */
-  plugins: Array<EmigratePlugin>;
+  plugins: EmigratePlugin[];
 
   /**
    * The log level for the CLI output
