@@ -1,11 +1,11 @@
 import { setTimeout } from 'node:timers';
 import prettyMs from 'pretty-ms';
-import { ExecutionDesertedError, toError } from './errors.js';
-import { DEFAULT_RESPITE_SECONDS } from './defaults.js';
+import { ExecutionDesertedError, toError } from '../errors.js';
+import { DEFAULT_RESPITE_SECONDS } from '../defaults.js';
 
-type Result<T> = [value: T, error: undefined] | [value: undefined, error: Error];
+export type Result<T> = [value: T, error: undefined] | [value: undefined, error: Error];
 
-type ExecOptions = {
+export type ExecOptions = {
   abortSignal?: AbortSignal;
   abortRespite?: number;
 };

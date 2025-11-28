@@ -28,8 +28,8 @@
   "scripts": {
     "build": "tsc --pretty",
     "build:watch": "tsc --pretty --watch",
-    "test": "glob -c \"node --import tsx --test-reporter spec --test\" \"./src/**/*.test.ts\"",
-    "test:watch": "glob -c \"node --watch --import tsx --test-reporter spec --test\" \"./src/**/*.test.ts\"",
+    "test": "node --import tsx --test-reporter spec --test",
+    "test:watch": "node --watch --import tsx --test-reporter spec --test",
     "lint": "xo --cwd=../.. $(pwd)"
   },
   "keywords": [
@@ -56,6 +56,7 @@
     "@inquirer/confirm": "5.1.9",
     "@inquirer/input": "4.1.9",
     "@inquirer/select": "4.2.0",
+    "@logtape/logtape": "1.2.0",
     "cosmiconfig": "9.0.0",
     "elegant-spinner": "3.0.0",
     "figures": "6.0.1",

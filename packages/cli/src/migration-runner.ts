@@ -10,7 +10,7 @@ import {
   type SuccessfulMigrationMetadata,
 } from '@emigrate/types';
 import { toError, EmigrateError, MigrationRunError, BadOptionError } from './errors.js';
-import { exec } from './exec.js';
+import { exec } from './utils/exec.js';
 import { getDuration } from './utils/get-duration.js';
 
 type MigrationRunnerParameters<T extends MigrationMetadata | MigrationMetadataFinished> = {

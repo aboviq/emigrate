@@ -12,7 +12,7 @@ import {
   toError,
 } from '../errors.js';
 import { type DefaultConfig } from '../types.js';
-import { exec } from '../exec.js';
+import { exec } from '../utils/exec.js';
 import { version } from '../get-package-info.js';
 import { collectMigrations } from '../collect-migrations.js';
 import { migrationRunner } from '../migration-runner.js';
