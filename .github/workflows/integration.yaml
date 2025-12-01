@@ -19,6 +19,7 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       DO_NOT_TRACK: 1
+      ASTRO_TELEMETRY_DISABLED: 1
 
     services:
       mysql:
