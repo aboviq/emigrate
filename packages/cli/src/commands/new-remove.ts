@@ -2,7 +2,6 @@
 import { createEmigrateContext } from '../context/index.js';
 import { MigrationNotRunError, OptionNeededError } from '../errors.js';
 import type { EmigrateConfig } from '../types/config.js';
-import type { RunnableMigration } from '../types/migrations.js';
 import type { Simplify } from '../types/simplify.js';
 
 type ExtraFlags = {
@@ -18,8 +17,6 @@ export const removeCommand = async ({ force, abortSignal, name, ...config }: Rem
   const context = await createEmigrateContext({ config, abortSignal, command: 'remove' });
 
   await context.setup();
-
-  const toRemove: RunnableMigration[] = [];
 
   context.logger.debug(`Starting 'remove' command`, () => ({
     migrations: [...context.migrations.values()],
@@ -48,14 +45,8 @@ export const removeCommand = async ({ force, abortSignal, name, ...config }: Rem
       break;
     }
 
-    toRemove.push(migration);
-  }
-
-  // The lock call is required by the context's state machine to enable execution
-  await context.lock(toRemove);
-
-  for (const migration of toRemove) {
     await context.remove(migration);
+    break;
   }
 
   return context.done();
