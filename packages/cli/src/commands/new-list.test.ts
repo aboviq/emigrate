@@ -79,10 +79,8 @@ describe('new list command', () => {
       ]);
 
       // Capture the order by inspecting the plugin callback
-      const originalDoneHook = plugin.hooks['emigrate:migration:done'];
-      plugin.hooks['emigrate:migration:done'] = mock.fn((parameters) => {
+      plugin.hooks['emigrate:migration:done'].mock.mockImplementation((parameters) => {
         finishOrder.push(parameters.migration.identifier);
-        return originalDoneHook(parameters);
       });
 
       // When
@@ -315,6 +313,22 @@ describe('new list command', () => {
 
       // Then
       assertCommandFailed(plugin, abortError);
+    });
+
+    it('calls done with an error when there is a failed migration', async () => {
+      // Given
+      const { config, plugin } = getMockedConfig([
+        [doneMigration, 'done'],
+        [failedMigration, 'failed', migrationError],
+        [pendingMigration1, 'pending'],
+      ]);
+
+      // When
+      await listCommand(config);
+
+      // Then
+      // The finish method propagates the failed migration's error
+      assertCommandFailed(plugin, migrationError);
     });
   });
 });

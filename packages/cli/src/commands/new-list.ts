@@ -10,8 +10,8 @@ type ExtraFlags = {
 
 type ListOptions = Simplify<EmigrateConfig & ExtraFlags>;
 
-export const listCommand = async ({ abortSignal, ...config }: ListOptions): Promise<boolean> => {
-  const context = await createEmigrateContext({ config, abortSignal, command: 'list' });
+export const listCommand = async ({ cwd, abortSignal, ...config }: ListOptions): Promise<boolean> => {
+  const context = await createEmigrateContext({ cwd, config, abortSignal, command: 'list' });
 
   await context.setup();
 
