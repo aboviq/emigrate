@@ -3,6 +3,12 @@ name: CI
 on:
   push:
     branches: ['main', 'changeset-release/main']
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
