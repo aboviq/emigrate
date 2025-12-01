@@ -18,6 +18,7 @@ permissions:
 env:
   ASTRO_SITE: ${{ vars.ASTRO_SITE }}
   ASTRO_BASE: ${{ vars.ASTRO_BASE }}
+  ASTRO_TELEMETRY_DISABLED: 1
 
 jobs:
   build:

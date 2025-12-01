@@ -18,7 +18,7 @@ import {
   toEntry,
   toMigrations,
   type Mocked,
-} from '../test-utils.js';
+} from '../tests/utils.js';
 import removeCommand from './remove.js';
 
 describe('remove', () => {

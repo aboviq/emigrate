@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { collectMigrations } from './collect-migrations.js';
-import { toEntries, toEntry, toMigration, toMigrations } from './test-utils.js';
-import { arrayFromAsync } from './array-from-async.js';
+import { toEntries, toEntry, toMigration, toMigrations } from './tests/utils.js';
+import { arrayFromAsync } from './utils/array-from-async.js';
 import { MigrationHistoryError } from './errors.js';
 
 describe('collect-migrations', () => {

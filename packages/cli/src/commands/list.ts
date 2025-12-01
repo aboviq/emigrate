@@ -1,7 +1,7 @@
 import { getOrLoadReporter, getOrLoadStorage } from '@emigrate/plugin-tools';
 import { BadOptionError, MissingOptionError, StorageInitError, toError } from '../errors.js';
 import { type DefaultConfig } from '../types.js';
-import { exec } from '../exec.js';
+import { exec } from '../utils/exec.js';
 import { migrationRunner } from '../migration-runner.js';
 import { collectMigrations } from '../collect-migrations.js';
 import { version } from '../get-package-info.js';

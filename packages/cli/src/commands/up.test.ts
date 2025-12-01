@@ -17,7 +17,7 @@ import {
   getMockedReporter,
   getMockedStorage,
   assertErrorEqualEnough,
-} from '../test-utils.js';
+} from '../tests/utils.js';
 import upCommand from './up.js';
 
 describe('up', () => {

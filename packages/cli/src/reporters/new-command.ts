@@ -1,6 +1,6 @@
 import type { MigrationMetadata, MigrationMetadataFinished } from '@emigrate/types';
-import { indent } from '../indent.js';
-import { style } from '../style.js';
+import { indent } from '../utils/indent.js';
+import { style } from '../utils/style.js';
 import { getAbortMessage, getError, getMigrationText, getSummary, getTitle } from './ui.js';
 
 const newLine = () => {

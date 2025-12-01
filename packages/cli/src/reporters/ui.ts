@@ -3,7 +3,7 @@ import figures from 'figures';
 import isInteractive from 'is-interactive';
 import prettyMs from 'pretty-ms';
 import { type MigrationMetadata, type MigrationMetadataFinished, type ReporterInitParameters } from '@emigrate/types';
-import { style } from '../style.js';
+import { style } from '../utils/style.js';
 
 const { black, blueBright, bgBlueBright, bold, cyan, dim, gray, green, red, redBright, yellow, yellowBright } = style;
 

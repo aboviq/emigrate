@@ -22,15 +22,15 @@ import {
   toError,
 } from '../errors.js';
 import { type NewCommandConfig } from '../types.js';
-import { withLeadingPeriod } from '../with-leading-period.js';
+import { withLeadingPeriod } from '../utils/with-leading-period.js';
 import { version } from '../get-package-info.js';
-import { getDuration } from '../get-duration.js';
+import { getDuration } from '../utils/get-duration.js';
 import { newCommandReporter, type NewCommandReporter } from '../reporters/new-command.js';
 import { DEFAULT_TEMPLATE_PLUGIN } from '../defaults.js';
 import { getMigrations as getMigrationsOriginal, type GetMigrationsFunction } from '../get-migrations.js';
 import { getPrefixGenerator } from '../prefixes.js';
-import { sanitizeName } from '../sanitize-name.js';
-import { indent } from '../indent.js';
+import { sanitizeName } from '../utils/sanitize-name.js';
+import { indent } from '../utils/indent.js';
 
 type ExtraFlags = {
   cwd: string;
